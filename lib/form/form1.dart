@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:travel_world/formsec/form2.dart';
+import 'package:travel_world/lastview/lastview.dart';
 
 class Form1 extends StatefulWidget {
   @override
@@ -10,22 +11,35 @@ class _Form1State extends State<Form1> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      appBar: AppBar(
+          backgroundColor: Colors.black,
+          automaticallyImplyLeading: true,
+          //`true` if you want Flutter to automatically add Back Button when needed,
+          //or `false` if you want to force your own back button every where
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LastviewPage()),
+              );
+            },
+          )),
+      body: SingleChildScrollView(
         child: Stack(
           children: <Widget>[
             Image(
               image: AssetImage("images/ban4.png"),
             ),
             Container(
-              color: Colors.transparent,
               child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                child: Center(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       SizedBox(
-                        height: 100,
+                        height: 80,
                       ),
                       Text(
                         "PLAY NETWORK AFRICA",
@@ -50,14 +64,12 @@ class _Form1State extends State<Form1> {
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: SizedBox(
-                          height: 30,
-                        ),
+                      SizedBox(
+                        height: 50,
                       ),
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
+                            const EdgeInsets.fromLTRB(16.0, 10.0, 32.0, 10.0),
                         child: TextField(
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
@@ -75,12 +87,9 @@ class _Form1State extends State<Form1> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
+                            const EdgeInsets.fromLTRB(16.0, 10.0, 32.0, 10.0),
                         child: TextField(
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
@@ -98,12 +107,9 @@ class _Form1State extends State<Form1> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
+                            const EdgeInsets.fromLTRB(16.0, 10.0, 32.0, 10.0),
                         child: TextField(
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
@@ -122,11 +128,11 @@ class _Form1State extends State<Form1> {
                         ),
                       ),
                       SizedBox(
-                        height: 100,
+                        height: 30,
                       ),
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 0.0),
+                            const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 10.0),
                         child: ButtonTheme(
                           minWidth: 350.0,
                           height: 60.0,
@@ -154,7 +160,7 @@ class _Form1State extends State<Form1> {
                       ),
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 10.0),
                         child: Text(
                           "By clicking sign up you agree to the following",
                           style: TextStyle(
@@ -167,7 +173,7 @@ class _Form1State extends State<Form1> {
                       ),
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 10.0),
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
                         child: Text(
                           'Terms and Conditions without reservation',
                           style: TextStyle(

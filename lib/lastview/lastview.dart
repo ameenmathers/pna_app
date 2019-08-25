@@ -15,11 +15,8 @@ class _LastviewPageState extends State<LastviewPage> {
           new Card(
             child: new Container(
               decoration: new BoxDecoration(
-                color: const Color(0xFF000000),
                 image: new DecorationImage(
                   fit: BoxFit.cover,
-                  colorFilter: new ColorFilter.mode(
-                      Colors.black.withOpacity(0.8), BlendMode.dstATop),
                   image: new AssetImage(
                     'images/ban3.png',
                   ),
@@ -106,15 +103,6 @@ class _LastviewPageState extends State<LastviewPage> {
                         child: SizedBox(
                           child: Image(
                             image: AssetImage("images/person4.png"),
-                          ),
-                          height: 60,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                          child: Image(
-                            image: AssetImage("images/person5.png"),
                           ),
                           height: 60,
                         ),
