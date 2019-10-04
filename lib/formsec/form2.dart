@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:travel_world/form/form1.dart';
-import 'package:travel_world/formthird/form3.dart';
+import 'package:travel_world/register/register.dart';
 
 class Form2 extends StatefulWidget {
   @override
@@ -10,193 +10,192 @@ class Form2 extends StatefulWidget {
 class _Form2State extends State<Form2> {
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          automaticallyImplyLeading: true,
-          //`true` if you want Flutter to automatically add Back Button when needed,
-          //or `false` if you want to force your own back button every where
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Form1()),
-              );
-            },
-          )),
       backgroundColor: Colors.black,
-      body: Center(
-        child: SingleChildScrollView(
-          child: Stack(
-            children: <Widget>[
-              Container(
-                color: Colors.transparent,
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        SizedBox(
-                          height: 40,
+      body: SingleChildScrollView(
+        child: Stack(
+          children: <Widget>[
+            Center(
+              child: new Image.asset(
+                'images/ban8.png',
+                gaplessPlayback: true,
+                width: size.width,
+                height: size.height,
+                fit: BoxFit.fill,
+              ),
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            Container(
+              child: SafeArea(
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Form1()),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Text(
+                        "PLAY NETWORK AFRICA",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          decoration: TextDecoration.none,
+                          fontFamily: 'SFProDisplay',
                         ),
-                        Text(
-                          "PLAY NETWORK AFRICA",
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                        child: Text(
+                          "MEMBERSHIP APPLICATION",
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
+                            color: Colors.white70,
+                            fontSize: 18,
+                            decoration: TextDecoration.none,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'SFProDisplay',
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+                        child: Text(
+                          "BENEFITS OF BECOMING A MEMBER",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontFamily: 'SFProDisplay',
+                            fontSize: 17,
                             decoration: TextDecoration.none,
                           ),
                         ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(40.0, 0.0, 20.0, 0.0),
-                          child: Text(
-                            "To apply or log in, use your phone number",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              decoration: TextDecoration.none,
-                            ),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 0.0),
+                        child: Text(
+                          "• Discounted tickets to Play Network Africa events.",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            decoration: TextDecoration.none,
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 0.0),
+                        child: Text(
+                          "• Exclusive group travel opportunities with like-minded people.",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            decoration: TextDecoration.none,
+                          ),
                         ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Upload your best photo',
-                              fillColor: Colors.grey.shade700,
-                              focusedBorder: InputBorder.none,
-                              filled: true,
-                              labelStyle: TextStyle(
-                                color: Colors.white,
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 0.0),
+                        child: Text(
+                          "• Access to trusted insider information across various African cities",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 0.0),
+                        child: Text(
+                          "ANNUAL MEMBERSHIP FEE OF 60 USD PER YEAR",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 0.0),
+                        child: ButtonTheme(
+                          minWidth: 350.0,
+                          height: 60.0,
+                          child: RaisedButton(
+                            color: Color(0xffc67608),
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: Color(0xffc67608),
                               ),
-                              focusColor: Colors.white,
-                            ),
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'First Name',
-                              focusedBorder: InputBorder.none,
-                              filled: true,
-                              fillColor: Colors.grey.shade700,
-                              labelStyle: TextStyle(
-                                color: Colors.white,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10.0),
                               ),
-                              focusColor: Colors.white,
                             ),
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
+                            child: Text("Start Application"),
+                            textColor: Colors.white,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Register()),
+                              );
+                            },
                           ),
                         ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Last Name',
-                              focusedBorder: InputBorder.none,
-                              filled: true,
-                              fillColor: Colors.grey.shade700,
-                              labelStyle: TextStyle(
-                                color: Colors.white,
-                              ),
-                              focusColor: Colors.white,
-                            ),
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 0.0),
-                          child: ButtonTheme(
-                            minWidth: 350.0,
-                            height: 60.0,
-                            child: RaisedButton(
-                              color: Colors.amber,
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: Colors.amber,
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10.0),
-                                ),
-                              ),
-                              child: Text("Next"),
-                              textColor: Colors.white,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Form3()),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          child: Text(
-                            "By clicking sign up you agree to the following",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              decoration: TextDecoration.none,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 10.0),
-                          child: Text(
-                            'Terms and Conditions without reservation',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              decoration: TextDecoration.none,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              )
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );

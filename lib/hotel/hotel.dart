@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:travel_world/navigation/navigation.dart';
+import 'package:travel_world/privileges/privilege.dart';
 
 class Hotel extends StatefulWidget {
+  final String currentUserId;
+
+  Hotel({Key key, @required this.currentUserId}) : super(key: key);
+
   @override
-  _HotelState createState() => _HotelState();
+  State createState() => HotelState(currentUserId: currentUserId);
 }
 
-class _HotelState extends State<Hotel> {
+class HotelState extends State<Hotel> {
+  HotelState({Key key, @required this.currentUserId});
+
+  final String currentUserId;
   void _showModalSheet() {
     showModalBottomSheet(
         context: context,
@@ -62,7 +69,9 @@ class _HotelState extends State<Hotel> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Navigation()),
+                MaterialPageRoute(
+                    builder: (context) =>
+                        Privilege(currentUserId: currentUserId)),
               );
             },
           )),
@@ -82,47 +91,7 @@ class _HotelState extends State<Hotel> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       SizedBox(
-                        height: 400,
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(20.0, 0.0, 32.0, 16.0),
-                        child: Row(
-                          children: <Widget>[
-                            Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    0.0, 0.0, 0.0, 0.0),
-                                child: Icon(
-                                  Icons.place,
-                                  color: Colors.white,
-                                  size: 30,
-                                )),
-                            Text(
-                              'PNA',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              width: 100,
-                            ),
-                            Text(
-                              'with',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 18,
-                              ),
-                            ),
-                            Image(
-                              image: AssetImage(
-                                'images/person1.png',
-                              ),
-                              width: 30,
-                              height: 30,
-                            ),
-                          ],
-                        ),
+                        height: 200,
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
@@ -177,10 +146,10 @@ class _HotelState extends State<Hotel> {
                                 minWidth: 350.0,
                                 height: 60.0,
                                 child: RaisedButton(
-                                  color: Colors.orangeAccent,
+                                  color: Color(0xffc67608),
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
-                                      color: Colors.orangeAccent,
+                                      color: Color(0xffc67608),
                                     ),
                                     borderRadius: BorderRadius.all(
                                       Radius.circular(10.0),

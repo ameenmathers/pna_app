@@ -1,23 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:travel_world/chat/chat.dart';
+import 'package:travel_world/foundation/foundation1.dart';
+import 'package:travel_world/foundation/foundation2.dart';
+import 'package:travel_world/foundation/foundation3.dart';
 import 'package:travel_world/meetup/meetup.dart';
-import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
-import 'package:travel_world/notifications/notifications.dart';
 import 'package:travel_world/profile/profile.dart';
 
 class Foundation extends StatefulWidget {
+  final String currentUserId;
+
+  Foundation({Key key, @required this.currentUserId}) : super(key: key);
+
   @override
-  _FoundationState createState() => _FoundationState();
+  State createState() => FoundationState(currentUserId: currentUserId);
 }
 
-class _FoundationState extends State<Foundation> {
-  var url = 'http://localhost:8000/api/events';
-  var events = "empty";
+class FoundationState extends State<Foundation> {
+  FoundationState({Key key, @required this.currentUserId});
+
+  final String currentUserId;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(
+          'Foundation',
+          style: TextStyle(
+            fontSize: 30,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: true,
         //`true` if you want Flutter to automatically add Back Button when needed,
@@ -27,7 +40,10 @@ class _FoundationState extends State<Foundation> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Navigation()),
+              MaterialPageRoute(
+                  builder: (context) => Navigation(
+                        currentUserId: currentUserId,
+                      )),
             );
           },
         ),
@@ -38,31 +54,143 @@ class _FoundationState extends State<Foundation> {
           child: SafeArea(
             child: Column(
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20.0, 30.0, 0.0, 0.0),
-                      child: Text(
-                        'Foundation',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 33,
-                            fontWeight: FontWeight.bold),
+                Container(
+                  width: 330,
+                  height: 50,
+                  child: TextField(
+                    onChanged: (value) {},
+                    decoration: InputDecoration(
+                        labelText: "Search",
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: "Search",
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(25.0)))),
+                  ),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                RaisedButton(
+                  color: Colors.black,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Foundation1(
+                                currentUserId: currentUserId,
+                              )),
+                    );
+                  },
+                  child: Stack(
+                    children: <Widget>[
+                      Image(
+                        image: AssetImage('images/sudan.png'),
+                        gaplessPlayback: true,
                       ),
-                    ),
-                    SizedBox(
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0.0, 140.0, 0.0, 0.0),
+                        child: Center(
+                          child: ButtonTheme(
+                            minWidth: 80,
+                            height: 30,
+                            child: RaisedButton(
+                              color: Color(0xffc67608),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: Color(0xffc67608),
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(40.0),
+                                ),
+                              ),
+                              child: Text("Read More"),
+                              textColor: Colors.black,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Foundation1(
+                                            currentUserId: currentUserId,
+                                          )),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(10.0, 180.0, 0.0, 0.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Image(
+                                  image: AssetImage('images/icons8.png'),
+                                  gaplessPlayback: true,
+                                  width: 30,
+                                  height: 40,
+                                ),
+                                Text(
+                                  'Sponsor a child',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              '12 Jan',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(10.0, 230, 0.0, 0.0),
+                        child: Text(
+                          'Sponsor a child to school for a year',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w200,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Image(
+                      image: AssetImage('images/found1.png'),
+                      gaplessPlayback: true,
                       width: 170,
+                      height: 120,
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
-                      child: IconButton(
-                          icon: Icon(
-                            Icons.more_horiz,
-                            size: 30,
-                            color: Colors.white,
-                          ),
-                          onPressed: null),
-                    ),
+                      padding: EdgeInsets.all(0.0),
+                      child: Image(
+                        gaplessPlayback: true,
+                        image: AssetImage('images/sudan1.png'),
+                        width: 170,
+                        height: 120,
+                      ),
+                    )
                   ],
                 ),
                 Row(
@@ -74,287 +202,291 @@ class _FoundationState extends State<Foundation> {
                   ],
                 ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
-                      child: Text(
-                        'Support Foundation',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 100,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            'Show all',
-                            style: TextStyle(
-                              fontSize: 17,
-                              color: Colors.white,
+                      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                      child: ButtonTheme(
+                        minWidth: 50,
+                        height: 25,
+                        child: RaisedButton(
+                          color: Color(0xffc67608),
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              color: Color(0xffc67608),
+                            ),
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(40.0),
                             ),
                           ),
-                          IconButton(
-                              icon: Icon(
-                                Icons.arrow_right,
-                                size: 30,
+                          child: Text("Foundations"),
+                          textColor: Colors.black,
+                          onPressed: () {},
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 65,
+                ),
+                RaisedButton(
+                  color: Colors.black,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Foundation2(
+                                currentUserId: currentUserId,
+                              )),
+                    );
+                  },
+                  child: Stack(
+                    children: <Widget>[
+                      Image(
+                        image: AssetImage('images/found2.png'),
+                        gaplessPlayback: true,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0.0, 140.0, 0.0, 0.0),
+                        child: Center(
+                          child: ButtonTheme(
+                            minWidth: 80,
+                            height: 30,
+                            child: RaisedButton(
+                              color: Color(0xffc67608),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: Color(0xffc67608),
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(40.0),
+                                ),
+                              ),
+                              child: Text("Read More"),
+                              textColor: Colors.black,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Foundation2(
+                                            currentUserId: currentUserId,
+                                          )),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(10.0, 180.0, 0.0, 0.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Image(
+                                  image: AssetImage('images/icons8.png'),
+                                  gaplessPlayback: true,
+                                  width: 30,
+                                  height: 40,
+                                ),
+                                Text(
+                                  'Tiny Beating Hearts Initiative',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              '12 Jan',
+                              style: TextStyle(
                                 color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
                               ),
-                              onPressed: null),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(10.0, 230, 0.0, 0.0),
+                        child: Text(
+                          'Support the training of staff to take care of preterm babies',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w200,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Image(
+                      image: AssetImage('images/baby.png'),
+                      gaplessPlayback: true,
+                      width: 170,
+                      height: 120,
                     ),
+                    Padding(
+                      padding: EdgeInsets.all(0.0),
+                      child: Image(
+                        image: AssetImage('images/sudan2.png'),
+                        gaplessPlayback: true,
+                        width: 170,
+                        height: 120,
+                      ),
+                    )
                   ],
                 ),
                 Row(
                   children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 0.0, 0.0),
-                      height: 180,
-                      width: 200,
-                      child: Stack(
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
-                            child: new Image.asset(
-                              'images/view.png',
-                              width: 200,
-                              height: 180,
-                              fit: BoxFit.fill,
+                    Expanded(
+                        child: Divider(
+                      color: Colors.white,
+                    )),
+                  ],
+                ),
+                SizedBox(
+                  height: 65,
+                ),
+                RaisedButton(
+                  color: Colors.black,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Foundation3(
+                                currentUserId: currentUserId,
+                              )),
+                    );
+                  },
+                  child: Stack(
+                    children: <Widget>[
+                      Image(
+                        image: AssetImage('images/volunteers1.png'),
+                        gaplessPlayback: true,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0.0, 140.0, 0.0, 0.0),
+                        child: Center(
+                          child: ButtonTheme(
+                            minWidth: 80,
+                            height: 30,
+                            child: RaisedButton(
+                              color: Color(0xffc67608),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: Color(0xffc67608),
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(40.0),
+                                ),
+                              ),
+                              child: Text("Read More"),
+                              textColor: Colors.black,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Foundation3(
+                                            currentUserId: currentUserId,
+                                          )),
+                                );
+                              },
                             ),
                           ),
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    0.0, 90.0, 60.0, 0.0),
-                                child: Text("T.A.F",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 28.0,
-                                        color: Colors.white)),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    10.0, 10.0, 15.0, 0.0),
-                                child: Text("1639 Pictures",
-                                    style: TextStyle(
-                                        fontSize: 18.0, color: Colors.white)),
-                              ),
-                            ],
-                          )
-                        ],
+                        ),
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 0.0, 0.0),
-                      height: 180,
-                      width: 200,
-                      child: Stack(
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
-                            child: new Image.asset(
-                              'images/view2.png',
-                              width: 200,
-                              height: 180,
-                              fit: BoxFit.fill,
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(10.0, 180.0, 0.0, 0.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Image(
+                                  image: AssetImage('images/icons8.png'),
+                                  gaplessPlayback: true,
+                                  width: 30,
+                                  height: 40,
+                                ),
+                                Text(
+                                  'Red Cross Of Nigeria',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    0.0, 90.0, 30.0, 0.0),
-                                child: Text("Sudan",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 25.0,
-                                        color: Colors.white)),
+                            Text(
+                              '12 Jan',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
                               ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    10.0, 10.0, 15.0, 0.0),
-                                child: Text("1370 Pictures",
-                                    style: TextStyle(
-                                        fontSize: 18.0, color: Colors.white)),
-                              ),
-                            ],
-                          )
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(10.0, 230, 0.0, 0.0),
+                        child: Text(
+                          'Support Food and health aid to undernourished populations in India',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w200,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Image(
+                      image: AssetImage('images/cross1.png'),
+                      gaplessPlayback: true,
+                      width: 170,
+                      height: 120,
                     ),
+                    Padding(
+                      padding: EdgeInsets.all(0.0),
+                      child: Image(
+                        image: AssetImage('images/cross2.png'),
+                        gaplessPlayback: true,
+                        width: 170,
+                        height: 120,
+                      ),
+                    )
                   ],
                 ),
                 Row(
                   children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 0.0, 10.0),
-                      height: 180,
-                      width: 200,
-                      child: Stack(
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
-                            child: new Image.asset(
-                              'images/view3.png',
-                              width: 200,
-                              height: 180,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    10.0, 90.0, 10.0, 0.0),
-                                child: Text("Red Cross",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 28.0,
-                                        color: Colors.white)),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    0.0, 10.0, 15.0, 0.0),
-                                child: Text("1639 Pictures",
-                                    style: TextStyle(
-                                        fontSize: 18.0, color: Colors.white)),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 0.0, 5.0),
-                      height: 170,
-                      width: 200,
-                      child: Stack(
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
-                            child: new Image.asset(
-                              'images/view4.png',
-                              width: 200,
-                              height: 170,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    0.0, 90.0, 60.0, 0.0),
-                                child: Text("TBHI",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 28.0,
-                                        color: Colors.white)),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    0.0, 10.0, 15.0, 0.0),
-                                child: Text("1639 Pictures",
-                                    style: TextStyle(
-                                        fontSize: 18.0, color: Colors.white)),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
-                      height: 180,
-                      width: 200,
-                      child: Stack(
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
-                            child: new Image.asset(
-                              'images/view5.png',
-                              width: 200,
-                              height: 180,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    0.0, 110.0, 20.0, 0.0),
-                                child: Text("PIFFHB",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 28.0,
-                                        color: Colors.white)),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    10.0, 10.0, 15.0, 0.0),
-                                child: Text("1639 Pictures",
-                                    style: TextStyle(
-                                        fontSize: 18.0, color: Colors.white)),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
-                      height: 180,
-                      width: 200,
-                      child: Stack(
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
-                            child: new Image.asset(
-                              'images/view6.png',
-                              width: 200,
-                              height: 180,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    10.0, 110.0, 10.0, 0.0),
-                                child: Text("PFS Fund",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 25.0,
-                                        color: Colors.white)),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    10.0, 10.0, 15.0, 0.0),
-                                child: Text("1639 Articles",
-                                    style: TextStyle(
-                                        fontSize: 18.0, color: Colors.white)),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
+                    Expanded(
+                        child: Divider(
+                      color: Colors.white,
+                    )),
                   ],
                 ),
               ],
@@ -363,34 +495,41 @@ class _FoundationState extends State<Foundation> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        iconSize: 30,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.black,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             backgroundColor: Colors.black,
+            title: Text(''),
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.white,
+                color: Colors.orangeAccent,
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Navigation()),
+                  MaterialPageRoute(
+                      builder: (context) => Navigation(
+                            currentUserId: currentUserId,
+                          )),
                 );
               },
             ),
-            title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
-                Icons.favorite,
-                color: Colors.white,
+                Icons.vpn_lock,
+                color: Colors.orangeAccent,
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NotificationPage()),
+                  MaterialPageRoute(
+                      builder: (context) => Meetup(
+                            currentUserId: currentUserId,
+                          )),
                 );
               },
             ),
@@ -400,12 +539,12 @@ class _FoundationState extends State<Foundation> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.white,
+                color: Colors.orangeAccent,
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Messages()),
+                  MaterialPageRoute(builder: (context) => Chat()),
                 );
               },
             ),
@@ -414,22 +553,7 @@ class _FoundationState extends State<Foundation> {
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
-                Icons.people,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Meetup()),
-                );
-              },
-            ),
-            title: Text(''),
-          ),
-          BottomNavigationBarItem(
-            icon: IconButton(
-              icon: Icon(
-                Icons.near_me,
+                Icons.perm_identity,
                 color: Colors.orangeAccent,
               ),
               onPressed: () {

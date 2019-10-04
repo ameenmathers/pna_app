@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:travel_world/meetup/meetup.dart';
-import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
 
@@ -267,12 +266,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 Icons.comment,
                 color: Colors.white,
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Messages()),
-                );
-              },
+              onPressed: () {},
             ),
             title: Text(''),
           ),
@@ -294,7 +288,7 @@ class _NotificationPageState extends State<NotificationPage> {
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
-                Icons.near_me,
+                Icons.perm_identity,
                 color: Colors.orangeAccent,
               ),
               onPressed: () {

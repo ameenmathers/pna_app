@@ -9,19 +9,18 @@ class LastviewPage extends StatefulWidget {
 class _LastviewPageState extends State<LastviewPage> {
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Container(
+      color: Colors.black,
       child: Stack(
         children: <Widget>[
-          new Card(
-            child: new Container(
-              decoration: new BoxDecoration(
-                image: new DecorationImage(
-                  fit: BoxFit.cover,
-                  image: new AssetImage(
-                    'images/ban3.png',
-                  ),
-                ),
-              ),
+          Center(
+            child: new Image.asset(
+              'images/ban3.png',
+              gaplessPlayback: true,
+              width: size.width,
+              height: size.height,
+              fit: BoxFit.fill,
             ),
           ),
           SafeArea(
@@ -34,6 +33,7 @@ class _LastviewPageState extends State<LastviewPage> {
                     "PLAY NETWORK AFRICA",
                     style: TextStyle(
                       color: Colors.white,
+                      fontFamily: 'SFProDisplay',
                       fontSize: 20,
                       decoration: TextDecoration.none,
                     ),
@@ -46,10 +46,11 @@ class _LastviewPageState extends State<LastviewPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
                     child: Text(
-                      "Enjoy exclusive deals on luxury accomodation",
+                      "Enjoy Exclusive Deals on Luxury Products and Services",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 33,
+                        fontFamily: 'SFProDisplay',
+                        fontSize: 30,
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -57,10 +58,11 @@ class _LastviewPageState extends State<LastviewPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8.0, 8.0, 16.0, 8.0),
                     child: Text(
-                      "Join the play network for access to exclusive luxury content and deals.",
+                      "Fancy discounts on a 5-star hotel in Abuja? A spa package in Cape Town? or nights out in the most exclusive clubs & bars? Join us!",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontFamily: 'SFProText',
+                        fontSize: 17,
                         fontWeight: FontWeight.w400,
                         decoration: TextDecoration.none,
                       ),
@@ -69,77 +71,55 @@ class _LastviewPageState extends State<LastviewPage> {
                   SizedBox(
                     height: 20,
                   ),
-                  Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        SizedBox(
                           child: Image(
                             image: AssetImage("images/person1.png"),
                           ),
-                          height: 60,
+                          height: 45,
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
+                        SizedBox(
                           child: Image(
                             image: AssetImage("images/person2.png"),
                           ),
-                          height: 60,
+                          height: 45,
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
+                        SizedBox(
                           child: Image(
                             image: AssetImage("images/person3.png"),
                           ),
-                          height: 60,
+                          height: 45,
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
+                        SizedBox(
                           child: Image(
                             image: AssetImage("images/person4.png"),
                           ),
-                          height: 60,
+                          height: 45,
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          child: Image(
+                            image: AssetImage("images/person5.png"),
+                          ),
+                          height: 45,
+                        ),
+                        SizedBox(
+                          child: Image(
+                            image: AssetImage("images/person6.png"),
+                          ),
+                          height: 45,
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height: 20,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
-                      RaisedButton(
-                        color: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                            style: BorderStyle.solid,
-                            color: Colors.white,
-                          ),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(16.0),
-                          ),
-                        ),
-                        child: Row(
-                          children: <Widget>[
-                            Text("Start Applcation"),
-                            Icon(Icons.arrow_right),
-                          ],
-                        ),
-                        textColor: Colors.white,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Form1()),
-                          );
-                        },
-                      ),
                       RaisedButton(
                         color: Colors.transparent,
                         shape: RoundedRectangleBorder(

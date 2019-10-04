@@ -1,95 +1,209 @@
 import 'package:flutter/material.dart';
+import 'package:travel_world/chat/chat.dart';
 import 'package:travel_world/meetup/meetup.dart';
-import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
-import 'package:travel_world/notifications/notifications.dart';
 import 'package:travel_world/profile/profile.dart';
 
 class Manual extends StatefulWidget {
+  final String currentUserId;
+
+  Manual({Key key, @required this.currentUserId}) : super(key: key);
+
   @override
-  _ManualState createState() => _ManualState();
+  State createState() => ManualState(currentUserId: currentUserId);
 }
 
-class _ManualState extends State<Manual> {
-  var url = 'http://localhost:8000/api/events';
-  var events = "empty";
+class ManualState extends State<Manual> {
+  ManualState({Key key, @required this.currentUserId});
+
+  final String currentUserId;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        title: Text(
+          'Help and Support',
+          style: TextStyle(
+            fontSize: 30,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.black,
         automaticallyImplyLeading: true,
         //`true` if you want Flutter to automatically add Back Button when needed,
         //or `false` if you want to force your own back button every where
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: Colors.black,
+            color: Colors.white,
           ),
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Navigation()),
+              MaterialPageRoute(
+                  builder: (context) => Navigation(
+                        currentUserId: currentUserId,
+                      )),
             );
           },
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: SingleChildScrollView(
         child: Center(
           child: SafeArea(
             child: Column(
               children: <Widget>[
+                SizedBox(
+                  height: 45,
+                ),
                 Row(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20.0, 30.0, 0.0, 0.0),
-                      child: Text(
-                        'Manual',
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 33,
-                            fontWeight: FontWeight.bold),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Text(
+                      'Have a Complaint?',
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     SizedBox(
-                      width: 230,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
-                      child: IconButton(
-                          icon: Icon(
-                            Icons.assignment_late,
-                            size: 30,
-                            color: Colors.black,
-                          ),
-                          onPressed: null),
+                      width: 70,
                     ),
                   ],
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 25,
                 ),
-                Container(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: <Widget>[
-                          Text(
-                              'The Sample Plot tab consists of 9 input fields containing basic information about the current plot, such as'),
-                          Text(
-                              'plot number, date, team leader, site coordinates, and general remarks.'),
-                          Text(
-                              'Block number, cluster number, plot number and zone are numeric input fields. Team leader field is a text'),
-                          Text(
-                              'input field. Date is selected automatically as current date, but it can be easily changed by typing in the'),
-                          Text(
-                              'date field. Map coordinates shall be given using latitude and longitude notation in Universal Transverse'),
-                          Text(
-                              'Mercator (UTM) geographic coordinates system. Remarks field is text field where user can provide'),
-                        ],
+                Row(
+                  children: <Widget>[
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Text(
+                      'Experiencing difficulty with PNA App?',
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Row(
+                  children: <Widget>[
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Text(
+                      'Have a Suggestion?',
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 95,
+                ),
+                Row(
+                  children: <Widget>[
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Text(
+                      'Contact Help and Support Now',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
+                    child: TextField(
+                      onChanged: (value) {},
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Name',
+                        focusedBorder: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.grey.shade700,
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        focusColor: Colors.white,
+                      ),
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
+                    child: TextField(
+                      onChanged: (value) {},
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Email Address',
+                        focusedBorder: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.grey.shade700,
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        focusColor: Colors.white,
+                      ),
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
+                    child: TextField(
+                      maxLines: 14,
+                      onChanged: (value) {},
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Type Complaint/ Suggestion Here',
+                        focusedBorder: InputBorder.none,
+                        filled: true,
+                        fillColor: Colors.grey.shade700,
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        focusColor: Colors.white,
+                      ),
+                      style: TextStyle(
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -97,25 +211,25 @@ class _ManualState extends State<Manual> {
                 SizedBox(
                   height: 20,
                 ),
-                Container(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: <Widget>[
-                          Text(
-                              'The Sample Plot tab consists of 9 input fields containing basic information about the current plot, such as'),
-                          Text(
-                              'plot number, date, team leader, site coordinates, and general remarks.'),
-                          Text(
-                              'Block number, cluster number, plot number and zone are numeric input fields. Team leader field is a text'),
-                          Text(
-                              'input field. Date is selected automatically as current date, but it can be easily changed by typing in the'),
-                          Text(
-                              'date field. Map coordinates shall be given using latitude and longitude notation in Universal Transverse'),
-                          Text(
-                              'Mercator (UTM) geographic coordinates system. Remarks field is text field where user can provide'),
-                        ],
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 0.0),
+                    child: ButtonTheme(
+                      minWidth: 350.0,
+                      height: 60.0,
+                      child: RaisedButton(
+                        color: Color(0xffc67608),
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            color: Color(0xffc67608),
+                          ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10.0),
+                          ),
+                        ),
+                        child: Text("Send"),
+                        textColor: Colors.white,
+                        onPressed: () {},
                       ),
                     ),
                   ),
@@ -126,34 +240,40 @@ class _ManualState extends State<Manual> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        iconSize: 30,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.black,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             backgroundColor: Colors.black,
+            title: Text(''),
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.white,
+                color: Colors.orangeAccent,
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Navigation()),
+                  MaterialPageRoute(
+                      builder: (context) => Navigation(
+                            currentUserId: currentUserId,
+                          )),
                 );
               },
             ),
-            title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
-                Icons.favorite,
-                color: Colors.white,
+                Icons.people,
+                color: Colors.orangeAccent,
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NotificationPage()),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          Meetup(currentUserId: currentUserId)),
                 );
               },
             ),
@@ -163,42 +283,30 @@ class _ManualState extends State<Manual> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Messages()),
-                );
-              },
-            ),
-            title: Text(''),
-          ),
-          BottomNavigationBarItem(
-            icon: IconButton(
-              icon: Icon(
-                Icons.people,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Meetup()),
-                );
-              },
-            ),
-            title: Text(''),
-          ),
-          BottomNavigationBarItem(
-            icon: IconButton(
-              icon: Icon(
-                Icons.near_me,
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Profile()),
+                  MaterialPageRoute(builder: (context) => ChatScreen()),
+                );
+              },
+            ),
+            title: Text(''),
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(
+              icon: Icon(
+                Icons.perm_identity,
+                color: Colors.orangeAccent,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Profile(
+                            currentUserId: currentUserId,
+                          )),
                 );
               },
             ),

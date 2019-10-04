@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:travel_world/form/form1.dart';
-import 'package:travel_world/preview//preview.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,19 +8,17 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Container(
       child: Stack(
         children: <Widget>[
-          new Card(
-            child: new Container(
-              decoration: new BoxDecoration(
-                image: new DecorationImage(
-                  fit: BoxFit.cover,
-                  image: new AssetImage(
-                    'images/ban.png',
-                  ),
-                ),
-              ),
+          Center(
+            child: new Image.asset(
+              'images/ban.png',
+              gaplessPlayback: true,
+              width: size.width,
+              height: size.height,
+              fit: BoxFit.fill,
             ),
           ),
           SafeArea(
@@ -34,6 +30,7 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     "PLAY NETWORK AFRICA",
                     style: TextStyle(
+                      fontFamily: 'SFProDisplay',
                       color: Colors.white,
                       fontSize: 20,
                       decoration: TextDecoration.none,
@@ -47,10 +44,11 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
                     child: Text(
-                      "Explore the best experiences with like minds.",
+                      "Explore Africa with like Minded People.",
                       style: TextStyle(
+                        fontFamily: 'SFProDisplay',
                         color: Colors.white,
-                        fontSize: 34,
+                        fontSize: 30,
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -58,10 +56,11 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8.0, 8.0, 16.0, 8.0),
                     child: Text(
-                      "Join the play network for access to exclusive luxury content and deals.",
+                      "Join the Play Network to connect with leading African Professionals, Entrepreneurs & Lifestyle Enthusiasts.",
                       style: TextStyle(
+                        fontFamily: 'SFProText',
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 17,
                         fontWeight: FontWeight.w400,
                         decoration: TextDecoration.none,
                       ),
@@ -70,95 +69,52 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(
                     height: 20,
                   ),
-                  Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        SizedBox(
                           child: Image(
                             image: AssetImage("images/person1.png"),
                           ),
-                          height: 60,
+                          height: 45,
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
+                        SizedBox(
                           child: Image(
                             image: AssetImage("images/person2.png"),
                           ),
-                          height: 60,
+                          height: 45,
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
+                        SizedBox(
                           child: Image(
                             image: AssetImage("images/person3.png"),
                           ),
-                          height: 60,
+                          height: 45,
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
+                        SizedBox(
                           child: Image(
                             image: AssetImage("images/person4.png"),
                           ),
-                          height: 60,
+                          height: 45,
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          child: Image(
+                            image: AssetImage("images/person5.png"),
+                          ),
+                          height: 45,
+                        ),
+                        SizedBox(
+                          child: Image(
+                            image: AssetImage("images/person6.png"),
+                          ),
+                          height: 45,
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(
-                    height: 15,
+                    height: 65,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      FlatButton(
-                        child: Text(
-                          "Skip",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        textColor: Colors.white,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Form1()),
-                          );
-                        },
-                      ),
-                      RaisedButton(
-                        color: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                            style: BorderStyle.solid,
-                            color: Colors.white,
-                          ),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(16.0),
-                          ),
-                        ),
-                        child: Row(
-                          children: <Widget>[
-                            Text("Next Step"),
-                            Icon(Icons.arrow_right),
-                          ],
-                        ),
-                        textColor: Colors.white,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PreviewPage()),
-                          );
-                        },
-                      )
-                    ],
-                  )
                 ],
               ),
             ),

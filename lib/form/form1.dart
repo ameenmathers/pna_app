@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:travel_world/formsec/form2.dart';
 import 'package:travel_world/lastview/lastview.dart';
+import 'package:travel_world/login/login_screen.dart';
 
 class Form1 extends StatefulWidget {
   @override
@@ -10,27 +11,21 @@ class Form1 extends StatefulWidget {
 class _Form1State extends State<Form1> {
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.black,
-          automaticallyImplyLeading: true,
-          //`true` if you want Flutter to automatically add Back Button when needed,
-          //or `false` if you want to force your own back button every where
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LastviewPage()),
-              );
-            },
-          )),
       body: SingleChildScrollView(
         child: Stack(
           children: <Widget>[
-            Image(
-              image: AssetImage("images/ban4.png"),
+            Center(
+              child: new Image.asset(
+                'images/ban5.png',
+                gaplessPlayback: true,
+                width: size.width,
+                height: size.height,
+                fit: BoxFit.fill,
+              ),
             ),
+            Container(),
             Container(
               child: SafeArea(
                 child: Center(
@@ -38,8 +33,26 @@ class _Form1State extends State<Form1> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LastviewPage()),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                       SizedBox(
-                        height: 80,
+                        height: 50,
                       ),
                       Text(
                         "PLAY NETWORK AFRICA",
@@ -47,6 +60,38 @@ class _Form1State extends State<Form1> {
                           color: Colors.white,
                           fontSize: 20,
                           decoration: TextDecoration.none,
+                          fontFamily: 'SFProDisplay',
+                        ),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                        child: Text(
+                          "BECOME A MEMBER",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 18,
+                            decoration: TextDecoration.none,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+                        child: Text(
+                          "To become a member of the Play Network Africa, we require that you join via one of two methods:",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            decoration: TextDecoration.none,
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -54,76 +99,28 @@ class _Form1State extends State<Form1> {
                       ),
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(40.0, 0.0, 20.0, 0.0),
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 0.0),
                         child: Text(
-                          "To apply or log in, use your phone number",
+                          "1. A referral by an existing member of the Play Network Africa",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 17,
                             decoration: TextDecoration.none,
                           ),
                         ),
                       ),
                       SizedBox(
-                        height: 50,
+                        height: 30,
                       ),
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(16.0, 10.0, 32.0, 10.0),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Select country',
-                            fillColor: Colors.grey.shade700,
-                            focusedBorder: InputBorder.none,
-                            filled: true,
-                            labelStyle: TextStyle(
-                              color: Colors.white,
-                            ),
-                            focusColor: Colors.white,
-                          ),
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 0.0),
+                        child: Text(
+                          "2. An application process approved by a member of our team",
                           style: TextStyle(
                             color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(16.0, 10.0, 32.0, 10.0),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Phone Number',
-                            focusedBorder: InputBorder.none,
-                            filled: true,
-                            fillColor: Colors.grey.shade700,
-                            labelStyle: TextStyle(
-                              color: Colors.white,
-                            ),
-                            focusColor: Colors.white,
-                          ),
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(16.0, 10.0, 32.0, 10.0),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Reasons for joining PNA',
-                            focusedBorder: InputBorder.none,
-                            filled: true,
-                            fillColor: Colors.grey.shade700,
-                            labelStyle: TextStyle(
-                              color: Colors.white,
-                            ),
-                            focusColor: Colors.white,
-                          ),
-                          style: TextStyle(
-                            color: Colors.white,
+                            fontSize: 17,
+                            decoration: TextDecoration.none,
                           ),
                         ),
                       ),
@@ -137,16 +134,16 @@ class _Form1State extends State<Form1> {
                           minWidth: 350.0,
                           height: 60.0,
                           child: RaisedButton(
-                            color: Colors.amber,
+                            color: Color(0xffc67608),
                             shape: RoundedRectangleBorder(
                               side: BorderSide(
-                                color: Colors.amber,
+                                color: Color(0xffc67608),
                               ),
                               borderRadius: BorderRadius.all(
                                 Radius.circular(10.0),
                               ),
                             ),
-                            child: Text("Next"),
+                            child: Text("Apply Now"),
                             textColor: Colors.white,
                             onPressed: () {
                               Navigator.push(
@@ -158,11 +155,45 @@ class _Form1State extends State<Form1> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: 20,
+                      ),
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 10.0),
+                            const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 10.0),
+                        child: ButtonTheme(
+                          minWidth: 350.0,
+                          height: 60.0,
+                          child: RaisedButton(
+                            color: Color(0xffc67608),
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: Color(0xffc67608),
+                              ),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10.0),
+                              ),
+                            ),
+                            child: Text("Login"),
+                            textColor: Colors.white,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Login()),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
                         child: Text(
-                          "By clicking sign up you agree to the following",
+                          "Already a member?",
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 16,
@@ -172,10 +203,10 @@ class _Form1State extends State<Form1> {
                         ),
                       ),
                       Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                         child: Text(
-                          'Terms and Conditions without reservation',
+                          'Been successfully referred?',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 16,
