@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:travel_world/chat/chat.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
@@ -286,10 +285,10 @@ class ManualState extends State<Manual> {
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChatScreen()),
-                );
+//                Navigator.push(
+//                  context,
+//                  MaterialPageRoute(builder: (context) => ChatScreen()),
+//                );
               },
             ),
             title: Text(''),

@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:travel_world/chat/chat.dart';
 import 'package:travel_world/home/home.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/navigation/navigation.dart';
@@ -323,10 +322,10 @@ class SettingsState extends State<Settings> {
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Chat()),
-                );
+//                Navigator.push(
+//                  context,
+//                  MaterialPageRoute(builder: (context) => Chat()),
+//                );
               },
             ),
             title: Text(''),

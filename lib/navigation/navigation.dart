@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:travel_world/chat/chat.dart';
 import 'package:travel_world/event/event.dart';
 import 'package:travel_world/foundation/foundation.dart';
 import 'package:travel_world/gallery/gallery.dart';
@@ -530,10 +529,10 @@ class NavigationState extends State<Navigation> {
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Chat()),
-                );
+//                Navigator.push(
+//                  context,
+//                  MaterialPageRoute(builder: (context) => Chat()),
+//                );
               },
             ),
             title: Text(''),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:travel_world/chat/chat.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/news/news1.dart';
@@ -597,10 +596,10 @@ class NewsState extends State<News> {
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChatScreen()),
-                );
+//                Navigator.push(
+//                  context,
+//                  MaterialPageRoute(builder: (context) => ChatScreen()),
+//                );
               },
             ),
             title: Text(''),

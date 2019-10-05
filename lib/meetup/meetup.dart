@@ -388,10 +388,10 @@ class MeetupState extends State<Meetup> {
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChatScreen()),
-                );
+//                Navigator.push(
+//                  context,
+//                  MaterialPageRoute(builder: (context) => ChatScreen()),
+//                );
               },
             ),
             title: Text(''),
