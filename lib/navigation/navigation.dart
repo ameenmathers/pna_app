@@ -5,24 +5,18 @@ import 'package:travel_world/foundation/foundation.dart';
 import 'package:travel_world/gallery/gallery.dart';
 import 'package:travel_world/manual/manual.dart';
 import 'package:travel_world/meetup/meetup.dart';
+import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/news/news.dart';
 import 'package:travel_world/privileges/privilege.dart';
 import 'package:travel_world/profile/profile.dart';
 import 'package:travel_world/settings/settings.dart';
 
 class Navigation extends StatefulWidget {
-  final String currentUserId;
-
-  Navigation({Key key, @required this.currentUserId}) : super(key: key);
-
   @override
-  State createState() => NavigationState(currentUserId: currentUserId);
+  State createState() => NavigationState();
 }
 
 class NavigationState extends State<Navigation> {
-  NavigationState({Key key, @required this.currentUserId});
-
-  final String currentUserId;
   final _auth = FirebaseAuth.instance;
   FirebaseUser loggedInUser;
   @override
@@ -78,409 +72,372 @@ class NavigationState extends State<Navigation> {
                     SizedBox(
                       height: 30,
                     ),
-                    Column(
-                      children: <Widget>[
-                        Container(
-                          child: RaisedButton(
-                            color: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40.0),
-                            ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => News()),
-                              );
-                            },
-                            child: Stack(
-                              children: <Widget>[
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                  child: Image(
-                                    image: AssetImage('images/fire.png'),
-                                    width: 450,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      0.0, 220, 0.0, 0.0),
-                                  child: Center(
-                                    child: ButtonTheme(
-                                      minWidth: 80,
-                                      height: 30,
-                                      child: RaisedButton(
-                                        color: Color(0xffc67608),
-                                        shape: RoundedRectangleBorder(
-                                          side: BorderSide(
-                                            color: Color(0xffc67608),
-                                          ),
-                                          borderRadius: BorderRadius.all(
-                                            Radius.circular(40.0),
-                                          ),
-                                        ),
-                                        child: Text("News"),
-                                        textColor: Colors.black,
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => News(
-                                                    currentUserId:
-                                                        currentUserId)),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                    RaisedButton(
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => NewsPage()),
+                        );
+                      },
+                      child: Stack(
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(30.0),
+                            child: Image(
+                              image: AssetImage('images/fire.png'),
+                              width: 450,
+                              height: 230,
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        RaisedButton(
-                          color: Colors.black,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Events(
-                                        currentUserId: currentUserId,
-                                      )),
-                            );
-                          },
-                          child: Stack(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20.0),
-                                child: Image(
-                                  image: AssetImage('images/fire.jpg'),
-                                  width: 450,
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.fromLTRB(0.0, 210.0, 0.0, 0.0),
-                                child: Center(
-                                  child: ButtonTheme(
-                                    minWidth: 80,
-                                    height: 30,
-                                    child: RaisedButton(
+                          Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(0.0, 205, 0.0, 0.0),
+                            child: Center(
+                              child: ButtonTheme(
+                                minWidth: 80,
+                                height: 30,
+                                child: RaisedButton(
+                                  color: Color(0xffc67608),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
                                       color: Color(0xffc67608),
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          color: Color(0xffc67608),
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(40.0),
-                                        ),
-                                      ),
-                                      child: Text("Events"),
-                                      textColor: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Events(
-                                                    currentUserId:
-                                                        currentUserId,
-                                                  )),
-                                        );
-                                      },
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(40.0),
                                     ),
                                   ),
+                                  child: Text("News"),
+                                  textColor: Colors.black,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => NewsPage()),
+                                    );
+                                  },
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        RaisedButton(
-                          color: Colors.black,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Privilege()),
-                            );
-                          },
-                          child: Stack(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20.0),
-                                child: Image(
-                                  image: AssetImage('images/privileges.png'),
-                                  width: 450,
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.fromLTRB(0.0, 220.0, 0.0, 0.0),
-                                child: Center(
-                                  child: ButtonTheme(
-                                    minWidth: 80,
-                                    height: 30,
-                                    child: RaisedButton(
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    RaisedButton(
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Events()),
+                        );
+                      },
+                      child: Stack(
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(30.0),
+                            child: Image(
+                              image: AssetImage('images/fire.jpg'),
+                              width: 450,
+                              height: 230,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
+                            child: Center(
+                              child: ButtonTheme(
+                                minWidth: 80,
+                                height: 30,
+                                child: RaisedButton(
+                                  color: Color(0xffc67608),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
                                       color: Color(0xffc67608),
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          color: Color(0xffc67608),
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(40.0),
-                                        ),
-                                      ),
-                                      child: Text("Privileges"),
-                                      textColor: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Privilege(
-                                                  currentUserId:
-                                                      currentUserId)),
-                                        );
-                                      },
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(40.0),
                                     ),
                                   ),
+                                  child: Text("Events"),
+                                  textColor: Colors.black,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Events()),
+                                    );
+                                  },
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        RaisedButton(
-                          color: Colors.black,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Foundation(
-                                        currentUserId: currentUserId,
-                                      )),
-                            );
-                          },
-                          child: Stack(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20.0),
-                                child: Image(
-                                  image: AssetImage('images/foundation.png'),
-                                  width: 450,
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.fromLTRB(0.0, 210.0, 0.0, 0.0),
-                                child: Center(
-                                  child: ButtonTheme(
-                                    minWidth: 80,
-                                    height: 30,
-                                    child: RaisedButton(
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    RaisedButton(
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Privilege()),
+                        );
+                      },
+                      child: Stack(
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(30.0),
+                            child: Image(
+                              image: AssetImage('images/privileges.png'),
+                              width: 450,
+                              height: 250,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 220.0, 0.0, 0.0),
+                            child: Center(
+                              child: ButtonTheme(
+                                minWidth: 80,
+                                height: 30,
+                                child: RaisedButton(
+                                  color: Color(0xffc67608),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
                                       color: Color(0xffc67608),
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          color: Color(0xffc67608),
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(40.0),
-                                        ),
-                                      ),
-                                      child: Text("Foundation"),
-                                      textColor: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Foundation(
-                                                    currentUserId:
-                                                        currentUserId,
-                                                  )),
-                                        );
-                                      },
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(40.0),
                                     ),
                                   ),
+                                  child: Text("Privileges"),
+                                  textColor: Colors.black,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Privilege()),
+                                    );
+                                  },
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        RaisedButton(
-                          color: Colors.black,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      Gallery(currentUserId: currentUserId)),
-                            );
-                          },
-                          child: Stack(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20.0),
-                                child: Image(
-                                  image: AssetImage('images/gallery.png'),
-                                  width: 450,
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.fromLTRB(0.0, 240.0, 0.0, 0.0),
-                                child: Center(
-                                  child: ButtonTheme(
-                                    minWidth: 80,
-                                    height: 30,
-                                    child: RaisedButton(
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    RaisedButton(
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Foundations()),
+                        );
+                      },
+                      child: Stack(
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(30.0),
+                            child: Image(
+                              image: AssetImage('images/foundation.png'),
+                              width: 450,
+                              height: 230,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
+                            child: Center(
+                              child: ButtonTheme(
+                                minWidth: 80,
+                                height: 30,
+                                child: RaisedButton(
+                                  color: Color(0xffc67608),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
                                       color: Color(0xffc67608),
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          color: Color(0xffc67608),
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(40.0),
-                                        ),
-                                      ),
-                                      child: Text("Gallery"),
-                                      textColor: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Gallery(
-                                                  currentUserId:
-                                                      currentUserId)),
-                                        );
-                                      },
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(40.0),
                                     ),
                                   ),
+                                  child: Text("Foundation"),
+                                  textColor: Colors.black,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Foundations()),
+                                    );
+                                  },
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        RaisedButton(
-                          color: Colors.black,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      Settings(currentUserId: currentUserId)),
-                            );
-                          },
-                          child: Stack(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20.0),
-                                child: Image(
-                                  image: AssetImage('images/settings.png'),
-                                  width: 450,
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.fromLTRB(0.0, 240.0, 0.0, 0.0),
-                                child: Center(
-                                  child: ButtonTheme(
-                                    minWidth: 80,
-                                    height: 30,
-                                    child: RaisedButton(
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    RaisedButton(
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => GalleryPage()),
+                        );
+                      },
+                      child: Stack(
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(30.0),
+                            child: Image(
+                              image: AssetImage('images/gallery.png'),
+                              width: 450,
+                              height: 250,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 225.0, 0.0, 0.0),
+                            child: Center(
+                              child: ButtonTheme(
+                                minWidth: 80,
+                                height: 30,
+                                child: RaisedButton(
+                                  color: Color(0xffc67608),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
                                       color: Color(0xffc67608),
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                            color: Color(0xffc67608)),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(40.0),
-                                        ),
-                                      ),
-                                      child: Text("Settings"),
-                                      textColor: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Settings(
-                                                  currentUserId:
-                                                      currentUserId)),
-                                        );
-                                      },
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(40.0),
                                     ),
                                   ),
+                                  child: Text("Gallery"),
+                                  textColor: Colors.black,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => GalleryPage()),
+                                    );
+                                  },
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        RaisedButton(
-                          color: Colors.black,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      Manual(currentUserId: currentUserId)),
-                            );
-                          },
-                          child: Stack(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20.0),
-                                child: Image(
-                                  image: AssetImage('images/manual.png'),
-                                  width: 450,
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.fromLTRB(0.0, 255.0, 0.0, 0.0),
-                                child: Center(
-                                  child: ButtonTheme(
-                                    minWidth: 80,
-                                    height: 30,
-                                    child: RaisedButton(
-                                      color: Color(0xffc67608),
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                            color: Color(0xffc67608)),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(40.0),
-                                        ),
-                                      ),
-                                      child: Text("Help and Support"),
-                                      textColor: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Manual(
-                                                  currentUserId:
-                                                      currentUserId)),
-                                        );
-                                      },
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    RaisedButton(
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Settings()),
+                        );
+                      },
+                      child: Stack(
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(40.0),
+                            child: Image(
+                              image: AssetImage('images/settings.png'),
+                              width: 450,
+                              height: 270,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 240.0, 0.0, 0.0),
+                            child: Center(
+                              child: ButtonTheme(
+                                minWidth: 80,
+                                height: 30,
+                                child: RaisedButton(
+                                  color: Color(0xffc67608),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(color: Color(0xffc67608)),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(40.0),
                                     ),
                                   ),
+                                  child: Text("Settings"),
+                                  textColor: Colors.black,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Settings()),
+                                    );
+                                  },
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    RaisedButton(
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Manual()),
+                        );
+                      },
+                      child: Stack(
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(30.0),
+                            child: Image(
+                              image: AssetImage('images/manual.png'),
+                              width: 450,
+                              height: 270,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0.0, 245.0, 0.0, 0.0),
+                            child: Center(
+                              child: ButtonTheme(
+                                minWidth: 80,
+                                height: 30,
+                                child: RaisedButton(
+                                  color: Color(0xffc67608),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(color: Color(0xffc67608)),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(40.0),
+                                    ),
+                                  ),
+                                  child: Text("Help and Support"),
+                                  textColor: Colors.black,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Manual()),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -513,10 +470,7 @@ class NavigationState extends State<Navigation> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Meetup(
-                            currentUserId: currentUserId,
-                          )),
+                  MaterialPageRoute(builder: (context) => Meetup()),
                 );
               },
             ),
@@ -529,10 +483,10 @@ class NavigationState extends State<Navigation> {
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
-//                Navigator.push(
-//                  context,
-//                  MaterialPageRoute(builder: (context) => Chat()),
-//                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Messages()),
+                );
               },
             ),
             title: Text(''),
@@ -546,10 +500,7 @@ class NavigationState extends State<Navigation> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Profile(
-                            currentUserId: currentUserId,
-                          )),
+                  MaterialPageRoute(builder: (context) => Profile()),
                 );
               },
             ),

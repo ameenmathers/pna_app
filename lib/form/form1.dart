@@ -25,7 +25,6 @@ class _Form1State extends State<Form1> {
                 fit: BoxFit.fill,
               ),
             ),
-            Container(),
             Container(
               child: SafeArea(
                 child: Center(
@@ -52,10 +51,10 @@ class _Form1State extends State<Form1> {
                         ],
                       ),
                       SizedBox(
-                        height: 50,
+                        height: 20,
                       ),
                       Text(
-                        "PLAY NETWORK AFRICA",
+                        "BECOME A MEMBER",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -65,21 +64,6 @@ class _Form1State extends State<Form1> {
                       ),
                       SizedBox(
                         height: 30,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                        child: Text(
-                          "BECOME A MEMBER",
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 18,
-                            decoration: TextDecoration.none,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
                       ),
                       Padding(
                         padding:

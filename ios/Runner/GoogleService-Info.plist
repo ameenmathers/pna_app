@@ -6,6 +6,8 @@
 	<string>755264115705-2kprlqggm4649dv4tcp2fboseojsj2rf.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
 	<string>com.googleusercontent.apps.755264115705-2kprlqggm4649dv4tcp2fboseojsj2rf</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>755264115705-s00i0kg6d3ln9sn6vvcm1ime5aunm33q.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCDohehJPIEP6dymoX8WRlCk0nbaIcBD7Y</string>
 	<key>GCM_SENDER_ID</key>
@@ -32,5 +34,11 @@
 	<string>1:755264115705:ios:ab3ab265a71358f6222328</string>
 	<key>DATABASE_URL</key>
 	<string>https://play-2f9e6.firebaseio.com</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>Need to upload image</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Need to upload image</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Need to upload image</string>
 </dict>
 </plist>

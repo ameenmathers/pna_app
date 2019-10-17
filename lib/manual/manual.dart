@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:travel_world/meetup/meetup.dart';
+import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
 
 class Manual extends StatefulWidget {
-  final String currentUserId;
-
-  Manual({Key key, @required this.currentUserId}) : super(key: key);
-
   @override
-  State createState() => ManualState(currentUserId: currentUserId);
+  State createState() => ManualState();
 }
 
 class ManualState extends State<Manual> {
-  ManualState({Key key, @required this.currentUserId});
-
-  final String currentUserId;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,10 +34,7 @@ class ManualState extends State<Manual> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => Navigation(
-                        currentUserId: currentUserId,
-                      )),
+              MaterialPageRoute(builder: (context) => Navigation()),
             );
           },
         ),
@@ -113,26 +103,7 @@ class ManualState extends State<Manual> {
                   ],
                 ),
                 SizedBox(
-                  height: 95,
-                ),
-                Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      'Contact Help and Support Now',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 40,
+                  height: 25,
                 ),
                 Center(
                   child: Padding(
@@ -253,10 +224,7 @@ class ManualState extends State<Manual> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Navigation(
-                            currentUserId: currentUserId,
-                          )),
+                  MaterialPageRoute(builder: (context) => Navigation()),
                 );
               },
             ),
@@ -264,15 +232,13 @@ class ManualState extends State<Manual> {
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
-                Icons.people,
+                Icons.vpn_lock,
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          Meetup(currentUserId: currentUserId)),
+                  MaterialPageRoute(builder: (context) => Meetup()),
                 );
               },
             ),
@@ -285,10 +251,10 @@ class ManualState extends State<Manual> {
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
-//                Navigator.push(
-//                  context,
-//                  MaterialPageRoute(builder: (context) => ChatScreen()),
-//                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Messages()),
+                );
               },
             ),
             title: Text(''),
@@ -302,10 +268,7 @@ class ManualState extends State<Manual> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Profile(
-                            currentUserId: currentUserId,
-                          )),
+                  MaterialPageRoute(builder: (context) => Profile()),
                 );
               },
             ),

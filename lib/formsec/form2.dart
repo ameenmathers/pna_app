@@ -99,7 +99,7 @@ class _Form2State extends State<Form2> {
                         ),
                       ),
                       SizedBox(
-                        height: 30,
+                        height: 25,
                       ),
                       Padding(
                         padding:
@@ -129,13 +129,43 @@ class _Form2State extends State<Form2> {
                         ),
                       ),
                       SizedBox(
-                        height: 30,
+                        height: 25,
                       ),
                       Padding(
                         padding:
                             const EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 0.0),
                         child: Text(
                           "• Access to trusted insider information across various African cities",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 25,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 0.0),
+                        child: Text(
+                          "• Exclusive discounts on premium products and services in Africa",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 25,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(20.0, 0.0, 10.0, 0.0),
+                        child: Text(
+                          "• Access to free, exclusive business, political and luxury lifestyle events",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 17,
@@ -160,7 +190,7 @@ class _Form2State extends State<Form2> {
                         ),
                       ),
                       SizedBox(
-                        height: 50,
+                        height: 35,
                       ),
                       Padding(
                         padding:

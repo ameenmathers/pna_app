@@ -1,29 +1,44 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:travel_world/chat/chat.dart';
+import 'package:http/http.dart' as http;
 import 'package:travel_world/foundation/foundation1.dart';
 import 'package:travel_world/foundation/foundation2.dart';
 import 'package:travel_world/foundation/foundation3.dart';
 import 'package:travel_world/meetup/meetup.dart';
+import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
 
-class Foundation extends StatefulWidget {
-  final String currentUserId;
-
-  Foundation({Key key, @required this.currentUserId}) : super(key: key);
-
+class Foundations extends StatefulWidget {
   @override
-  State createState() => FoundationState(currentUserId: currentUserId);
+  _FoundationsState createState() => new _FoundationsState();
 }
 
-class FoundationState extends State<Foundation> {
-  FoundationState({Key key, @required this.currentUserId});
+class _FoundationsState extends State<Foundations> {
+  Future<List<Foundation>> _getFoundations() async {
+    var data = await http.get("http://localhost:8000/api/foundation");
 
-  final String currentUserId;
+    var jsonData = json.decode(data.body);
+
+    List<Foundation> foundations = [];
+
+    for (var u in jsonData) {
+      Foundation foundation =
+          Foundation(u["fid"], u["desc"], u["name"], u["image"]);
+
+      foundations.add(foundation);
+    }
+
+    print(foundations.length);
+
+    return foundations;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return new Scaffold(
       appBar: AppBar(
         title: Text(
           'Foundation',
@@ -40,20 +55,23 @@ class FoundationState extends State<Foundation> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => Navigation(
-                        currentUserId: currentUserId,
-                      )),
+              MaterialPageRoute(builder: (context) => Navigation()),
             );
           },
         ),
       ),
       backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        child: Center(
-          child: SafeArea(
-            child: Column(
+      body: FutureBuilder(
+        future: _getFoundations(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          print(snapshot.data);
+          if (snapshot.data == null) {
+            return SingleChildScrollView(
+                child: Column(
               children: <Widget>[
+                SizedBox(
+                  height: 20,
+                ),
                 Container(
                   width: 330,
                   height: 50,
@@ -78,10 +96,7 @@ class FoundationState extends State<Foundation> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => Foundation1(
-                                currentUserId: currentUserId,
-                              )),
+                      MaterialPageRoute(builder: (context) => Foundation1()),
                     );
                   },
                   child: Stack(
@@ -112,9 +127,7 @@ class FoundationState extends State<Foundation> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Foundation1(
-                                            currentUserId: currentUserId,
-                                          )),
+                                      builder: (context) => Foundation1()),
                                 );
                               },
                             ),
@@ -171,63 +184,6 @@ class FoundationState extends State<Foundation> {
                   ),
                 ),
                 SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Image(
-                      image: AssetImage('images/found1.png'),
-                      gaplessPlayback: true,
-                      width: 170,
-                      height: 120,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(0.0),
-                      child: Image(
-                        gaplessPlayback: true,
-                        image: AssetImage('images/sudan1.png'),
-                        width: 170,
-                        height: 120,
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: Divider(
-                      color: Colors.white,
-                    )),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-                      child: ButtonTheme(
-                        minWidth: 50,
-                        height: 25,
-                        child: RaisedButton(
-                          color: Color(0xffc67608),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: Color(0xffc67608),
-                            ),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(40.0),
-                            ),
-                          ),
-                          child: Text("Foundations"),
-                          textColor: Colors.black,
-                          onPressed: () {},
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
                   height: 65,
                 ),
                 RaisedButton(
@@ -235,10 +191,7 @@ class FoundationState extends State<Foundation> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => Foundation2(
-                                currentUserId: currentUserId,
-                              )),
+                      MaterialPageRoute(builder: (context) => Foundation2()),
                     );
                   },
                   child: Stack(
@@ -269,9 +222,7 @@ class FoundationState extends State<Foundation> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Foundation2(
-                                            currentUserId: currentUserId,
-                                          )),
+                                      builder: (context) => Foundation2()),
                                 );
                               },
                             ),
@@ -328,37 +279,6 @@ class FoundationState extends State<Foundation> {
                   ),
                 ),
                 SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Image(
-                      image: AssetImage('images/baby.png'),
-                      gaplessPlayback: true,
-                      width: 170,
-                      height: 120,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(0.0),
-                      child: Image(
-                        image: AssetImage('images/sudan2.png'),
-                        gaplessPlayback: true,
-                        width: 170,
-                        height: 120,
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: Divider(
-                      color: Colors.white,
-                    )),
-                  ],
-                ),
-                SizedBox(
                   height: 65,
                 ),
                 RaisedButton(
@@ -366,10 +286,7 @@ class FoundationState extends State<Foundation> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => Foundation3(
-                                currentUserId: currentUserId,
-                              )),
+                      MaterialPageRoute(builder: (context) => Foundation3()),
                     );
                   },
                   child: Stack(
@@ -400,9 +317,7 @@ class FoundationState extends State<Foundation> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Foundation3(
-                                            currentUserId: currentUserId,
-                                          )),
+                                      builder: (context) => Foundation3()),
                                 );
                               },
                             ),
@@ -458,41 +373,110 @@ class FoundationState extends State<Foundation> {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Image(
-                      image: AssetImage('images/cross1.png'),
-                      gaplessPlayback: true,
-                      width: 170,
-                      height: 120,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(0.0),
-                      child: Image(
-                        image: AssetImage('images/cross2.png'),
-                        gaplessPlayback: true,
-                        width: 170,
-                        height: 120,
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: Divider(
-                      color: Colors.white,
-                    )),
-                  ],
-                ),
               ],
-            ),
-          ),
-        ),
+            ));
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (BuildContext context, int index) {
+                return SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 40,
+                      ),
+                      RaisedButton(
+                        color: Colors.black,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    FoundationDetail(snapshot.data[index])),
+                          );
+                        },
+                        child: Stack(
+                          children: <Widget>[
+                            Image(
+                              image: NetworkImage(snapshot.data[index].image),
+                              gaplessPlayback: true,
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsets.fromLTRB(0.0, 140.0, 0.0, 0.0),
+                              child: Center(
+                                child: ButtonTheme(
+                                  minWidth: 80,
+                                  height: 30,
+                                  child: RaisedButton(
+                                    color: Color(0xffc67608),
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                        color: Color(0xffc67608),
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(40.0),
+                                      ),
+                                    ),
+                                    child: Text("Read More"),
+                                    textColor: Colors.black,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                FoundationDetail(
+                                                    snapshot.data[index])),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                  10.0, 180.0, 0.0, 0.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Image(
+                                        image: AssetImage('images/icons8.png'),
+                                        gaplessPlayback: true,
+                                        width: 30,
+                                        height: 40,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(10.0, 230, 0.0, 0.0),
+                              child: Text(
+                                snapshot.data[index].desc,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w200,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -509,10 +493,7 @@ class FoundationState extends State<Foundation> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Navigation(
-                            currentUserId: currentUserId,
-                          )),
+                  MaterialPageRoute(builder: (context) => Navigation()),
                 );
               },
             ),
@@ -526,10 +507,7 @@ class FoundationState extends State<Foundation> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Meetup(
-                            currentUserId: currentUserId,
-                          )),
+                  MaterialPageRoute(builder: (context) => Meetup()),
                 );
               },
             ),
@@ -544,7 +522,7 @@ class FoundationState extends State<Foundation> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Chat()),
+                  MaterialPageRoute(builder: (context) => Messages()),
                 );
               },
             ),
@@ -569,4 +547,186 @@ class FoundationState extends State<Foundation> {
       ),
     );
   }
+}
+
+class FoundationDetail extends StatelessWidget {
+  final Foundation foundation;
+
+  FoundationDetail(this.foundation);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          foundation.name,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.black,
+        automaticallyImplyLeading: true,
+        //`true` if you want Flutter to automatically add Back Button when needed,
+        //or `false` if you want to force your own back button every where
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Foundations()),
+            );
+          },
+        ),
+      ),
+      backgroundColor: Colors.black,
+      body: SingleChildScrollView(
+        child: Center(
+          child: SafeArea(
+            child: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: 20,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                RaisedButton(
+                  color: Colors.black,
+                  onPressed: () {},
+                  child: Stack(
+                    children: <Widget>[
+                      Image(
+                        image: NetworkImage(foundation.image),
+                        gaplessPlayback: true,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0.0, 220, 0.0, 0.0),
+                        child: Center(
+                          child: Text(
+                            foundation.desc,
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w200,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                  child: Center(
+                    child: ButtonTheme(
+                      minWidth: 200,
+                      height: 50,
+                      child: RaisedButton(
+                        color: Color(0xffc67608),
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            color: Color(0xffc67608),
+                          ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(40.0),
+                          ),
+                        ),
+                        child: Text("Donate"),
+                        textColor: Colors.black,
+                        onPressed: () {},
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.black,
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            backgroundColor: Colors.black,
+            title: Text(''),
+            icon: IconButton(
+              icon: Icon(
+                Icons.home,
+                color: Colors.orangeAccent,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Navigation()),
+                );
+              },
+            ),
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(
+              icon: Icon(
+                Icons.people,
+                color: Colors.orangeAccent,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Meetup()),
+                );
+              },
+            ),
+            title: Text(''),
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(
+              icon: Icon(
+                Icons.comment,
+                color: Colors.orangeAccent,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Messages()),
+                );
+              },
+            ),
+            title: Text(''),
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(
+              icon: Icon(
+                Icons.perm_identity,
+                color: Colors.orangeAccent,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Profile()),
+                );
+              },
+            ),
+            title: Text(''),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class Foundation {
+  final int eid;
+  final String desc;
+  final String name;
+  final String image;
+
+  Foundation(this.eid, this.desc, this.name, this.image);
 }

@@ -2,18 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:travel_world/privileges/privilege.dart';
 
 class Hotel extends StatefulWidget {
-  final String currentUserId;
-
-  Hotel({Key key, @required this.currentUserId}) : super(key: key);
-
   @override
-  State createState() => HotelState(currentUserId: currentUserId);
+  State createState() => HotelState();
 }
 
 class HotelState extends State<Hotel> {
-  HotelState({Key key, @required this.currentUserId});
-
-  final String currentUserId;
   void _showModalSheet() {
     showModalBottomSheet(
         context: context,
@@ -69,9 +62,7 @@ class HotelState extends State<Hotel> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        Privilege(currentUserId: currentUserId)),
+                MaterialPageRoute(builder: (context) => Privilege()),
               );
             },
           )),

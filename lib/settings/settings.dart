@@ -4,20 +4,15 @@ import 'package:travel_world/home/home.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
+import 'package:travel_world/messages/messages.dart';
 
 class Settings extends StatefulWidget {
-  final String currentUserId;
-
-  Settings({Key key, @required this.currentUserId}) : super(key: key);
 
   @override
-  State createState() => SettingsState(currentUserId: currentUserId);
+  State createState() => SettingsState();
 }
 
 class SettingsState extends State<Settings> {
-  SettingsState({Key key, @required this.currentUserId});
-
-  final String currentUserId;
   final _auth = FirebaseAuth.instance;
   FirebaseUser loggedInUser;
 
@@ -68,7 +63,7 @@ class SettingsState extends State<Settings> {
               context,
               MaterialPageRoute(
                   builder: (context) => Navigation(
-                        currentUserId: currentUserId,
+
                       )),
             );
           },
@@ -291,7 +286,7 @@ class SettingsState extends State<Settings> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => Navigation(
-                            currentUserId: currentUserId,
+
                           )),
                 );
               },
@@ -308,7 +303,7 @@ class SettingsState extends State<Settings> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => Meetup(
-                            currentUserId: currentUserId,
+
                           )),
                 );
               },
@@ -322,10 +317,10 @@ class SettingsState extends State<Settings> {
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
-//                Navigator.push(
-//                  context,
-//                  MaterialPageRoute(builder: (context) => Chat()),
-//                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Messages()),
+                );
               },
             ),
             title: Text(''),
@@ -341,7 +336,6 @@ class SettingsState extends State<Settings> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => Profile(
-                            currentUserId: currentUserId,
                           )),
                 );
               },

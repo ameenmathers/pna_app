@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:travel_world/hotel/hotel.dart';
 import 'package:travel_world/meetup/meetup.dart';
+import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
 
 class Privilege extends StatefulWidget {
-  final String currentUserId;
-
-  Privilege({Key key, @required this.currentUserId}) : super(key: key);
-
   @override
-  State createState() => PrivilegeState(currentUserId: currentUserId);
+  State createState() => PrivilegeState();
 }
 
 class PrivilegeState extends State<Privilege> {
-  PrivilegeState({Key key, @required this.currentUserId});
-
-  final String currentUserId;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,10 +30,7 @@ class PrivilegeState extends State<Privilege> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => Navigation(
-                        currentUserId: currentUserId,
-                      )),
+              MaterialPageRoute(builder: (context) => Navigation()),
             );
           },
         ),
@@ -75,10 +65,7 @@ class PrivilegeState extends State<Privilege> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => Hotel(
-                                currentUserId: currentUserId,
-                              )),
+                      MaterialPageRoute(builder: (context) => Hotel()),
                     );
                   },
                   child: Stack(
@@ -108,9 +95,7 @@ class PrivilegeState extends State<Privilege> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Hotel(
-                                            currentUserId: currentUserId,
-                                          )),
+                                      builder: (context) => Hotel()),
                                 );
                               },
                             ),
@@ -134,14 +119,6 @@ class PrivilegeState extends State<Privilege> {
                                   ),
                                 ),
                               ],
-                            ),
-                            Text(
-                              '12 Jan',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17,
-                              ),
                             ),
                           ],
                         ),
@@ -179,40 +156,6 @@ class PrivilegeState extends State<Privilege> {
                         height: 120,
                       ),
                     )
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: Divider(
-                      color: Colors.white,
-                    )),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-                      child: ButtonTheme(
-                        minWidth: 50,
-                        height: 25,
-                        child: RaisedButton(
-                          color: Color(0xffc67608),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: Color(0xffc67608),
-                            ),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(40.0),
-                            ),
-                          ),
-                          child: Text("Hotels"),
-                          textColor: Colors.black,
-                          onPressed: () {},
-                        ),
-                      ),
-                    ),
                   ],
                 ),
                 SizedBox(
@@ -324,40 +267,6 @@ class PrivilegeState extends State<Privilege> {
                     )
                   ],
                 ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: Divider(
-                      color: Colors.white,
-                    )),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-                      child: ButtonTheme(
-                        minWidth: 50,
-                        height: 25,
-                        child: RaisedButton(
-                          color: Color(0xffc67608),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: Color(0xffc67608),
-                            ),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(40.0),
-                            ),
-                          ),
-                          child: Text("Travel"),
-                          textColor: Colors.black,
-                          onPressed: () {},
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
                 SizedBox(
                   height: 65,
                 ),
@@ -467,40 +376,6 @@ class PrivilegeState extends State<Privilege> {
                     )
                   ],
                 ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: Divider(
-                      color: Colors.white,
-                    )),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-                      child: ButtonTheme(
-                        minWidth: 50,
-                        height: 25,
-                        child: RaisedButton(
-                          color: Color(0xffc67608),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: Color(0xffc67608),
-                            ),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(40.0),
-                            ),
-                          ),
-                          child: Text("Lifestyle"),
-                          textColor: Colors.black,
-                          onPressed: () {},
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
@@ -521,10 +396,7 @@ class PrivilegeState extends State<Privilege> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Navigation(
-                            currentUserId: currentUserId,
-                          )),
+                  MaterialPageRoute(builder: (context) => Navigation()),
                 );
               },
             ),
@@ -532,16 +404,13 @@ class PrivilegeState extends State<Privilege> {
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
-                Icons.people,
+                Icons.vpn_lock,
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Meetup(
-                            currentUserId: currentUserId,
-                          )),
+                  MaterialPageRoute(builder: (context) => Meetup()),
                 );
               },
             ),
@@ -554,10 +423,10 @@ class PrivilegeState extends State<Privilege> {
                 color: Colors.orangeAccent,
               ),
               onPressed: () {
-//                Navigator.push(
-//                  context,
-//                  MaterialPageRoute(builder: (context) => ChatScreen()),
-//                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Messages()),
+                );
               },
             ),
             title: Text(''),
@@ -571,10 +440,7 @@ class PrivilegeState extends State<Privilege> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Profile(
-                            currentUserId: currentUserId,
-                          )),
+                  MaterialPageRoute(builder: (context) => Profile()),
                 );
               },
             ),
