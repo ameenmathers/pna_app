@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "755264115705",
+    "firebase_url": "https://play-2f9e6.firebaseio.com",
+    "project_id": "play-2f9e6",
+    "storage_bucket": "play-2f9e6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:755264115705:android:b5ac85015cd22fe2222328",
+        "android_client_info": {
+          "package_name": "io.matherly.travel_world"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "755264115705-s00i0kg6d3ln9sn6vvcm1ime5aunm33q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.matherly.travel_world",
+            "certificate_hash": "02b99051c6c6f84e97e7459d03059674d941fa1a"
+          }
+        },
+        {
+          "client_id": "755264115705-p8eb0ltqlc39eqc45t462m6mi1nf2due.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgAfq98aXRliYVSGoqOip046OCv5Lbeto"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "755264115705-p8eb0ltqlc39eqc45t462m6mi1nf2due.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "755264115705-2kprlqggm4649dv4tcp2fboseojsj2rf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.matherly.play"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
