@@ -2,12 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_world/home/home.dart';
 import 'package:travel_world/meetup/meetup.dart';
+import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
-import 'package:travel_world/messages/messages.dart';
 
 class Settings extends StatefulWidget {
-
   @override
   State createState() => SettingsState();
 }
@@ -61,10 +60,7 @@ class SettingsState extends State<Settings> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => Navigation(
-
-                      )),
+              MaterialPageRoute(builder: (context) => Navigation()),
             );
           },
         ),
@@ -78,150 +74,150 @@ class SettingsState extends State<Settings> {
                 SizedBox(
                   height: 45,
                 ),
-                Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 35,
-                    ),
-                    Text(
-                      'Login with Touch ID',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 70,
-                    ),
-                    Switch(
-                      value: isSwitched,
-                      onChanged: (value) {
-                        setState(() {
-                          isSwitched = value;
-                        });
-                      },
-                      activeTrackColor: Color(0xffc67608),
-                      activeColor: Colors.white,
-                      inactiveTrackColor: Colors.white70,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 35,
-                    ),
-                    Text(
-                      'Enable 2FA',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 150,
-                    ),
-                    Switch(
-                      value: isSwitched2,
-                      onChanged: (value) {
-                        setState(() {
-                          isSwitched2 = value;
-                        });
-                      },
-                      activeTrackColor: Color(0xffc67608),
-                      activeColor: Colors.white,
-                      inactiveTrackColor: Colors.white70,
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 45,
-                ),
-                Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 35,
-                    ),
-                    Text(
-                      'Share My Activity',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 35,
-                    ),
-                    Text(
-                      'Make Me  Discoverable',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 40,
-                    ),
-                    Switch(
-                      value: isOff,
-                      onChanged: (value) {
-                        setState(() {
-                          isOff = value;
-                        });
-                      },
-                      activeTrackColor: Color(0xffc67608),
-                      inactiveTrackColor: Colors.white70,
-                      activeColor: Colors.white,
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 105,
-                ),
-                Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 35,
-                    ),
-                    Text(
-                      'Terms of Service',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 35,
-                ),
-                Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 35,
-                    ),
-                    Text(
-                      'Privacy Policy',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 45,
-                ),
+//                Row(
+//                  children: <Widget>[
+//                    SizedBox(
+//                      width: 35,
+//                    ),
+//                    Text(
+//                      'Login with Touch ID',
+//                      style: TextStyle(
+//                        fontSize: 20,
+//                        color: Colors.white,
+//                        fontWeight: FontWeight.bold,
+//                      ),
+//                    ),
+//                    SizedBox(
+//                      width: 70,
+//                    ),
+//                    Switch(
+//                      value: isSwitched,
+//                      onChanged: (value) {
+//                        setState(() {
+//                          isSwitched = value;
+//                        });
+//                      },
+//                      activeTrackColor: Color(0xffc67608),
+//                      activeColor: Colors.white,
+//                      inactiveTrackColor: Colors.white70,
+//                    ),
+//                  ],
+//                ),
+//                Row(
+//                  children: <Widget>[
+//                    SizedBox(
+//                      width: 35,
+//                    ),
+//                    Text(
+//                      'Enable 2FA',
+//                      style: TextStyle(
+//                        fontSize: 20,
+//                        color: Colors.white,
+//                        fontWeight: FontWeight.bold,
+//                      ),
+//                    ),
+//                    SizedBox(
+//                      width: 150,
+//                    ),
+//                    Switch(
+//                      value: isSwitched2,
+//                      onChanged: (value) {
+//                        setState(() {
+//                          isSwitched2 = value;
+//                        });
+//                      },
+//                      activeTrackColor: Color(0xffc67608),
+//                      activeColor: Colors.white,
+//                      inactiveTrackColor: Colors.white70,
+//                    ),
+//                  ],
+//                ),
+//                SizedBox(
+//                  height: 45,
+//                ),
+//                Row(
+//                  children: <Widget>[
+//                    SizedBox(
+//                      width: 35,
+//                    ),
+//                    Text(
+//                      'Share My Activity',
+//                      style: TextStyle(
+//                        fontSize: 20,
+//                        color: Colors.white,
+//                        fontWeight: FontWeight.bold,
+//                      ),
+//                    ),
+//                  ],
+//                ),
+//                Row(
+//                  children: <Widget>[
+//                    SizedBox(
+//                      width: 35,
+//                    ),
+//                    Text(
+//                      'Make Me  Discoverable',
+//                      style: TextStyle(
+//                        fontSize: 20,
+//                        color: Colors.white,
+//                        fontWeight: FontWeight.bold,
+//                      ),
+//                    ),
+//                    SizedBox(
+//                      width: 40,
+//                    ),
+//                    Switch(
+//                      value: isOff,
+//                      onChanged: (value) {
+//                        setState(() {
+//                          isOff = value;
+//                        });
+//                      },
+//                      activeTrackColor: Color(0xffc67608),
+//                      inactiveTrackColor: Colors.white70,
+//                      activeColor: Colors.white,
+//                    ),
+//                  ],
+//                ),
+//                SizedBox(
+//                  height: 105,
+//                ),
+//                Row(
+//                  children: <Widget>[
+//                    SizedBox(
+//                      width: 35,
+//                    ),
+//                    Text(
+//                      'Terms of Service',
+//                      style: TextStyle(
+//                        fontSize: 20,
+//                        color: Colors.white,
+//                        fontWeight: FontWeight.bold,
+//                      ),
+//                    ),
+//                  ],
+//                ),
+//                SizedBox(
+//                  height: 35,
+//                ),
+//                Row(
+//                  children: <Widget>[
+//                    SizedBox(
+//                      width: 35,
+//                    ),
+//                    Text(
+//                      'Privacy Policy',
+//                      style: TextStyle(
+//                        fontSize: 20,
+//                        color: Colors.white,
+//                        fontWeight: FontWeight.bold,
+//                      ),
+//                    ),
+//                  ],
+//                ),
+//                SizedBox(
+//                  height: 45,
+//                ),
                 Row(
                   children: <Widget>[
                     SizedBox(
@@ -255,7 +251,7 @@ class SettingsState extends State<Settings> {
                         textColor: Colors.white70,
                         onPressed: () {
                           _auth.signOut();
-                          Navigator.pop(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => HomePage()),
                           );
@@ -284,10 +280,7 @@ class SettingsState extends State<Settings> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Navigation(
-
-                          )),
+                  MaterialPageRoute(builder: (context) => Navigation()),
                 );
               },
             ),
@@ -301,10 +294,7 @@ class SettingsState extends State<Settings> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Meetup(
-
-                          )),
+                  MaterialPageRoute(builder: (context) => Meetup()),
                 );
               },
             ),
@@ -334,9 +324,7 @@ class SettingsState extends State<Settings> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => Profile(
-                          )),
+                  MaterialPageRoute(builder: (context) => Profile()),
                 );
               },
             ),

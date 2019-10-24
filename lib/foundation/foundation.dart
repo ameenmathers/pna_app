@@ -3,13 +3,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:travel_world/foundation/foundation1.dart';
-import 'package:travel_world/foundation/foundation2.dart';
-import 'package:travel_world/foundation/foundation3.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Foundations extends StatefulWidget {
   @override
@@ -18,15 +16,16 @@ class Foundations extends StatefulWidget {
 
 class _FoundationsState extends State<Foundations> {
   Future<List<Foundation>> _getFoundations() async {
-    var data = await http.get("http://localhost:8000/api/foundation");
+    var data = await http
+        .get("http://www.playnetworkafrica.com/public/api/foundation");
 
     var jsonData = json.decode(data.body);
 
     List<Foundation> foundations = [];
 
     for (var u in jsonData) {
-      Foundation foundation =
-          Foundation(u["fid"], u["desc"], u["name"], u["image"]);
+      Foundation foundation = Foundation(
+          u["fid"], u["desc"], u["name"], u["image"], u["paymenturl"]);
 
       foundations.add(foundation);
     }
@@ -36,29 +35,81 @@ class _FoundationsState extends State<Foundations> {
     return foundations;
   }
 
+  TextEditingController searchController = new TextEditingController();
+  String filter;
+
+  @override
+  void initState() {
+    super.initState();
+    searchController.addListener(() {
+      setState(() {
+        filter = searchController.text;
+      });
+    });
+
+    _getFoundations();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Foundation',
-          style: TextStyle(
-            fontSize: 30,
+      appBar: PreferredSize(
+        child: AppBar(
+          title: Text(
+            'Foundation',
+            style: TextStyle(
+              fontSize: 30,
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          automaticallyImplyLeading: true,
+          //`true` if you want Flutter to automatically add Back Button when needed,
+          //or `false` if you want to force your own back button every where
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Navigation()),
+              );
+            },
+          ),
+          flexibleSpace: Column(
+            children: <Widget>[
+              SizedBox(
+                height: 80,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: 330,
+                    height: 50,
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                          labelText: "Search",
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: "Search",
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(25.0)))),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        backgroundColor: Colors.transparent,
-        automaticallyImplyLeading: true,
-        //`true` if you want Flutter to automatically add Back Button when needed,
-        //or `false` if you want to force your own back button every where
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Navigation()),
-            );
-          },
-        ),
+        preferredSize: Size.fromHeight(140.0),
       ),
       backgroundColor: Colors.black,
       body: FutureBuilder(
@@ -66,414 +117,234 @@ class _FoundationsState extends State<Foundations> {
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           print(snapshot.data);
           if (snapshot.data == null) {
-            return SingleChildScrollView(
+            return Container(
                 child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  width: 330,
-                  height: 50,
-                  child: TextField(
-                    onChanged: (value) {},
-                    decoration: InputDecoration(
-                        labelText: "Search",
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: "Search",
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(25.0)))),
-                  ),
-                ),
-                SizedBox(
-                  height: 40,
-                ),
-                RaisedButton(
-                  color: Colors.black,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Foundation1()),
-                    );
-                  },
-                  child: Stack(
-                    children: <Widget>[
-                      Image(
-                        image: AssetImage('images/sudan.png'),
-                        gaplessPlayback: true,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0.0, 140.0, 0.0, 0.0),
-                        child: Center(
-                          child: ButtonTheme(
-                            minWidth: 80,
-                            height: 30,
-                            child: RaisedButton(
-                              color: Color(0xffc67608),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: Color(0xffc67608),
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(40.0),
-                                ),
-                              ),
-                              child: Text("Read More"),
-                              textColor: Colors.black,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Foundation1()),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(10.0, 180.0, 0.0, 0.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Image(
-                                  image: AssetImage('images/icons8.png'),
-                                  gaplessPlayback: true,
-                                  width: 30,
-                                  height: 40,
-                                ),
-                                Text(
-                                  'Sponsor a child',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              '12 Jan',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10.0, 230, 0.0, 0.0),
-                        child: Text(
-                          'Sponsor a child to school for a year',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w200,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 65,
-                ),
-                RaisedButton(
-                  color: Colors.black,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Foundation2()),
-                    );
-                  },
-                  child: Stack(
-                    children: <Widget>[
-                      Image(
-                        image: AssetImage('images/found2.png'),
-                        gaplessPlayback: true,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0.0, 140.0, 0.0, 0.0),
-                        child: Center(
-                          child: ButtonTheme(
-                            minWidth: 80,
-                            height: 30,
-                            child: RaisedButton(
-                              color: Color(0xffc67608),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: Color(0xffc67608),
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(40.0),
-                                ),
-                              ),
-                              child: Text("Read More"),
-                              textColor: Colors.black,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Foundation2()),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(10.0, 180.0, 0.0, 0.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Image(
-                                  image: AssetImage('images/icons8.png'),
-                                  gaplessPlayback: true,
-                                  width: 30,
-                                  height: 40,
-                                ),
-                                Text(
-                                  'Tiny Beating Hearts Initiative',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              '12 Jan',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10.0, 230, 0.0, 0.0),
-                        child: Text(
-                          'Support the training of staff to take care of preterm babies',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w200,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 65,
-                ),
-                RaisedButton(
-                  color: Colors.black,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Foundation3()),
-                    );
-                  },
-                  child: Stack(
-                    children: <Widget>[
-                      Image(
-                        image: AssetImage('images/volunteers1.png'),
-                        gaplessPlayback: true,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0.0, 140.0, 0.0, 0.0),
-                        child: Center(
-                          child: ButtonTheme(
-                            minWidth: 80,
-                            height: 30,
-                            child: RaisedButton(
-                              color: Color(0xffc67608),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: Color(0xffc67608),
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(40.0),
-                                ),
-                              ),
-                              child: Text("Read More"),
-                              textColor: Colors.black,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Foundation3()),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(10.0, 180.0, 0.0, 0.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Image(
-                                  image: AssetImage('images/icons8.png'),
-                                  gaplessPlayback: true,
-                                  width: 30,
-                                  height: 40,
-                                ),
-                                Text(
-                                  'Red Cross Of Nigeria',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              '12 Jan',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10.0, 230, 0.0, 0.0),
-                        child: Text(
-                          'Support Food and health aid to undernourished populations in India',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w200,
-                          ),
-                        ),
-                      ),
-                    ],
+                Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
                   ),
                 ),
               ],
             ));
           } else {
-            return ListView.builder(
-              itemCount: snapshot.data.length,
-              itemBuilder: (BuildContext context, int index) {
-                return SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 40,
-                      ),
-                      RaisedButton(
-                        color: Colors.black,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    FoundationDetail(snapshot.data[index])),
-                          );
-                        },
-                        child: Stack(
-                          children: <Widget>[
-                            Image(
-                              image: NetworkImage(snapshot.data[index].image),
-                              gaplessPlayback: true,
-                            ),
-                            Padding(
-                              padding:
-                                  EdgeInsets.fromLTRB(0.0, 140.0, 0.0, 0.0),
-                              child: Center(
-                                child: ButtonTheme(
-                                  minWidth: 80,
-                                  height: 30,
-                                  child: RaisedButton(
-                                    color: Color(0xffc67608),
-                                    shape: RoundedRectangleBorder(
-                                      side: BorderSide(
-                                        color: Color(0xffc67608),
-                                      ),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(40.0),
-                                      ),
-                                    ),
-                                    child: Text("Read More"),
-                                    textColor: Colors.black,
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                FoundationDetail(
-                                                    snapshot.data[index])),
-                                      );
-                                    },
-                                  ),
+            return Container(
+              child: RefreshIndicator(
+                onRefresh: _getFoundations,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return filter == null || filter == ""
+                        ? SingleChildScrollView(
+                            child: Column(
+                              children: <Widget>[
+                                SizedBox(
+                                  height: 5,
                                 ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                  10.0, 180.0, 0.0, 0.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Row(
+                                RaisedButton(
+                                  color: Colors.black,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              FoundationDetail(
+                                                  snapshot.data[index])),
+                                    );
+                                  },
+                                  child: Stack(
                                     children: <Widget>[
                                       Image(
-                                        image: AssetImage('images/icons8.png'),
+                                        image: NetworkImage(
+                                            snapshot.data[index].image),
                                         gaplessPlayback: true,
-                                        width: 30,
-                                        height: 40,
+                                        width: 450,
+                                        height: 250,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.fromLTRB(
+                                            0.0, 210.0, 0.0, 0.0),
+                                        child: Center(
+                                          child: ButtonTheme(
+                                            minWidth: 80,
+                                            height: 30,
+                                            child: RaisedButton(
+                                              color: Color(0xffc67608),
+                                              shape: RoundedRectangleBorder(
+                                                side: BorderSide(
+                                                  color: Color(0xffc67608),
+                                                ),
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(40.0),
+                                                ),
+                                              ),
+                                              child: Text("Read More"),
+                                              textColor: Colors.black,
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          FoundationDetail(
+                                                              snapshot.data[
+                                                                  index])),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            0.0, 250.0, 0.0, 0.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Text(
+                                              snapshot.data[index].name,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.fromLTRB(
+                                            0.0, 290.0, 0.0, 0.0),
+                                        child: Center(
+                                          child: Text(
+                                            snapshot.data[index].desc,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w200,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(10.0, 230, 0.0, 0.0),
-                              child: Text(
-                                snapshot.data[index].desc,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w200,
                                 ),
-                              ),
+                                SizedBox(
+                                  height: 50,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30,
-                      ),
-                    ],
-                  ),
-                );
-              },
+                          )
+                        : snapshot.data[index].name
+                                .toLowerCase()
+                                .contains(filter.toLowerCase())
+                            ? SingleChildScrollView(
+                                child: Column(
+                                  children: <Widget>[
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    RaisedButton(
+                                      color: Colors.black,
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  FoundationDetail(
+                                                      snapshot.data[index])),
+                                        );
+                                      },
+                                      child: Stack(
+                                        children: <Widget>[
+                                          Image(
+                                            image: NetworkImage(
+                                                snapshot.data[index].image),
+                                            gaplessPlayback: true,
+                                            width: 450,
+                                            height: 250,
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                0.0, 210.0, 0.0, 0.0),
+                                            child: Center(
+                                              child: ButtonTheme(
+                                                minWidth: 80,
+                                                height: 30,
+                                                child: RaisedButton(
+                                                  color: Color(0xffc67608),
+                                                  shape: RoundedRectangleBorder(
+                                                    side: BorderSide(
+                                                      color: Color(0xffc67608),
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                      Radius.circular(40.0),
+                                                    ),
+                                                  ),
+                                                  child: Text("Read More"),
+                                                  textColor: Colors.black,
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              FoundationDetail(
+                                                                  snapshot.data[
+                                                                      index])),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0.0, 250.0, 0.0, 0.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                Text(
+                                                  snapshot.data[index].name,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                10.0, 290.0, 0.0, 0.0),
+                                            child: Text(
+                                              snapshot.data[index].desc,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.w200,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 50,
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : new Container();
+                  },
+                ),
+              ),
             );
           }
         },
@@ -554,6 +425,15 @@ class FoundationDetail extends StatelessWidget {
 
   FoundationDetail(this.foundation);
 
+  _launchURL() async {
+    final url = foundation.paymenturl;
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -597,14 +477,16 @@ class FoundationDetail extends StatelessWidget {
                 RaisedButton(
                   color: Colors.black,
                   onPressed: () {},
-                  child: Stack(
+                  child: Column(
                     children: <Widget>[
                       Image(
                         image: NetworkImage(foundation.image),
                         gaplessPlayback: true,
+                        width: 400,
+                        height: 300,
                       ),
                       Padding(
-                        padding: EdgeInsets.fromLTRB(0.0, 220, 0.0, 0.0),
+                        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                         child: Center(
                           child: Text(
                             foundation.desc,
@@ -641,7 +523,7 @@ class FoundationDetail extends StatelessWidget {
                         ),
                         child: Text("Donate"),
                         textColor: Colors.black,
-                        onPressed: () {},
+                        onPressed: _launchURL,
                       ),
                     ),
                   ),
@@ -727,6 +609,7 @@ class Foundation {
   final String desc;
   final String name;
   final String image;
+  final String paymenturl;
 
-  Foundation(this.eid, this.desc, this.name, this.image);
+  Foundation(this.eid, this.desc, this.name, this.image, this.paymenturl);
 }

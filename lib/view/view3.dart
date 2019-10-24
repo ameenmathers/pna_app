@@ -76,36 +76,42 @@ class _View3State extends State<View3> {
                         SizedBox(
                           child: Image(
                             image: AssetImage("images/person1.png"),
+                            gaplessPlayback: true,
                           ),
                           height: 45,
                         ),
                         SizedBox(
                           child: Image(
                             image: AssetImage("images/person2.png"),
+                            gaplessPlayback: true,
                           ),
                           height: 45,
                         ),
                         SizedBox(
                           child: Image(
                             image: AssetImage("images/person3.png"),
+                            gaplessPlayback: true,
                           ),
                           height: 45,
                         ),
                         SizedBox(
                           child: Image(
                             image: AssetImage("images/person4.png"),
+                            gaplessPlayback: true,
                           ),
                           height: 45,
                         ),
                         SizedBox(
                           child: Image(
                             image: AssetImage("images/person5.png"),
+                            gaplessPlayback: true,
                           ),
                           height: 45,
                         ),
                         SizedBox(
                           child: Image(
                             image: AssetImage("images/person6.png"),
+                            gaplessPlayback: true,
                           ),
                           height: 45,
                         ),

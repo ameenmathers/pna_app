@@ -61,7 +61,7 @@ class _MessagesState extends State<Messages> {
                   itemCount: usersList.length,
                   itemBuilder: ((context, index) {
                     return Card(
-                      color: Colors.grey.shade600,
+                      color: Colors.white12,
                       margin: EdgeInsets.all(10.0),
                       shape: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(50.0)),
@@ -74,10 +74,6 @@ class _MessagesState extends State<Messages> {
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                            )),
-                        subtitle: Text(usersList[index].data['profession'],
-                            style: TextStyle(
-                              color: Colors.white70,
                             )),
                         onTap: (() {
                           Navigator.push(

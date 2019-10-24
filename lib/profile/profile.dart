@@ -3,15 +3,16 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_world/const.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -19,42 +20,37 @@ class Profile extends StatefulWidget {
 }
 
 class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
-  TabController tabController;
-  TextEditingController controllerName;
-  TextEditingController controllerAboutMe;
-
-  SharedPreferences prefs;
-
-  String uid = '';
-  String name = '';
-  String aboutMe = '';
-  String photoUrl = '';
-
-  bool isLoading = false;
-  File avatarImageFile;
-
-  final FocusNode focusNodeName = new FocusNode();
-  final FocusNode focusNodeAboutMe = new FocusNode();
+  final _auth = FirebaseAuth.instance;
+  FirebaseUser loggedInUser;
 
   @override
   void initState() {
     super.initState();
-    readLocal();
+    getCurrentUser();
   }
 
-  void readLocal() async {
-    prefs = await SharedPreferences.getInstance();
-    uid = prefs.getString('uid') ?? '';
-    name = prefs.getString('name') ?? '';
-    aboutMe = prefs.getString('aboutMe') ?? '';
-    photoUrl = prefs.getString('photoUrl') ?? '';
-
-    controllerName = new TextEditingController(text: name);
-    controllerAboutMe = new TextEditingController(text: aboutMe);
-
-    // Force refresh input
-    setState(() {});
+  void getCurrentUser() async {
+    try {
+      final user = await _auth.currentUser();
+      if (user != null) {
+        loggedInUser = user;
+      }
+    } catch (e) {
+      print(e);
+    }
   }
+
+  TabController tabController;
+  TextEditingController controllerName = TextEditingController();
+  TextEditingController controllerAboutMe = TextEditingController();
+  TextEditingController controllerStatus = TextEditingController();
+
+  SharedPreferences prefs;
+
+  String photoUrl = '';
+
+  bool isLoading = false;
+  File avatarImageFile;
 
   Future getImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -62,13 +58,14 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     if (image != null) {
       setState(() {
         avatarImageFile = image;
-        isLoading = true;
+        print('Image path $avatarImageFile');
       });
     }
-    uploadFile();
   }
 
   Future uploadFile() async {
+    final FirebaseUser user = await _auth.currentUser();
+    final uid = user.uid;
     String fileName = uid;
     StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = reference.putFile(avatarImageFile);
@@ -78,71 +75,33 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         storageTaskSnapshot = value;
         storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
           photoUrl = downloadUrl;
-          Firestore.instance.collection('users').document(uid).updateData({
-            'name': name,
-            'aboutMe': aboutMe,
-            'photoUrl': photoUrl
-          }).then((data) async {
-            await prefs.setString('photoUrl', photoUrl);
-            setState(() {
-              isLoading = false;
-            });
-            Fluttertoast.showToast(msg: "Upload success");
-          }).catchError((err) {
-            setState(() {
-              isLoading = false;
-            });
-            Fluttertoast.showToast(msg: err.toString());
-          });
-        }, onError: (err) {
-          setState(() {
-            isLoading = false;
-          });
-          Fluttertoast.showToast(msg: 'This file is not an image');
+          Firestore.instance
+              .collection('users')
+              .document(uid)
+              .updateData({'photoUrl': photoUrl});
         });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        Fluttertoast.showToast(msg: 'This file is not an image');
       }
-    }, onError: (err) {
-      setState(() {
-        isLoading = false;
-      });
-      Fluttertoast.showToast(msg: err.toString());
     });
   }
 
-  void handleUpdateData() {
-    focusNodeName.unfocus();
-    focusNodeAboutMe.unfocus();
-
-    setState(() {
-      isLoading = true;
-    });
-
+  void _updateData() async {
+    final FirebaseUser user = await _auth.currentUser();
+    final uid = user.uid;
+    // here you write the codes to input the data into firestore
     Firestore.instance.collection('users').document(uid).updateData({
-      'name': name,
-      'aboutMe': aboutMe,
-      'photoUrl': photoUrl
-    }).then((data) async {
-      await prefs.setString('name', name);
-      await prefs.setString('aboutMe', aboutMe);
-      await prefs.setString('photoUrl', photoUrl);
-
-      setState(() {
-        isLoading = false;
-      });
-
-      Fluttertoast.showToast(msg: "Update success");
-    }).catchError((err) {
-      setState(() {
-        isLoading = false;
-      });
-
-      Fluttertoast.showToast(msg: err.toString());
+      'name': controllerName.text,
+      'aboutMe': controllerAboutMe.text,
+      'status': controllerStatus.text,
+      'photoUrl': photoUrl,
     });
+  }
+
+  Future<DocumentSnapshot> getUserDoc() async {
+    final FirebaseUser user = await _auth.currentUser();
+    final uid = user.uid;
+
+    Firestore.instance.collection('users').document(uid).snapshots();
+
   }
 
   @override
@@ -166,10 +125,11 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               indicatorColor: Color(0xffc67608),
             ),
             flexibleSpace: Padding(
-              padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
+              padding: const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 0.0),
               child: Container(
                 color: Colors.black,
-                child: Column(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     (avatarImageFile == null)
                         ? (photoUrl != ''
@@ -229,67 +189,61 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 BorderRadius.all(Radius.circular(45.0)),
                             clipBehavior: Clip.hardEdge,
                           ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
+                        SizedBox(
+                          height: 100,
+                        ),
+                        FutureBuilder<DocumentSnapshot>(
+                            future: getUserDoc(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return ListView.builder(
+                                    itemCount: snapshot.data['data'].length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return Column(
+                                        children: <Widget>[
+                                          Text(
+                                            snapshot.data["name"],
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                          Text(
+                                            snapshot.data["aboutMe"],
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    });
+                              } else {
+                                return Container(
+                                  child: Text(
+                                    'text',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                              }
+                            }),
+                        SizedBox(
+                          height: 8,
+                        ),
                         Text(
-                          'Ameen Idris',
-                          textAlign: TextAlign.center,
+                          'Connections',
+                          textAlign: TextAlign.left,
                           style: TextStyle(
-                            fontFamily: 'RalewayRegular',
                             color: Colors.white,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
+                            fontFamily: 'RalewayRegular',
+                            fontSize: 20,
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Icon(
-                              Icons.location_on,
-                              color: Colors.grey,
-                            ),
-                            Text(
-                              'Nigeria',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'RalewayRegular',
-                                fontSize: 21,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Icon(
-                              Icons.vpn_lock,
-                              color: Colors.grey,
-                              size: 25,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              'Connections',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'RalewayRegular',
-                                fontSize: 21,
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
@@ -298,7 +252,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
-          preferredSize: Size.fromHeight(300.0),
+          preferredSize: Size.fromHeight(250.0),
         ),
         body: TabBarView(
           controller: tabController,
@@ -310,10 +264,11 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 child: Column(
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(30.0, 0.0, 0.0, 0.0),
+                      padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
                       child: Column(
                         children: <Widget>[
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: <Widget>[
                               Text(
                                 'Edit Description',
@@ -322,50 +277,50 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   fontSize: 15,
                                   color: Colors.grey,
                                 ),
-                              )
+                              ),
                             ],
                           ),
                           SizedBox(
                             height: 10,
                           ),
-                          Row(
-                            children: <Widget>[
-                              Text(
-                                'Nigeria',
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Text(
-                                'Software Developer',
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            'Traveler that loves wings and plays games on my free time',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                            ),
-                          ),
+//                          Row(
+//                            children: <Widget>[
+//                              Text(
+//                                'Nigeria',
+//                                textAlign: TextAlign.left,
+//                                style: TextStyle(
+//                                  fontSize: 16,
+//                                  color: Colors.white,
+//                                ),
+//                              )
+//                            ],
+//                          ),
+//                          SizedBox(
+//                            height: 10,
+//                          ),
+//                          Row(
+//                            children: <Widget>[
+//                              Text(
+//                                'Software Developer',
+//                                textAlign: TextAlign.left,
+//                                style: TextStyle(
+//                                  fontSize: 16,
+//                                  color: Colors.white,
+//                                ),
+//                              )
+//                            ],
+//                          ),
+//                          SizedBox(
+//                            height: 10,
+//                          ),
+//                          Text(
+//                            'Traveler that loves wings and plays games on my free time',
+//                            textAlign: TextAlign.left,
+//                            style: TextStyle(
+//                              fontSize: 16,
+//                              color: Colors.white,
+//                            ),
+//                          ),
                         ],
                       ),
                     ),
@@ -417,6 +372,29 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         ),
                       ],
                     ),
+                    SizedBox(
+                      height: 35,
+                    ),
+                    ButtonTheme(
+                      minWidth: 300.0,
+                      height: 40.0,
+                      child: RaisedButton(
+                        color: Color(0xffc67608),
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            color: Color(0xffc67608),
+                          ),
+                        ),
+                        child: Text(
+                          "Refer Member",
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        textColor: Colors.black,
+                        onPressed: _referURL,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -428,10 +406,13 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   children: <Widget>[
                     Column(
                       children: <Widget>[
+                        SizedBox(
+                          height: 20,
+                        ),
                         Row(
                           children: <Widget>[
                             SizedBox(
-                              width: 55,
+                              width: 65,
                             ),
                             Text(
                               'Username',
@@ -443,7 +424,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           ],
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             Text(
                               'Ameen Idris',
@@ -479,10 +460,10 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         Row(
                           children: <Widget>[
                             SizedBox(
-                              width: 55,
+                              width: 65,
                             ),
                             Text(
-                              'Email',
+                              'Status',
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 16,
@@ -494,7 +475,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             Text(
-                              'Ameenidris@play.com',
+                              "I'm Available",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -527,7 +508,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         Row(
                           children: <Widget>[
                             SizedBox(
-                              width: 55,
+                              width: 65,
                             ),
                             Text(
                               'Location',
@@ -539,7 +520,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           ],
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             Text(
                               'Abuja, Nigeria',
@@ -564,6 +545,108 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               onPressed: () {},
                             ),
                           ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Name',
+                              filled: true,
+                              fillColor: Colors.black,
+                              labelStyle: TextStyle(
+                                color: Colors.white,
+                              ),
+                              focusColor: Colors.white,
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.orangeAccent)),
+                            ),
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            controller: controllerName,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Status',
+                              filled: true,
+                              fillColor: Colors.black,
+                              labelStyle: TextStyle(
+                                color: Colors.white,
+                              ),
+                              focusColor: Colors.white,
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.orangeAccent)),
+                            ),
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            controller: controllerStatus,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
+                          child: TextFormField(
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Bio',
+                              filled: true,
+                              fillColor: Colors.black,
+                              labelStyle: TextStyle(
+                                color: Colors.white,
+                              ),
+                              focusColor: Colors.white,
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.orangeAccent)),
+                            ),
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            controller: controllerAboutMe,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        ButtonTheme(
+                          minWidth: 300.0,
+                          height: 40.0,
+                          child: RaisedButton(
+                            color: Color(0xffc67608),
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: Color(0xffc67608),
+                              ),
+                            ),
+                            child: Text(
+                              "Edit Profile",
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                            textColor: Colors.black,
+                            onPressed: _updateData,
+                          ),
                         ),
                       ],
                     ),
@@ -637,5 +720,14 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         ),
       ),
     );
+  }
+}
+
+_referURL() async {
+  const url = 'https://flutter.io';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
   }
 }

@@ -184,7 +184,8 @@ class NavigationState extends State<Navigation> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => Privilege()),
+                          MaterialPageRoute(
+                              builder: (context) => PrivilegePage()),
                         );
                       },
                       child: Stack(
@@ -219,7 +220,8 @@ class NavigationState extends State<Navigation> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => Privilege()),
+                                          builder: (context) =>
+                                              PrivilegePage()),
                                     );
                                   },
                                 ),

@@ -5,7 +5,7 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_world/formsec/form2.dart';
-import 'package:travel_world/login/login_screen.dart';
+import 'package:travel_world/register/pay.dart';
 
 class Register extends StatefulWidget {
   Register({Key key}) : super(key: key);
@@ -23,6 +23,8 @@ class _RegisterState extends State<Register> {
 
   final _photo =
       'https://cdn4.iconfinder.com/data/icons/business-conceptual-part1-1/513/business-man-512.png';
+
+  final _status = "Available";
 
   bool showSpinner = false;
 
@@ -283,7 +285,7 @@ class _RegisterState extends State<Register> {
                             padding: const EdgeInsets.fromLTRB(
                                 16.0, 16.0, 32.0, 16.0),
                             child: Container(
-                              color: Colors.black,
+                              color: Colors.white,
                               width: 330,
                               padding: EdgeInsets.fromLTRB(20.0, 5.0, 0.0, 5.0),
                               child: new DropdownButton<String>(
@@ -293,7 +295,7 @@ class _RegisterState extends State<Register> {
                                   'Country of Residence',
                                   style: TextStyle(
                                     fontSize: 17,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 ),
                                 style: TextStyle(
@@ -609,15 +611,17 @@ class _RegisterState extends State<Register> {
                                                 "email":
                                                     emailInputController.text,
                                                 "photoUrl": _photo,
+                                                "status": _status,
                                               })
                                               .then((result) => {
-                                                    Navigator.pushAndRemoveUntil(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder:
-                                                                (context) =>
-                                                                    Login()),
-                                                        (_) => false),
+                                                    Navigator
+                                                        .pushAndRemoveUntil(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        Pay()),
+                                                            (_) => false),
                                                     nameInputController.clear(),
                                                     cityInputController.clear(),
                                                     emailInputController

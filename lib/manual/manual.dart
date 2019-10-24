@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Manual extends StatefulWidget {
   @override
@@ -10,6 +12,27 @@ class Manual extends StatefulWidget {
 }
 
 class ManualState extends State<Manual> {
+  final _auth = FirebaseAuth.instance;
+  FirebaseUser loggedInUser;
+
+  @override
+  void initState() {
+    super.initState();
+
+    getCurrentUser();
+  }
+
+  void getCurrentUser() async {
+    try {
+      final user = await _auth.currentUser();
+      if (user != null) {
+        loggedInUser = user;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +79,7 @@ class ManualState extends State<Manual> {
                     Text(
                       'Have a Complaint?',
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 18,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -67,7 +90,7 @@ class ManualState extends State<Manual> {
                   ],
                 ),
                 SizedBox(
-                  height: 25,
+                  height: 30,
                 ),
                 Row(
                   children: <Widget>[
@@ -77,7 +100,7 @@ class ManualState extends State<Manual> {
                     Text(
                       'Experiencing difficulty with PNA App?',
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 18,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -85,7 +108,7 @@ class ManualState extends State<Manual> {
                   ],
                 ),
                 SizedBox(
-                  height: 25,
+                  height: 30,
                 ),
                 Row(
                   children: <Widget>[
@@ -95,7 +118,7 @@ class ManualState extends State<Manual> {
                     Text(
                       'Have a Suggestion?',
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 18,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -103,80 +126,7 @@ class ManualState extends State<Manual> {
                   ],
                 ),
                 SizedBox(
-                  height: 25,
-                ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
-                    child: TextField(
-                      onChanged: (value) {},
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Name',
-                        focusedBorder: InputBorder.none,
-                        filled: true,
-                        fillColor: Colors.grey.shade700,
-                        labelStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        focusColor: Colors.white,
-                      ),
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
-                    child: TextField(
-                      onChanged: (value) {},
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Email Address',
-                        focusedBorder: InputBorder.none,
-                        filled: true,
-                        fillColor: Colors.grey.shade700,
-                        labelStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        focusColor: Colors.white,
-                      ),
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 32.0, 16.0),
-                    child: TextField(
-                      maxLines: 14,
-                      onChanged: (value) {},
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Type Complaint/ Suggestion Here',
-                        focusedBorder: InputBorder.none,
-                        filled: true,
-                        fillColor: Colors.grey.shade700,
-                        labelStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        focusColor: Colors.white,
-                      ),
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                  height: 45,
                 ),
                 SizedBox(
                   height: 20,
@@ -197,9 +147,9 @@ class ManualState extends State<Manual> {
                             Radius.circular(10.0),
                           ),
                         ),
-                        child: Text("Send"),
+                        child: Text("Contact Us"),
                         textColor: Colors.white,
-                        onPressed: () {},
+                        onPressed: _launchURL,
                       ),
                     ),
                   ),
@@ -277,5 +227,14 @@ class ManualState extends State<Manual> {
         ],
       ),
     );
+  }
+}
+
+_launchURL() async {
+  const url = 'https://flutter.io';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
   }
 }
