@@ -7,6 +7,24 @@ class Pay extends StatefulWidget {
 }
 
 class _PayState extends State<Pay> {
+  Image image1;
+
+  @override
+  void initState() {
+    super.initState();
+    image1 = Image.asset(
+      "images/ban8.jpg",
+      fit: BoxFit.fill,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    precacheImage(image1.image, context);
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -15,14 +33,10 @@ class _PayState extends State<Pay> {
       body: SingleChildScrollView(
         child: Stack(
           children: <Widget>[
-            Center(
-              child: new Image.asset(
-                'images/ban8.png',
-                gaplessPlayback: true,
-                width: size.width,
-                height: size.height,
-                fit: BoxFit.fill,
-              ),
+            Container(
+              child: image1,
+              height: size.height,
+              width: size.width,
             ),
             SizedBox(
               height: 40,

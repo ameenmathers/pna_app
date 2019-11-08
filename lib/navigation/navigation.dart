@@ -22,7 +22,48 @@ class NavigationState extends State<Navigation> {
   @override
   void initState() {
     super.initState();
-
+    image1 = Image.asset(
+      "images/fire.jpg",
+      fit: BoxFit.fill,
+      width: 450,
+      height: 230,
+    );
+    image2 = Image.asset(
+      "images/fire1.jpg",
+      fit: BoxFit.fill,
+      width: 450,
+      height: 230,
+    );
+    image3 = Image.asset(
+      "images/privileges.jpg",
+      fit: BoxFit.fill,
+      width: 450,
+      height: 230,
+    );
+    image4 = Image.asset(
+      "images/foundation.jpg",
+      fit: BoxFit.fill,
+      width: 450,
+      height: 230,
+    );
+    image5 = Image.asset(
+      "images/gallery.jpg",
+      fit: BoxFit.fill,
+      width: 450,
+      height: 230,
+    );
+    image6 = Image.asset(
+      "images/settings.jpg",
+      fit: BoxFit.fill,
+      width: 450,
+      height: 230,
+    );
+    image7 = Image.asset(
+      "images/manual.jpg",
+      fit: BoxFit.fill,
+      width: 450,
+      height: 230,
+    );
     getCurrentUser();
   }
 
@@ -35,6 +76,27 @@ class NavigationState extends State<Navigation> {
     } catch (e) {
       print(e);
     }
+  }
+
+  Image image1;
+  Image image2;
+  Image image3;
+  Image image4;
+  Image image5;
+  Image image6;
+  Image image7;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    precacheImage(image1.image, context);
+    precacheImage(image2.image, context);
+    precacheImage(image3.image, context);
+    precacheImage(image4.image, context);
+    precacheImage(image5.image, context);
+    precacheImage(image6.image, context);
+    precacheImage(image7.image, context);
   }
 
   @override
@@ -67,9 +129,6 @@ class NavigationState extends State<Navigation> {
                       ],
                     ),
                     SizedBox(
-                      height: 25,
-                    ),
-                    SizedBox(
                       height: 30,
                     ),
                     RaisedButton(
@@ -83,12 +142,8 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: Image(
-                              image: AssetImage('images/fire.png'),
-                              width: 450,
-                              height: 230,
-                            ),
+                            borderRadius: BorderRadius.circular(50.0),
+                            child: image1,
                           ),
                           Padding(
                             padding:
@@ -124,7 +179,7 @@ class NavigationState extends State<Navigation> {
                       ),
                     ),
                     SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     RaisedButton(
                       color: Colors.black,
@@ -137,12 +192,8 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: Image(
-                              image: AssetImage('images/fire.jpg'),
-                              width: 450,
-                              height: 230,
-                            ),
+                            borderRadius: BorderRadius.circular(50.0),
+                            child: image2,
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
@@ -177,7 +228,7 @@ class NavigationState extends State<Navigation> {
                       ),
                     ),
                     SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     RaisedButton(
                       color: Colors.black,
@@ -191,15 +242,11 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: Image(
-                              image: AssetImage('images/privileges.png'),
-                              width: 450,
-                              height: 250,
-                            ),
+                            borderRadius: BorderRadius.circular(50.0),
+                            child: image3,
                           ),
                           Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 220.0, 0.0, 0.0),
+                            padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
                             child: Center(
                               child: ButtonTheme(
                                 minWidth: 80,
@@ -232,7 +279,7 @@ class NavigationState extends State<Navigation> {
                       ),
                     ),
                     SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     RaisedButton(
                       color: Colors.black,
@@ -246,12 +293,8 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: Image(
-                              image: AssetImage('images/foundation.png'),
-                              width: 450,
-                              height: 230,
-                            ),
+                            borderRadius: BorderRadius.circular(50.0),
+                            child: image4,
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
@@ -286,7 +329,7 @@ class NavigationState extends State<Navigation> {
                       ),
                     ),
                     SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     RaisedButton(
                       color: Colors.black,
@@ -300,15 +343,11 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: Image(
-                              image: AssetImage('images/gallery.png'),
-                              width: 450,
-                              height: 250,
-                            ),
+                            borderRadius: BorderRadius.circular(50.0),
+                            child: image5,
                           ),
                           Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 225.0, 0.0, 0.0),
+                            padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
                             child: Center(
                               child: ButtonTheme(
                                 minWidth: 80,
@@ -340,7 +379,7 @@ class NavigationState extends State<Navigation> {
                       ),
                     ),
                     SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     RaisedButton(
                       color: Colors.black,
@@ -353,15 +392,11 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(40.0),
-                            child: Image(
-                              image: AssetImage('images/settings.png'),
-                              width: 450,
-                              height: 270,
-                            ),
+                            borderRadius: BorderRadius.circular(50.0),
+                            child: image6,
                           ),
                           Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 240.0, 0.0, 0.0),
+                            padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
                             child: Center(
                               child: ButtonTheme(
                                 minWidth: 80,
@@ -391,7 +426,7 @@ class NavigationState extends State<Navigation> {
                       ),
                     ),
                     SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     RaisedButton(
                       color: Colors.black,
@@ -404,15 +439,11 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: Image(
-                              image: AssetImage('images/manual.png'),
-                              width: 450,
-                              height: 270,
-                            ),
+                            borderRadius: BorderRadius.circular(50.0),
+                            child: image7,
                           ),
                           Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 245.0, 0.0, 0.0),
+                            padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
                             child: Center(
                               child: ButtonTheme(
                                 minWidth: 80,
@@ -458,7 +489,7 @@ class NavigationState extends State<Navigation> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {},
             ),
@@ -467,7 +498,7 @@ class NavigationState extends State<Navigation> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -482,7 +513,7 @@ class NavigationState extends State<Navigation> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -497,7 +528,7 @@ class NavigationState extends State<Navigation> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(

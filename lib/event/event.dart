@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
@@ -21,6 +23,8 @@ class _EventsState extends State<Events> {
 
     var jsonData = json.decode(data.body);
 
+    var jsonData1 = json.encode(data.body);
+
     List<Event> events = [];
 
     for (var u in jsonData) {
@@ -34,6 +38,49 @@ class _EventsState extends State<Events> {
 
     return events;
   }
+
+  static Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  static Future<File> get myfile async {
+    final path = await _localPath;
+    return File('$path/file.txt');
+  }
+
+  static writeToFile(jsonData) async {
+    final file = await myfile;
+    file.writeAsString(jsonData);
+  }
+
+  static readToFile(jsonData) async {
+    try {
+      final file = await myfile;
+
+      // Read the file.
+      String contents = await file.readAsString();
+
+      return contents;
+    } catch (e) {}
+  }
+
+  var myFile = new File('file.txt');
+
+//  read(jsonData) async {
+//    final prefs = await SharedPreferences.getInstance();
+//    return prefs.getString(jsonData);
+//  }
+//
+//  save(String key, jsonData1) async {
+//    final prefs = await SharedPreferences.getInstance();
+//    prefs.setString(key, jsonData1);
+//  }
+//
+//  remove(jsonData) async {
+//    final prefs = await SharedPreferences.getInstance();
+//    prefs.remove(jsonData);
+//  }
 
   TextEditingController searchController = new TextEditingController();
   String filter;
@@ -87,7 +134,7 @@ class _EventsState extends State<Events> {
           flexibleSpace: Column(
             children: <Widget>[
               SizedBox(
-                height: 80,
+                height: 100,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +160,7 @@ class _EventsState extends State<Events> {
             ],
           ),
         ),
-        preferredSize: Size.fromHeight(140.0),
+        preferredSize: Size.fromHeight(150.0),
       ),
       backgroundColor: Colors.black,
       body: FutureBuilder(
@@ -128,165 +175,140 @@ class _EventsState extends State<Events> {
                 Center(
                   child: CircularProgressIndicator(
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
+                        AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
                   ),
                 ),
               ],
             ));
           } else {
             return Container(
-              child: RefreshIndicator(
-                onRefresh: _getEvents,
+              child: SingleChildScrollView(
                 child: ListView.builder(
                   shrinkWrap: true,
+                  reverse: true,
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: snapshot.data.length,
                   itemBuilder: (BuildContext context, int index) {
                     return filter == null || filter == ""
-                        ? SingleChildScrollView(
-                            child: Column(
-                              children: <Widget>[
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      width: 30,
+                        ? Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: <Widget>[
+                                  Text(
+                                    snapshot.data[index].name,
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color: Colors.white,
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0.0, 0.0, 0.0, 0.0),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Text(
-                                            snapshot.data[index].name,
-                                            style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 200,
-                                          ),
-                                          Text(
-                                            snapshot.data[index].date,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ],
+                                  ),
+                                  Text(
+                                    snapshot.data[index].date,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 13,
+                              ),
+                              RaisedButton(
+                                color: Colors.black,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            EventDetail(snapshot.data[index])),
+                                  );
+                                },
+                                child: Stack(
+                                  children: <Widget>[
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(50.0),
+                                      child: new Image.network(
+                                        snapshot.data[index].image,
+                                        gaplessPlayback: true,
+                                        width: 450,
+                                        height: 230,
+                                        fit: BoxFit.fill,
                                       ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: EdgeInsets.fromLTRB(
+                                              0.0, 265.0, 0.0, 0.0),
+                                          child: Text(
+                                            snapshot.data[index].location,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.fromLTRB(
+                                              20.0, 225.0, 0.0, 0.0),
+                                          child: Center(
+                                            child: ButtonTheme(
+                                              minWidth: 80,
+                                              height: 30,
+                                              child: RaisedButton(
+                                                color: Color(0xffc67608),
+                                                shape: RoundedRectangleBorder(
+                                                  side: BorderSide(
+                                                    color: Color(0xffc67608),
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                    Radius.circular(40.0),
+                                                  ),
+                                                ),
+                                                child: Text("Read More"),
+                                                textColor: Colors.black,
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            EventDetail(snapshot
+                                                                .data[index])),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.fromLTRB(
+                                              0.0, 265.0, 0.0, 0.0),
+                                          child: Text(
+                                            snapshot.data[index].type
+                                                .toUpperCase(),
+                                            style: TextStyle(
+                                              color: Color(0xffc67608),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                                SizedBox(
-                                  height: 13,
-                                ),
-                                RaisedButton(
-                                  color: Colors.black,
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => EventDetail(
-                                              snapshot.data[index])),
-                                    );
-                                  },
-                                  child: Stack(
-                                    children: <Widget>[
-                                      Image(
-                                        image: NetworkImage(
-                                            snapshot.data[index].image),
-                                        gaplessPlayback: true,
-                                        width: 450,
-                                        height: 250,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0.0, 255.0, 0.0, 0.0),
-                                            child: Text(
-                                              snapshot.data[index].location,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                20.0, 225.0, 0.0, 0.0),
-                                            child: Center(
-                                              child: ButtonTheme(
-                                                minWidth: 80,
-                                                height: 30,
-                                                child: RaisedButton(
-                                                  color: Color(0xffc67608),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: BorderSide(
-                                                      color: Color(0xffc67608),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                      Radius.circular(40.0),
-                                                    ),
-                                                  ),
-                                                  child: Text("Read More"),
-                                                  textColor: Colors.black,
-                                                  onPressed: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              EventDetail(
-                                                                  snapshot.data[
-                                                                      index])),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0.0, 255.0, 0.0, 0.0),
-                                            child: Text(
-                                              snapshot.data[index].type
-                                                  .toUpperCase(),
-                                              style: TextStyle(
-                                                color: Color(0xffc67608),
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Center(
-                                  child: Text(
-                                    snapshot.data[index].desc,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w200,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 50,
-                                ),
-                              ],
-                            ),
+                              ),
+                              SizedBox(
+                                height: 50,
+                              ),
+                            ],
                           )
                         : snapshot.data[index].name
                                 .toLowerCase()
@@ -344,12 +366,16 @@ class _EventsState extends State<Events> {
                                       },
                                       child: Stack(
                                         children: <Widget>[
-                                          Image(
-                                            image: NetworkImage(
-                                                snapshot.data[index].image),
-                                            gaplessPlayback: true,
-                                            width: 450,
-                                            height: 250,
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(50.0),
+                                            child: new Image.network(
+                                              snapshot.data[index].image,
+                                              gaplessPlayback: true,
+                                              width: 450,
+                                              height: 230,
+                                              fit: BoxFit.fill,
+                                            ),
                                           ),
                                           Row(
                                             mainAxisAlignment:
@@ -357,7 +383,7 @@ class _EventsState extends State<Events> {
                                             children: <Widget>[
                                               Padding(
                                                 padding: EdgeInsets.fromLTRB(
-                                                    0.0, 255.0, 0.0, 0.0),
+                                                    0.0, 265.0, 0.0, 0.0),
                                                 child: Text(
                                                   snapshot.data[index].location,
                                                   style: TextStyle(
@@ -404,7 +430,7 @@ class _EventsState extends State<Events> {
                                               ),
                                               Padding(
                                                 padding: EdgeInsets.fromLTRB(
-                                                    0.0, 255.0, 0.0, 0.0),
+                                                    0.0, 265.0, 0.0, 0.0),
                                                 child: Text(
                                                   snapshot.data[index].type
                                                       .toUpperCase(),
@@ -417,20 +443,6 @@ class _EventsState extends State<Events> {
                                             ],
                                           ),
                                         ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Center(
-                                      child: Text(
-                                        snapshot.data[index].desc,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w200,
-                                        ),
                                       ),
                                     ),
                                     SizedBox(
@@ -457,7 +469,7 @@ class _EventsState extends State<Events> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -471,7 +483,7 @@ class _EventsState extends State<Events> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -486,7 +498,7 @@ class _EventsState extends State<Events> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -501,7 +513,7 @@ class _EventsState extends State<Events> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -574,10 +586,15 @@ class EventDetail extends StatelessWidget {
                   onPressed: () {},
                   child: Column(
                     children: <Widget>[
-                      Image(
-                        image: NetworkImage(event.image),
-                        width: 450,
-                        height: 250,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(50.0),
+                        child: Image.network(
+                          event.image,
+                          gaplessPlayback: true,
+                          width: 450,
+                          height: 230,
+                          fit: BoxFit.fill,
+                        ),
                       ),
                       SizedBox(
                         height: 10,
@@ -698,7 +715,7 @@ class EventDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -712,7 +729,7 @@ class EventDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.people,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -727,7 +744,7 @@ class EventDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -742,7 +759,7 @@ class EventDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(

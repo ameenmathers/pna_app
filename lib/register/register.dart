@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_world/formsec/form2.dart';
@@ -21,6 +22,17 @@ class _RegisterState extends State<Register> {
   String _date = "Not set";
   String _country;
 
+  bool checkboxValue = false;
+
+  final _photo1 =
+      "https://www.familyvacationcritic.com/uploads/sites/19/2015/08/AtlantisParadiseIsland-OverviewImage.jpg";
+  final _photo2 =
+      "https://www.familyvacationcritic.com/uploads/sites/19/2015/08/AtlantisParadiseIsland-OverviewImage.jpg";
+  final _photo3 =
+      "https://www.familyvacationcritic.com/uploads/sites/19/2015/08/AtlantisParadiseIsland-OverviewImage.jpg";
+  final _photo4 =
+      "https://www.familyvacationcritic.com/uploads/sites/19/2015/08/AtlantisParadiseIsland-OverviewImage.jpg";
+
   final _photo =
       'https://cdn4.iconfinder.com/data/icons/business-conceptual-part1-1/513/business-man-512.png';
 
@@ -37,6 +49,7 @@ class _RegisterState extends State<Register> {
   TextEditingController reasonInputController;
   TextEditingController emailInputController;
   TextEditingController pwdInputController;
+  TextEditingController confirmPwdInputController;
 
   @override
   initState() {
@@ -48,6 +61,22 @@ class _RegisterState extends State<Register> {
     reasonInputController = new TextEditingController();
     emailInputController = new TextEditingController();
     pwdInputController = new TextEditingController();
+    confirmPwdInputController = new TextEditingController();
+    image1 = Image.asset(
+      "images/ban5.jpg",
+      fit: BoxFit.fill,
+      gaplessPlayback: true,
+    );
+    image2 = Image.asset(
+      "images/ban8.jpg",
+      fit: BoxFit.fill,
+      gaplessPlayback: true,
+    );
+    image3 = Image.asset(
+      "images/ban7.jpg",
+      fit: BoxFit.fill,
+      gaplessPlayback: true,
+    );
     super.initState();
   }
 
@@ -70,6 +99,21 @@ class _RegisterState extends State<Register> {
     }
   }
 
+  bool _termsChecked = false;
+
+  Image image1;
+  Image image2;
+  Image image3;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    precacheImage(image1.image, context);
+    precacheImage(image2.image, context);
+    precacheImage(image3.image, context);
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -80,37 +124,25 @@ class _RegisterState extends State<Register> {
         child: SingleChildScrollView(
           child: Stack(
             children: <Widget>[
-              Center(
-                child: new Image.asset(
-                  'images/ban5.png',
-                  gaplessPlayback: true,
-                  width: size.width,
-                  height: size.height,
-                  fit: BoxFit.fill,
-                ),
+              Container(
+                child: image1,
+                height: size.height,
+                width: size.width,
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0.0, 800.0, 0.0, 0.0),
-                child: Center(
-                  child: new Image.asset(
-                    'images/ban9.png',
-                    gaplessPlayback: true,
-                    width: size.width,
-                    height: size.height,
-                    fit: BoxFit.fill,
-                  ),
+                child: Container(
+                  child: image2,
+                  height: size.height,
+                  width: size.width,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0.0, 1300.0, 0.0, 0.0),
-                child: Center(
-                  child: new Image.asset(
-                    'images/ban7.png',
-                    gaplessPlayback: true,
-                    width: size.width,
-                    height: size.height,
-                    fit: BoxFit.fill,
-                  ),
+                child: Container(
+                  child: image3,
+                  height: size.height,
+                  width: size.width,
                 ),
               ),
               Container(
@@ -172,9 +204,6 @@ class _RegisterState extends State<Register> {
                           SizedBox(
                             height: 20,
                           ),
-                          SizedBox(
-                            height: 40,
-                          ),
                           Center(
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(
@@ -193,8 +222,8 @@ class _RegisterState extends State<Register> {
                                   ),
                                   focusColor: Colors.white,
                                   enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.orangeAccent)),
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
                                 ),
                                 controller: nameInputController,
                                 validator: (value) {
@@ -213,7 +242,14 @@ class _RegisterState extends State<Register> {
                                 16.0, 16.0, 32.0, 16.0),
                             child: Container(
                               width: 330,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color(0xffc67608),
+                                ),
+                                color: Colors.black,
+                              ),
                               child: RaisedButton(
+                                color: Colors.black,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5.0)),
                                 elevation: 4.0,
@@ -235,6 +271,7 @@ class _RegisterState extends State<Register> {
                                       locale: LocaleType.en);
                                 },
                                 child: Container(
+                                  color: Colors.black,
                                   alignment: Alignment.center,
                                   height: 50.0,
                                   child: Row(
@@ -249,14 +286,12 @@ class _RegisterState extends State<Register> {
                                                 Icon(
                                                   Icons.date_range,
                                                   size: 18.0,
-                                                  color: Colors.black54,
+                                                  color: Colors.white,
                                                 ),
                                                 Text(
                                                   " $_date",
                                                   style: TextStyle(
-                                                      color: Colors.black54,
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                                      color: Colors.white,
                                                       fontSize: 18.0),
                                                 ),
                                               ],
@@ -267,14 +302,12 @@ class _RegisterState extends State<Register> {
                                       Text(
                                         "Date of Birth",
                                         style: TextStyle(
-                                            color: Colors.black54,
-                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
                                             fontSize: 18.0),
                                       ),
                                     ],
                                   ),
                                 ),
-                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -285,17 +318,22 @@ class _RegisterState extends State<Register> {
                             padding: const EdgeInsets.fromLTRB(
                                 16.0, 16.0, 32.0, 16.0),
                             child: Container(
-                              color: Colors.white,
                               width: 330,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color(0xffc67608),
+                                ),
+                                color: Colors.black,
+                              ),
                               padding: EdgeInsets.fromLTRB(20.0, 5.0, 0.0, 5.0),
                               child: new DropdownButton<String>(
-                                iconEnabledColor: Colors.grey,
+                                iconEnabledColor: Colors.white,
                                 value: _country,
                                 hint: Text(
                                   'Country of Residence',
                                   style: TextStyle(
                                     fontSize: 17,
-                                    color: Colors.black,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 style: TextStyle(
@@ -309,7 +347,7 @@ class _RegisterState extends State<Register> {
                                 items: <String>[
                                   'Seychelles',
                                   'Madagascar',
-                                  'Nigeia',
+                                  'Nigeria',
                                   'Ghana',
                                   'South Africa',
                                   'Rwanda',
@@ -330,7 +368,7 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(
@@ -347,7 +385,7 @@ class _RegisterState extends State<Register> {
                                 focusColor: Colors.white,
                                 enabledBorder: OutlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Colors.orangeAccent)),
+                                        BorderSide(color: Color(0xffc67608))),
                               ),
                               style: TextStyle(
                                 color: Colors.white,
@@ -361,7 +399,7 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           SizedBox(
-                            height: 0,
+                            height: 10,
                           ),
                           Center(
                             child: Padding(
@@ -378,8 +416,8 @@ class _RegisterState extends State<Register> {
                                   ),
                                   focusColor: Colors.white,
                                   enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.orangeAccent)),
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
                                 ),
                                 style: TextStyle(
                                   color: Colors.white,
@@ -394,7 +432,7 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           Center(
                             child: Padding(
@@ -411,8 +449,8 @@ class _RegisterState extends State<Register> {
                                   ),
                                   focusColor: Colors.white,
                                   enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.orangeAccent)),
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
                                 ),
                                 style: TextStyle(
                                   color: Colors.white,
@@ -427,7 +465,7 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           Center(
                             child: Padding(
@@ -445,8 +483,8 @@ class _RegisterState extends State<Register> {
                                   ),
                                   focusColor: Colors.white,
                                   enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.orangeAccent)),
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
                                 ),
                                 style: TextStyle(
                                   color: Colors.white,
@@ -461,7 +499,7 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           Center(
                             child: Padding(
@@ -479,8 +517,8 @@ class _RegisterState extends State<Register> {
                                   ),
                                   focusColor: Colors.white,
                                   enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.orangeAccent)),
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
                                 ),
                                 style: TextStyle(
                                   color: Colors.white,
@@ -495,7 +533,7 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           Center(
                             child: Padding(
@@ -512,8 +550,8 @@ class _RegisterState extends State<Register> {
                                   ),
                                   focusColor: Colors.white,
                                   enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.orangeAccent)),
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
                                 ),
                                 style: TextStyle(
                                   color: Colors.white,
@@ -525,7 +563,7 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           Center(
                             child: Padding(
@@ -543,8 +581,8 @@ class _RegisterState extends State<Register> {
                                   ),
                                   focusColor: Colors.white,
                                   enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.orangeAccent)),
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
                                 ),
                                 controller: pwdInputController,
                                 validator: pwdValidator,
@@ -555,7 +593,67 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
+                          ),
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                  16.0, 16.0, 32.0, 16.0),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Confirm Password',
+                                  hintText: "********",
+                                  filled: true,
+                                  fillColor: Colors.black,
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                  focusColor: Colors.white,
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
+                                ),
+                                controller: confirmPwdInputController,
+                                obscureText: true,
+                                validator: pwdValidator,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                  16.0, 16.0, 0.0, 16.0),
+                              child: Container(
+                                height: 65,
+                                child: Theme(
+                                  data: ThemeData(
+                                    unselectedWidgetColor: Colors.white,
+                                  ),
+                                  child: new CheckboxListTile(
+                                      title: new Text(
+                                        "I agree to the Play Network Africa's Terms and Conditions",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      value: _termsChecked,
+                                      checkColor: Colors.white,
+                                      activeColor: Colors.blue,
+                                      controlAffinity:
+                                          ListTileControlAffinity.leading,
+                                      onChanged: (bool value) => setState(
+                                          () => _termsChecked = value)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
                           ),
                           Center(
                             child: Padding(
@@ -583,57 +681,108 @@ class _RegisterState extends State<Register> {
 
                                     if (_registerFormKey.currentState
                                         .validate()) {
-                                      FirebaseAuth.instance
-                                          .createUserWithEmailAndPassword(
-                                              email: emailInputController.text,
-                                              password: pwdInputController.text)
-                                          .then((currentUser) => Firestore
-                                              .instance
-                                              .collection("users")
-                                              .document(currentUser.user.uid)
-                                              .setData({
-                                                "uid": currentUser.user.uid,
-                                                "name":
-                                                    nameInputController.text,
-                                                "aboutMe":
-                                                    aboutMeInputController.text,
-                                                "city":
-                                                    cityInputController.text,
-                                                "country": _country,
-                                                "dob": _date,
-                                                "gender":
-                                                    genderInputController.text,
-                                                "profession":
-                                                    professionInputController
+                                      if (!_termsChecked) {
+                                        // The checkbox wasn't checked
+                                        Fluttertoast.showToast(
+                                            msg:
+                                                "Please accept our terms and conditions",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity.CENTER,
+                                            timeInSecForIos: 1,
+                                            backgroundColor: Color(0xffc67608),
+                                            textColor: Colors.white,
+                                            fontSize: 16.0);
+                                      } else {
+                                        if (pwdInputController.text ==
+                                            confirmPwdInputController.text) {
+                                          FirebaseAuth.instance
+                                              .createUserWithEmailAndPassword(
+                                                  email:
+                                                      emailInputController.text,
+                                                  password:
+                                                      pwdInputController.text)
+                                              .then((currentUser) => Firestore
+                                                  .instance
+                                                  .collection("users")
+                                                  .document(
+                                                      currentUser.user.uid)
+                                                  .setData({
+                                                    "uid": currentUser.user.uid,
+                                                    "name": nameInputController
                                                         .text,
-                                                "reaosn":
-                                                    reasonInputController.text,
-                                                "email":
-                                                    emailInputController.text,
-                                                "photoUrl": _photo,
-                                                "status": _status,
-                                              })
-                                              .then((result) => {
-                                                    Navigator
-                                                        .pushAndRemoveUntil(
+                                                    "aboutMe":
+                                                        aboutMeInputController
+                                                            .text,
+                                                    "city": cityInputController
+                                                        .text,
+                                                    "country": _country,
+                                                    "dob": _date,
+                                                    "gender":
+                                                        genderInputController
+                                                            .text,
+                                                    "profession":
+                                                        professionInputController
+                                                            .text,
+                                                    "reaosn":
+                                                        reasonInputController
+                                                            .text,
+                                                    "email":
+                                                        emailInputController
+                                                            .text,
+                                                    "photoUrl": _photo,
+                                                    "image1": _photo1,
+                                                    "image2": _photo2,
+                                                    "image3": _photo3,
+                                                    "image4": _photo4,
+                                                    "status": _status,
+                                                  })
+                                                  .then((result) => {
+                                                        Navigator.pushAndRemoveUntil(
                                                             context,
                                                             MaterialPageRoute(
                                                                 builder:
                                                                     (context) =>
                                                                         Pay()),
                                                             (_) => false),
-                                                    nameInputController.clear(),
-                                                    cityInputController.clear(),
-                                                    emailInputController
-                                                        .clear(),
-                                                    pwdInputController.clear(),
-                                                  })
-                                              .catchError((err) => print(err)))
-                                          .catchError((err) => print(err));
+                                                        nameInputController
+                                                            .clear(),
+                                                        cityInputController
+                                                            .clear(),
+                                                        emailInputController
+                                                            .clear(),
+                                                        pwdInputController
+                                                            .clear(),
+                                                        confirmPwdInputController
+                                                            .clear()
+                                                      })
+                                                  .catchError(
+                                                      (err) => print(err)))
+                                              .catchError((err) => print(err));
 
-                                      setState(() {
-                                        showSpinner = false;
-                                      });
+                                          setState(() {
+                                            showSpinner = false;
+                                          });
+                                        } else {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text("Error"),
+                                                  content: Text(
+                                                      "The passwords do not match"),
+                                                  actions: <Widget>[
+                                                    FlatButton(
+                                                      child: Text("Close"),
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    )
+                                                  ],
+                                                );
+                                              });
+                                        }
+                                      }
                                     }
 
                                     setState(() {

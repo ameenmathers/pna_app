@@ -9,6 +9,25 @@ class Form1 extends StatefulWidget {
 }
 
 class _Form1State extends State<Form1> {
+  Image image1;
+
+  @override
+  void initState() {
+    super.initState();
+    image1 = Image.asset(
+      "images/ban5.jpg",
+      fit: BoxFit.fill,
+      gaplessPlayback: true,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    precacheImage(image1.image, context);
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -16,14 +35,10 @@ class _Form1State extends State<Form1> {
       body: SingleChildScrollView(
         child: Stack(
           children: <Widget>[
-            Center(
-              child: new Image.asset(
-                'images/ban5.png',
-                gaplessPlayback: true,
-                width: size.width,
-                height: size.height,
-                fit: BoxFit.fill,
-              ),
+            Container(
+              child: image1,
+              height: size.height,
+              width: size.width,
             ),
             Container(
               child: SafeArea(

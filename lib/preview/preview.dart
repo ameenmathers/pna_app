@@ -6,6 +6,54 @@ class PreviewPage extends StatefulWidget {
 }
 
 class _PreviewPageState extends State<PreviewPage> {
+  Image image1;
+  Image image2;
+  Image image3;
+  Image image4;
+  Image image5;
+  Image image6;
+  Image image7;
+
+  @override
+  void initState() {
+    super.initState();
+    image1 = Image.asset(
+      "images/ban2.jpg",
+      fit: BoxFit.fill,
+    );
+    image2 = Image.asset(
+      "images/person1.png",
+    );
+    image3 = Image.asset(
+      "images/person2.png",
+    );
+    image4 = Image.asset(
+      "images/person3.png",
+    );
+    image5 = Image.asset(
+      "images/person4.png",
+    );
+    image6 = Image.asset(
+      "images/person5.png",
+    );
+    image7 = Image.asset(
+      "images/person6.png",
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    precacheImage(image1.image, context);
+    precacheImage(image2.image, context);
+    precacheImage(image3.image, context);
+    precacheImage(image4.image, context);
+    precacheImage(image5.image, context);
+    precacheImage(image6.image, context);
+    precacheImage(image7.image, context);
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -13,14 +61,10 @@ class _PreviewPageState extends State<PreviewPage> {
       color: Colors.black,
       child: Stack(
         children: <Widget>[
-          Center(
-            child: new Image.asset(
-              'images/ban2.png',
-              gaplessPlayback: true,
-              width: size.width,
-              height: size.height,
-              fit: BoxFit.fill,
-            ),
+          Container(
+            child: image1,
+            height: size.height,
+            width: size.width,
           ),
           SafeArea(
             child: Padding(
@@ -75,45 +119,27 @@ class _PreviewPageState extends State<PreviewPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         SizedBox(
-                          child: Image(
-                            image: AssetImage("images/person1.png"),
-                            gaplessPlayback: true,
-                          ),
+                          child: image2,
                           height: 45,
                         ),
                         SizedBox(
-                          child: Image(
-                            image: AssetImage("images/person2.png"),
-                            gaplessPlayback: true,
-                          ),
+                          child: image3,
                           height: 45,
                         ),
                         SizedBox(
-                          child: Image(
-                            image: AssetImage("images/person3.png"),
-                            gaplessPlayback: true,
-                          ),
+                          child: image4,
                           height: 45,
                         ),
                         SizedBox(
-                          child: Image(
-                            image: AssetImage("images/person4.png"),
-                            gaplessPlayback: true,
-                          ),
+                          child: image5,
                           height: 45,
                         ),
                         SizedBox(
-                          child: Image(
-                            image: AssetImage("images/person5.png"),
-                            gaplessPlayback: true,
-                          ),
+                          child: image6,
                           height: 45,
                         ),
                         SizedBox(
-                          child: Image(
-                            image: AssetImage("images/person6.png"),
-                            gaplessPlayback: true,
-                          ),
+                          child: image7,
                           height: 45,
                         ),
                       ],

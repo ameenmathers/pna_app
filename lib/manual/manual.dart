@@ -169,7 +169,7 @@ class ManualState extends State<Manual> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -183,7 +183,7 @@ class ManualState extends State<Manual> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -198,7 +198,7 @@ class ManualState extends State<Manual> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -213,7 +213,7 @@ class ManualState extends State<Manual> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(

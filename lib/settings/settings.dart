@@ -275,7 +275,7 @@ class SettingsState extends State<Settings> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -289,7 +289,7 @@ class SettingsState extends State<Settings> {
             icon: IconButton(
               icon: Icon(
                 Icons.people,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -304,7 +304,7 @@ class SettingsState extends State<Settings> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -319,7 +319,7 @@ class SettingsState extends State<Settings> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(

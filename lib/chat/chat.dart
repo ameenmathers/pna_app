@@ -20,13 +20,17 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   Message _message;
+  final _auth = FirebaseAuth.instance;
+
   var _formKey = GlobalKey<FormState>();
   var map = Map<String, dynamic>();
+
   CollectionReference _collectionReference;
   DocumentReference _receiverDocumentReference;
   DocumentReference _senderDocumentReference;
   DocumentReference _documentReference;
   DocumentSnapshot documentSnapshot;
+
   FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   String _senderuid;
   var listItem;
@@ -36,10 +40,41 @@ class _ChatScreenState extends State<ChatScreen> {
   StorageReference _storageReference;
   TextEditingController _messageController;
 
+//  final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
+
+//  void registerNotification() async {
+//    firebaseMessaging.requestNotificationPermissions();
+//
+//    firebaseMessaging.configure(onMessage: (Map<String, dynamic> message) {
+//      print('onMessage: $message');
+//      showNotification(message['notification']);
+//      return;
+//    }, onResume: (Map<String, dynamic> message) {
+//      print('onResume: $message');
+//      return;
+//    }, onLaunch: (Map<String, dynamic> message) {
+//      print('onLaunch: $message');
+//      return;
+//    });
+//
+//    final FirebaseUser user = await _auth.currentUser();
+//    final uid = user.uid;
+//
+//    firebaseMessaging.getToken().then((token) {
+//      print('token: $token');
+//      Firestore.instance
+//          .collection('users')
+//          .document(uid)
+//          .updateData({'pushToken': token});
+//    }).catchError((err) {
+//      Fluttertoast.showToast(msg: err.message.toString());
+//    });
+//  }
+
   @override
   void initState() {
     super.initState();
-
+//    registerNotification();
     _messageController = TextEditingController();
     getUID().then((user) {
       setState(() {
@@ -98,7 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.name),
-          backgroundColor: Colors.orangeAccent,
+          backgroundColor: Color(0xffc67608),
         ),
         backgroundColor: Colors.black,
         body: Form(
@@ -334,25 +369,20 @@ class _ChatScreenState extends State<ChatScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  snapshot['senderUid'] == _senderuid
-                      ? new Text(
-                          senderName == null ? "" : senderName,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold),
-                        )
-                      : new Text(
-                          receiverName == null ? "" : receiverName,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold),
-                        ),
                   snapshot['type'] == 'text'
-                      ? new Text(
-                          snapshot['message'],
-                          style: TextStyle(color: Colors.white, fontSize: 14.0),
+                      ? new Material(
+                          elevation: 10.0,
+                          borderRadius: BorderRadius.circular(30.0),
+                          color: Colors.white12,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: 20.0),
+                            child: Text(
+                              snapshot['message'],
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 15.0),
+                            ),
+                          ),
                         )
                       : InkWell(
                           onTap: (() {
@@ -363,13 +393,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                           photoUrl: snapshot['photoUrl'],
                                         )));
                           }),
-                          child: Hero(
-                            tag: snapshot['photoUrl'],
-                            child: FadeInImage(
-                              image: NetworkImage(snapshot['photoUrl']),
-                              placeholder: AssetImage(''),
-                              width: 200.0,
-                              height: 200.0,
+                          child: Material(
+                            elevation: 10.0,
+                            borderRadius: BorderRadius.circular(30.0),
+                            color: Colors.white12,
+                            child: Padding(
+                              padding: EdgeInsets.all(4.0),
+                              child: Hero(
+                                tag: snapshot['photoUrl'],
+                                child: FadeInImage(
+                                  image: NetworkImage(snapshot['photoUrl']),
+                                  placeholder: AssetImage(''),
+                                  width: 200.0,
+                                  height: 200.0,
+                                ),
+                              ),
                             ),
                           ),
                         )

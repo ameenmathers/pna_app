@@ -93,7 +93,7 @@ class _NewsPageState extends State<NewsPage> {
           flexibleSpace: Column(
             children: <Widget>[
               SizedBox(
-                height: 80,
+                height: 100,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -119,7 +119,7 @@ class _NewsPageState extends State<NewsPage> {
             ],
           ),
         ),
-        preferredSize: Size.fromHeight(140.0),
+        preferredSize: Size.fromHeight(150.0),
       ),
       backgroundColor: Colors.black,
       body: FutureBuilder(
@@ -134,7 +134,7 @@ class _NewsPageState extends State<NewsPage> {
                 Center(
                   child: CircularProgressIndicator(
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
+                        AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
                   ),
                 ),
               ],
@@ -143,13 +143,15 @@ class _NewsPageState extends State<NewsPage> {
             return Container(
               child: RefreshIndicator(
                 onRefresh: _getNews,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return filter == null || filter == ""
-                        ? SingleChildScrollView(
-                            child: Column(
+                child: SingleChildScrollView(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    reverse: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return filter == null || filter == ""
+                          ? Column(
                               children: <Widget>[
                                 SizedBox(
                                   height: 5,
@@ -166,16 +168,20 @@ class _NewsPageState extends State<NewsPage> {
                                   },
                                   child: Stack(
                                     children: <Widget>[
-                                      Image(
-                                        image: NetworkImage(
-                                            snapshot.data[index].image),
-                                        gaplessPlayback: true,
-                                        width: 450,
-                                        height: 250,
+                                      ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(50.0),
+                                        child: new Image.network(
+                                          snapshot.data[index].image,
+                                          gaplessPlayback: true,
+                                          width: 450,
+                                          height: 230,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(
-                                            0.0, 210.0, 0.0, 0.0),
+                                            0.0, 230.0, 0.0, 0.0),
                                         child: Center(
                                           child: ButtonTheme(
                                             minWidth: 80,
@@ -231,100 +237,110 @@ class _NewsPageState extends State<NewsPage> {
                                   height: 50,
                                 ),
                               ],
-                            ),
-                          )
-                        : snapshot.data[index].name
-                                .toLowerCase()
-                                .contains(filter.toLowerCase())
-                            ? SingleChildScrollView(
-                                child: Column(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    RaisedButton(
-                                      color: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => NewsDetail(
-                                                  snapshot.data[index])),
-                                        );
-                                      },
-                                      child: Stack(
-                                        children: <Widget>[
-                                          Image(
-                                            image: NetworkImage(
-                                                snapshot.data[index].image),
-                                            gaplessPlayback: true,
-                                            width: 450,
-                                            height: 250,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0.0, 210.0, 0.0, 0.0),
-                                            child: Center(
-                                              child: ButtonTheme(
-                                                minWidth: 80,
-                                                height: 30,
-                                                child: RaisedButton(
-                                                  color: Color(0xffc67608),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: BorderSide(
-                                                      color: Color(0xffc67608),
+                            )
+                          : snapshot.data[index].name
+                                  .toLowerCase()
+                                  .contains(filter.toLowerCase())
+                              ? SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      RaisedButton(
+                                        color: Colors.black,
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    NewsDetail(
+                                                        snapshot.data[index])),
+                                          );
+                                        },
+                                        child: Stack(
+                                          children: <Widget>[
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(50.0),
+                                              child: new Image.network(
+                                                snapshot.data[index].image,
+                                                gaplessPlayback: true,
+                                                width: 450,
+                                                height: 230,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0.0, 230.0, 0.0, 0.0),
+                                              child: Center(
+                                                child: ButtonTheme(
+                                                  minWidth: 80,
+                                                  height: 30,
+                                                  child: RaisedButton(
+                                                    color: Color(0xffc67608),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                        color:
+                                                            Color(0xffc67608),
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                        Radius.circular(40.0),
+                                                      ),
                                                     ),
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                      Radius.circular(40.0),
-                                                    ),
+                                                    child: Text("Read More"),
+                                                    textColor: Colors.black,
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                NewsDetail(
+                                                                    snapshot.data[
+                                                                        index])),
+                                                      );
+                                                    },
                                                   ),
-                                                  child: Text("Read More"),
-                                                  textColor: Colors.black,
-                                                  onPressed: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              NewsDetail(
-                                                                  snapshot.data[
-                                                                      index])),
-                                                    );
-                                                  },
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0.0, 280.0, 0.0, 0.0),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                Text(
-                                                  snapshot.data[index].name,
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 17,
-                                                    fontWeight: FontWeight.bold,
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0.0, 280.0, 0.0, 0.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Text(
+                                                    snapshot.data[index].name,
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 17,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      height: 50,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : new Container();
-                  },
+                                      SizedBox(
+                                        height: 50,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : new Container();
+                    },
+                  ),
                 ),
               ),
             );
@@ -341,7 +357,7 @@ class _NewsPageState extends State<NewsPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -355,7 +371,7 @@ class _NewsPageState extends State<NewsPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -370,7 +386,7 @@ class _NewsPageState extends State<NewsPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -385,7 +401,7 @@ class _NewsPageState extends State<NewsPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -452,12 +468,18 @@ class NewsDetail extends StatelessWidget {
                   onPressed: () {},
                   child: Column(
                     children: <Widget>[
-                      Image(
-                        image: NetworkImage(newws.image),
-                        gaplessPlayback: true,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(50.0),
+                        child: new Image.network(
+                          newws.image,
+                          gaplessPlayback: true,
+                          width: 450,
+                          height: 230,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                       SizedBox(
-                        height: 15,
+                        height: 20,
                       ),
                       Padding(
                         padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
@@ -474,11 +496,17 @@ class NewsDetail extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        height: 25,
+                        height: 35,
                       ),
-                      Image(
-                        image: NetworkImage(newws.image2),
-                        gaplessPlayback: true,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30.0),
+                        child: new Image.network(
+                          newws.image2,
+                          gaplessPlayback: true,
+                          width: 450,
+                          height: 230,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ],
                   ),
@@ -498,7 +526,7 @@ class NewsDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -512,7 +540,7 @@ class NewsDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.people,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -527,7 +555,7 @@ class NewsDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -542,7 +570,7 @@ class NewsDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -567,5 +595,5 @@ class New {
   final String image2;
   final String createdat;
 
-  New(this.nid, this.desc, this.name, this.image, this.image2, this.createdat);
+  New(this.nid, this.name, this.desc, this.image, this.image2, this.createdat);
 }

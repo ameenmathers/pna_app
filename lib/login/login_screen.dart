@@ -1,5 +1,4 @@
-import 'dart:io' show Platform;
-
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -11,13 +10,69 @@ class Login extends StatefulWidget {
   _LoginState createState() => _LoginState();
 }
 
-enum authProblems { UserNotFound, PasswordNotValid, NetworkError }
-
 class _LoginState extends State<Login> {
   final _auth = FirebaseAuth.instance;
   String email;
   String password;
   bool showSpinner = false;
+
+  String _error;
+
+  Widget showAlert() {
+    if (_error != null) {
+      return Container(
+        color: Colors.amberAccent,
+        width: double.infinity,
+        padding: EdgeInsets.all(8.0),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Icon(Icons.error_outline),
+            ),
+            Expanded(
+              child: AutoSizeText(
+                _error,
+                maxLines: 3,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _error = null;
+                  });
+                },
+              ),
+            )
+          ],
+        ),
+      );
+    }
+    return SizedBox(
+      height: 0,
+    );
+  }
+
+  Image image1;
+
+  @override
+  void initState() {
+    super.initState();
+    image1 = Image.asset(
+      "images/ban7.jpg",
+      fit: BoxFit.fill,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    precacheImage(image1.image, context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +85,7 @@ class _LoginState extends State<Login> {
           child: Stack(
             children: <Widget>[
               Center(
-                child: new Image.asset(
-                  'images/ban7.png',
-                  width: size.width,
-                  height: size.height,
-                  fit: BoxFit.fill,
-                  gaplessPlayback: true,
-                ),
+                child: image1,
               ),
               Container(
                 color: Colors.transparent,
@@ -66,6 +115,10 @@ class _LoginState extends State<Login> {
                         ),
                         SizedBox(
                           height: 20,
+                        ),
+                        showAlert(),
+                        SizedBox(
+                          height: 10,
                         ),
                         Text(
                           "PLAY NETWORK AFRICA",
@@ -99,14 +152,15 @@ class _LoginState extends State<Login> {
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(
                                 16.0, 16.0, 32.0, 16.0),
-                            child: TextField(
+                            child: TextFormField(
+                              validator: EmailValidator.validate,
                               onChanged: (value) {
                                 email = value;
                               },
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Colors.orangeAccent)),
+                                        BorderSide(color: Color(0xffc67608))),
                                 labelText: 'Email Address',
                                 filled: true,
                                 fillColor: Colors.black,
@@ -115,7 +169,7 @@ class _LoginState extends State<Login> {
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Colors.orangeAccent)),
+                                        BorderSide(color: Color(0xffc67608))),
                                 focusColor: Colors.black,
                               ),
                               style: TextStyle(
@@ -131,8 +185,9 @@ class _LoginState extends State<Login> {
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(
                                 16.0, 16.0, 32.0, 16.0),
-                            child: TextField(
+                            child: TextFormField(
                               obscureText: true,
+                              validator: PasswordValidator.validate,
                               onChanged: (value) {
                                 password = value;
                               },
@@ -147,7 +202,7 @@ class _LoginState extends State<Login> {
                                 focusColor: Colors.white,
                                 enabledBorder: OutlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Colors.orangeAccent)),
+                                        BorderSide(color: Color(0xffc67608))),
                               ),
                               style: TextStyle(
                                 color: Colors.white,
@@ -198,47 +253,12 @@ class _LoginState extends State<Login> {
                                     });
                                   }
                                 } catch (e) {
-                                  authProblems errorType;
-                                  if (Platform.isAndroid) {
-                                    switch (e.message) {
-                                      case 'There is no user record corresponding to this identifier. The user may have been deleted.':
-                                        errorType = authProblems.UserNotFound;
-                                        break;
-                                      case 'The password is invalid or the user does not have a password.':
-                                        errorType =
-                                            authProblems.PasswordNotValid;
-                                        break;
-                                      case 'A network error (such as timeout, interrupted connection or unreachable host) has occurred.':
-                                        errorType = authProblems.NetworkError;
-                                        break;
-                                      // ...
-                                      default:
-                                        print(
-                                            'Case ${e.message} is not yet implemented');
-                                    }
-                                  } else if (Platform.isIOS) {
-                                    switch (e.code) {
-                                      case 'Error 17011':
-                                        errorType = authProblems.UserNotFound;
-                                        break;
-                                      case 'Error 17009':
-                                        errorType =
-                                            authProblems.PasswordNotValid;
-                                        break;
-                                      case 'Error 17020':
-                                        errorType = authProblems.NetworkError;
-                                        break;
-                                      // ...
-                                      default:
-                                        print(
-                                            'Case ${e.message} is not yet implemented');
-                                    }
-                                  }
+                                  print(e);
 
                                   setState(() {
                                     showSpinner = false;
+                                    _error = e.message;
                                   });
-                                  print('The error is $errorType');
                                 }
                               },
                             ),
@@ -271,5 +291,23 @@ class _LoginState extends State<Login> {
         ),
       ),
     );
+  }
+}
+
+class EmailValidator {
+  static String validate(String value) {
+    if (value.isEmpty) {
+      return "Email can't be empty";
+    }
+    return null;
+  }
+}
+
+class PasswordValidator {
+  static String validate(String value) {
+    if (value.isEmpty) {
+      return "Password can't be empty";
+    }
+    return null;
   }
 }

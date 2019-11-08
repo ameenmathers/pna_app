@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 
 import 'form/form1.dart';
 import 'home/home.dart';
@@ -59,8 +60,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return loggedIn
         ? Navigation()
-        : PageView.builder(
+        : PreloadPageView.builder(
             itemCount: pages.length,
+            preloadPagesCount: 7,
             itemBuilder: (context, position) => pages[position],
           );
   }

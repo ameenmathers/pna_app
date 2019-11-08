@@ -83,7 +83,7 @@ class _FoundationsState extends State<Foundations> {
           flexibleSpace: Column(
             children: <Widget>[
               SizedBox(
-                height: 80,
+                height: 100,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +109,7 @@ class _FoundationsState extends State<Foundations> {
             ],
           ),
         ),
-        preferredSize: Size.fromHeight(140.0),
+        preferredSize: Size.fromHeight(150.0),
       ),
       backgroundColor: Colors.black,
       body: FutureBuilder(
@@ -124,7 +124,7 @@ class _FoundationsState extends State<Foundations> {
                 Center(
                   child: CircularProgressIndicator(
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
+                        AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
                   ),
                 ),
               ],
@@ -133,16 +133,18 @@ class _FoundationsState extends State<Foundations> {
             return Container(
               child: RefreshIndicator(
                 onRefresh: _getFoundations,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return filter == null || filter == ""
-                        ? SingleChildScrollView(
-                            child: Column(
+                child: SingleChildScrollView(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    reverse: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return filter == null || filter == ""
+                          ? Column(
                               children: <Widget>[
                                 SizedBox(
-                                  height: 5,
+                                  height: 10,
                                 ),
                                 RaisedButton(
                                   color: Colors.black,
@@ -157,16 +159,20 @@ class _FoundationsState extends State<Foundations> {
                                   },
                                   child: Stack(
                                     children: <Widget>[
-                                      Image(
-                                        image: NetworkImage(
-                                            snapshot.data[index].image),
-                                        gaplessPlayback: true,
-                                        width: 450,
-                                        height: 250,
+                                      ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(50.0),
+                                        child: new Image.network(
+                                          snapshot.data[index].image,
+                                          gaplessPlayback: true,
+                                          width: 450,
+                                          height: 230,
+                                          fit: BoxFit.fill,
+                                        ),
                                       ),
                                       Padding(
                                         padding: EdgeInsets.fromLTRB(
-                                            0.0, 210.0, 0.0, 0.0),
+                                            0.0, 225.0, 0.0, 0.0),
                                         child: Center(
                                           child: ButtonTheme(
                                             minWidth: 80,
@@ -199,7 +205,7 @@ class _FoundationsState extends State<Foundations> {
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(
-                                            0.0, 250.0, 0.0, 0.0),
+                                            0.0, 270.0, 0.0, 0.0),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
@@ -208,141 +214,122 @@ class _FoundationsState extends State<Foundations> {
                                               snapshot.data[index].name,
                                               style: TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 22,
+                                                fontSize: 20,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      Padding(
-                                        padding: EdgeInsets.fromLTRB(
-                                            0.0, 290.0, 0.0, 0.0),
-                                        child: Center(
-                                          child: Text(
-                                            snapshot.data[index].desc,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.w200,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 50,
+                                  height: 30,
                                 ),
                               ],
-                            ),
-                          )
-                        : snapshot.data[index].name
-                                .toLowerCase()
-                                .contains(filter.toLowerCase())
-                            ? SingleChildScrollView(
-                                child: Column(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    RaisedButton(
-                                      color: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  FoundationDetail(
-                                                      snapshot.data[index])),
-                                        );
-                                      },
-                                      child: Stack(
-                                        children: <Widget>[
-                                          Image(
-                                            image: NetworkImage(
-                                                snapshot.data[index].image),
-                                            gaplessPlayback: true,
-                                            width: 450,
-                                            height: 250,
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0.0, 210.0, 0.0, 0.0),
-                                            child: Center(
-                                              child: ButtonTheme(
-                                                minWidth: 80,
-                                                height: 30,
-                                                child: RaisedButton(
-                                                  color: Color(0xffc67608),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: BorderSide(
-                                                      color: Color(0xffc67608),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                      Radius.circular(40.0),
-                                                    ),
-                                                  ),
-                                                  child: Text("Read More"),
-                                                  textColor: Colors.black,
-                                                  onPressed: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              FoundationDetail(
-                                                                  snapshot.data[
-                                                                      index])),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0.0, 250.0, 0.0, 0.0),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                Text(
-                                                  snapshot.data[index].name,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 22,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                10.0, 290.0, 0.0, 0.0),
-                                            child: Text(
-                                              snapshot.data[index].desc,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.w200,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                            )
+                          : snapshot.data[index].name
+                                  .toLowerCase()
+                                  .contains(filter.toLowerCase())
+                              ? SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                      SizedBox(
+                                        height: 5,
                                       ),
-                                    ),
-                                    SizedBox(
-                                      height: 50,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : new Container();
-                  },
+                                      RaisedButton(
+                                        color: Colors.black,
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    FoundationDetail(
+                                                        snapshot.data[index])),
+                                          );
+                                        },
+                                        child: Stack(
+                                          children: <Widget>[
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(50.0),
+                                              child: new Image.network(
+                                                snapshot.data[index].image,
+                                                gaplessPlayback: true,
+                                                width: 450,
+                                                height: 230,
+                                                fit: BoxFit.fill,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0.0, 225.0, 0.0, 0.0),
+                                              child: Center(
+                                                child: ButtonTheme(
+                                                  minWidth: 80,
+                                                  height: 30,
+                                                  child: RaisedButton(
+                                                    color: Color(0xffc67608),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                        color:
+                                                            Color(0xffc67608),
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                        Radius.circular(40.0),
+                                                      ),
+                                                    ),
+                                                    child: Text("Read More"),
+                                                    textColor: Colors.black,
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                FoundationDetail(
+                                                                    snapshot.data[
+                                                                        index])),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0.0, 270.0, 0.0, 0.0),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Text(
+                                                    snapshot.data[index].name,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 30,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : new Container();
+                    },
+                  ),
                 ),
               ),
             );
@@ -359,7 +346,7 @@ class _FoundationsState extends State<Foundations> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -373,7 +360,7 @@ class _FoundationsState extends State<Foundations> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -388,7 +375,7 @@ class _FoundationsState extends State<Foundations> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -403,7 +390,7 @@ class _FoundationsState extends State<Foundations> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -479,11 +466,18 @@ class FoundationDetail extends StatelessWidget {
                   onPressed: () {},
                   child: Column(
                     children: <Widget>[
-                      Image(
-                        image: NetworkImage(foundation.image),
-                        gaplessPlayback: true,
-                        width: 400,
-                        height: 300,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(50.0),
+                        child: new Image.network(
+                          foundation.image,
+                          gaplessPlayback: true,
+                          width: 450,
+                          height: 230,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
                       ),
                       Padding(
                         padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
@@ -543,7 +537,7 @@ class FoundationDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -557,7 +551,7 @@ class FoundationDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.people,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -572,7 +566,7 @@ class FoundationDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -587,7 +581,7 @@ class FoundationDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(

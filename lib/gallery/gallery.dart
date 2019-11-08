@@ -108,7 +108,7 @@ class _GalleryPageState extends State<GalleryPage> {
             ],
           ),
         ),
-        preferredSize: Size.fromHeight(170.0),
+        preferredSize: Size.fromHeight(150.0),
       ),
       backgroundColor: Colors.black,
       body: FutureBuilder(
@@ -123,7 +123,7 @@ class _GalleryPageState extends State<GalleryPage> {
                 Center(
                   child: CircularProgressIndicator(
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
+                        AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
                   ),
                 ),
               ],
@@ -132,12 +132,15 @@ class _GalleryPageState extends State<GalleryPage> {
             return Container(
               child: RefreshIndicator(
                 onRefresh: _getGallerys,
-                child: ListView.builder(
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return filter == null || filter == ""
-                        ? SingleChildScrollView(
-                            child: Column(
+                child: SingleChildScrollView(
+                  child: ListView.builder(
+                    reverse: true,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return filter == null || filter == ""
+                          ? Column(
                               children: <Widget>[
                                 SizedBox(
                                   height: 5,
@@ -156,12 +159,16 @@ class _GalleryPageState extends State<GalleryPage> {
                                     children: <Widget>[
                                       Stack(
                                         children: <Widget>[
-                                          Image(
-                                            image: NetworkImage(
-                                                snapshot.data[index].image),
-                                            gaplessPlayback: true,
-                                            width: 450,
-                                            height: 250,
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(50.0),
+                                            child: new Image.network(
+                                              snapshot.data[index].image,
+                                              gaplessPlayback: true,
+                                              width: 450,
+                                              height: 230,
+                                              fit: BoxFit.fill,
+                                            ),
                                           ),
                                           Padding(
                                             padding: EdgeInsets.fromLTRB(
@@ -219,145 +226,120 @@ class _GalleryPageState extends State<GalleryPage> {
                                         ],
                                       ),
                                       SizedBox(
-                                        height: 10,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text(
-                                            snapshot.data[index].desc,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.w200,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 50,
+                                        height: 30,
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
-                            ),
-                          )
-                        : snapshot.data[index].name
-                                .toLowerCase()
-                                .contains(filter.toLowerCase())
-                            ? SingleChildScrollView(
-                                child: Column(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    RaisedButton(
-                                      color: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  GalleryDetail(
-                                                      snapshot.data[index])),
-                                        );
-                                      },
-                                      child: Column(
-                                        children: <Widget>[
-                                          Stack(
-                                            children: <Widget>[
-                                              Image(
-                                                image: NetworkImage(
-                                                    snapshot.data[index].image),
-                                                gaplessPlayback: true,
-                                                width: 450,
-                                                height: 250,
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    0.0, 225.0, 0.0, 0.0),
-                                                child: Center(
-                                                  child: ButtonTheme(
-                                                    minWidth: 80,
-                                                    height: 30,
-                                                    child: RaisedButton(
-                                                      color: Color(0xffc67608),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        side: BorderSide(
-                                                          color:
-                                                              Color(0xffc67608),
+                            )
+                          : snapshot.data[index].name
+                                  .toLowerCase()
+                                  .contains(filter.toLowerCase())
+                              ? SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      RaisedButton(
+                                        color: Colors.black,
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    GalleryDetail(
+                                                        snapshot.data[index])),
+                                          );
+                                        },
+                                        child: Column(
+                                          children: <Widget>[
+                                            Stack(
+                                              children: <Widget>[
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          50.0),
+                                                  child: new Image.network(
+                                                    snapshot.data[index].image,
+                                                    gaplessPlayback: true,
+                                                    width: 450,
+                                                    height: 230,
+                                                    fit: BoxFit.fill,
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      0.0, 225.0, 0.0, 0.0),
+                                                  child: Center(
+                                                    child: ButtonTheme(
+                                                      minWidth: 80,
+                                                      height: 30,
+                                                      child: RaisedButton(
+                                                        color:
+                                                            Color(0xffc67608),
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          side: BorderSide(
+                                                            color: Color(
+                                                                0xffc67608),
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                            Radius.circular(
+                                                                40.0),
+                                                          ),
                                                         ),
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                          Radius.circular(40.0),
-                                                        ),
+                                                        child: Text("View"),
+                                                        textColor: Colors.black,
+                                                        onPressed: () {
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder: (context) =>
+                                                                    GalleryDetail(
+                                                                        snapshot
+                                                                            .data[index])),
+                                                          );
+                                                        },
                                                       ),
-                                                      child: Text("View"),
-                                                      textColor: Colors.black,
-                                                      onPressed: () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  GalleryDetail(
-                                                                      snapshot.data[
-                                                                          index])),
-                                                        );
-                                                      },
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: <Widget>[
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        15.0, 0.0, 0.0, 0.0),
-                                                child: Text(
-                                                  snapshot.data[index].name,
-                                                  textAlign: TextAlign.left,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 17,
+                                              ],
+                                            ),
+                                            Row(
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          15.0, 0.0, 0.0, 0.0),
+                                                  child: Text(
+                                                    snapshot.data[index].name,
+                                                    textAlign: TextAlign.left,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 17,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0.0, 0.0, 0.0, 0.0),
-                                            child: Text(
-                                              snapshot.data[index].desc,
-                                              textAlign: TextAlign.left,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.w200,
-                                              ),
+                                              ],
                                             ),
-                                          ),
-                                          SizedBox(
-                                            height: 50,
-                                          ),
-                                        ],
+                                            SizedBox(
+                                              height: 30,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : new Container();
-                  },
+                                    ],
+                                  ),
+                                )
+                              : new Container();
+                    },
+                  ),
                 ),
               ),
             );
@@ -374,7 +356,7 @@ class _GalleryPageState extends State<GalleryPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -388,7 +370,7 @@ class _GalleryPageState extends State<GalleryPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -403,7 +385,7 @@ class _GalleryPageState extends State<GalleryPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -418,7 +400,7 @@ class _GalleryPageState extends State<GalleryPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -480,23 +462,41 @@ class GalleryDetail extends StatelessWidget {
                 SizedBox(
                   height: 10,
                 ),
-                Image(
-                  image: NetworkImage(gallery.image),
-                  gaplessPlayback: true,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(50.0),
+                  child: new Image.network(
+                    gallery.image,
+                    gaplessPlayback: true,
+                    width: 450,
+                    height: 230,
+                    fit: BoxFit.fill,
+                  ),
                 ),
                 SizedBox(
-                  height: 25,
+                  height: 40,
                 ),
-                Image(
-                  image: NetworkImage(gallery.image2),
-                  gaplessPlayback: true,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(50.0),
+                  child: new Image.network(
+                    gallery.image2,
+                    gaplessPlayback: true,
+                    width: 450,
+                    height: 230,
+                    fit: BoxFit.fill,
+                  ),
                 ),
                 SizedBox(
-                  height: 25,
+                  height: 40,
                 ),
-                Image(
-                  image: NetworkImage(gallery.image3),
-                  gaplessPlayback: true,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(50.0),
+                  child: new Image.network(
+                    gallery.image3,
+                    gaplessPlayback: true,
+                    width: 450,
+                    height: 230,
+                    fit: BoxFit.fill,
+                  ),
                 ),
               ],
             ),
@@ -513,7 +513,7 @@ class GalleryDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -527,7 +527,7 @@ class GalleryDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.people,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -542,7 +542,7 @@ class GalleryDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -557,7 +557,7 @@ class GalleryDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Colors.orangeAccent,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 Navigator.push(
@@ -582,5 +582,5 @@ class Gallery {
   final String image2;
   final String image3;
 
-  Gallery(this.gid, this.desc, this.name, this.image, this.image2, this.image3);
+  Gallery(this.gid, this.name, this.desc, this.image, this.image2, this.image3);
 }
