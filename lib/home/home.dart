@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travel_world/login/login_screen.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -146,8 +147,38 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   SizedBox(
-                    height: 65,
+                    height: 20,
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      RaisedButton(
+                        color: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            style: BorderStyle.solid,
+                            color: Colors.white,
+                          ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(16.0),
+                          ),
+                        ),
+                        child: Row(
+                          children: <Widget>[
+                            Text("Login"),
+                            Icon(Icons.arrow_right),
+                          ],
+                        ),
+                        textColor: Colors.white,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Login()),
+                          );
+                        },
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),

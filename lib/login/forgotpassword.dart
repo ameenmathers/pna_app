@@ -2,16 +2,14 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:travel_world/form/form1.dart';
-import 'package:travel_world/login/forgotpassword.dart';
-import 'package:travel_world/navigation/navigation.dart';
+import 'package:travel_world/login/login_screen.dart';
 
-class Login extends StatefulWidget {
+class ForgotPassword extends StatefulWidget {
   @override
-  _LoginState createState() => _LoginState();
+  _ForgotPasswordState createState() => _ForgotPasswordState();
 }
 
-class _LoginState extends State<Login> {
+class _ForgotPasswordState extends State<ForgotPassword> {
   final _auth = FirebaseAuth.instance;
   String email;
   String password;
@@ -114,7 +112,7 @@ class _LoginState extends State<Login> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => Form1()),
+                                            builder: (context) => Login()),
                                       );
                                     },
                                   ),
@@ -143,7 +141,7 @@ class _LoginState extends State<Login> {
                                 padding: const EdgeInsets.fromLTRB(
                                     0.0, 0.0, 0.0, 0.0),
                                 child: Text(
-                                  "To apply or log in, use your phone number",
+                                  "RESET PASSWORD",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.white,
@@ -199,49 +197,6 @@ class _LoginState extends State<Login> {
                               SizedBox(
                                 height: 30,
                               ),
-                              Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      0.0, 0.0, 0.0, 0.0),
-                                  child: Container(
-                                    width: 300,
-                                    child: TextFormField(
-                                      obscureText: true,
-                                      validator: (value) {
-                                        if (value.isEmpty) {
-                                          return 'Please enter password';
-                                        }
-                                        return null;
-                                      },
-                                      onChanged: (value) {
-                                        password = value;
-                                      },
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        hintText: "Password",
-                                        hintStyle: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                        filled: true,
-                                        fillColor: Colors.black,
-                                        labelStyle: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                        focusColor: Colors.white,
-                                        enabledBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Color(0xffc67608))),
-                                      ),
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 30,
-                              ),
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                     0.0, 0.0, 0.0, 0.0),
@@ -258,31 +213,49 @@ class _LoginState extends State<Login> {
                                         Radius.circular(10.0),
                                       ),
                                     ),
-                                    child: Text("Sign In"),
+                                    child: Text("Submit"),
                                     textColor: Colors.white,
                                     onPressed: () async {
                                       if (_formKey.currentState.validate()) {
                                         setState(() {
                                           showSpinner = true;
                                         });
-
                                         try {
-                                          final user = await _auth
-                                              .signInWithEmailAndPassword(
-                                            email: email,
-                                            password: password,
-                                          );
-                                          if (user != null) {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      Navigation()),
-                                            );
-                                            setState(() {
-                                              showSpinner = false;
-                                            });
-                                          }
+                                          _auth
+                                              .sendPasswordResetEmail(
+                                                email: email,
+                                              )
+                                              .then((result) => {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Login()),
+                                                    ),
+                                                  });
+
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text("Notification"),
+                                                  content: Text(
+                                                      "A reset password link has been sent to $email "),
+                                                  actions: <Widget>[
+                                                    FlatButton(
+                                                      child: Text("Close"),
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    )
+                                                  ],
+                                                );
+                                              });
+
+                                          setState(() {
+                                            showSpinner = false;
+                                          });
                                         } catch (e) {
                                           print(e);
 
@@ -309,12 +282,11 @@ class _LoginState extends State<Login> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                ForgotPassword()),
+                                            builder: (context) => Login()),
                                       );
                                     },
                                     child: Text(
-                                      "Forgot Password?",
+                                      "Return to Login",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: Colors.grey,

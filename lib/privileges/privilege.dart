@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
@@ -15,15 +17,37 @@ class PrivilegePage extends StatefulWidget {
 
 class PrivilegePageState extends State<PrivilegePage> {
   TextEditingController controller = new TextEditingController();
-  Future<List<Privilege>> _getPrivileges() async {
-    var data = await http
-        .get("http://www.playnetworkafrica.com/public/api/privileges");
 
-    var jsonData = json.decode(data.body);
+  Future<List<Privilege>> _getPrivileges({bool useCache = true}) async {
+    print('Loading events');
+
+    String data;
+
+    /// Do we have a cache we can use?
+    var cache = await cacheExists();
+
+    /// If the cache exists and it contains data use that, otherwise we call the API
+    if (cache && useCache) {
+      print('We have cached data');
+
+      data = await readToFile();
+    } else {
+      print('No cache. Fetching from API');
+
+      var apiData = await http
+          .get("http://www.playnetworkafrica.com/public/api/privileges");
+
+      data = apiData.body;
+
+      /// Now save the fetched data to the cache
+      await writeToFile(data);
+    }
+
+    var jsonData = json.decode(data);
 
     List<Privilege> privileges = [];
 
-    for (var u in jsonData) {
+    for (var u in jsonData.reversed) {
       Privilege privilege = Privilege(
           u["pid"], u["desc"], u["name"], u["code"], u["image"], u["type"]);
 
@@ -34,6 +58,77 @@ class PrivilegePageState extends State<PrivilegePage> {
 
     return privileges;
   }
+
+  Future<List<Privilege>> _refreshPrivileges({bool useCache = true}) async {
+    print('Loading events');
+
+    String data;
+
+    /// Do we have a cache we can use?
+    var cache = await cacheExists();
+
+    /// If the cache exists and it contains data use that, otherwise we call the API
+    if (cache && useCache) {
+      print('We have cached data');
+
+      var apiData = await http
+          .get("http://www.playnetworkafrica.com/public/api/privileges");
+
+      data = apiData.body;
+
+      /// Now save the fetched data to the cache
+      await writeToFile(data);
+    }
+
+    var jsonData = json.decode(data);
+
+    List<Privilege> privileges = [];
+
+    for (var u in jsonData.reversed) {
+      Privilege privilege = Privilege(
+          u["pid"], u["desc"], u["name"], u["code"], u["image"], u["type"]);
+
+      privileges.add(privilege);
+    }
+
+    print(privileges.length);
+
+    return privileges;
+  }
+
+  static Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  static Future<File> get myfile async {
+    final path = await _localPath;
+    return File('$path/privilege.txt');
+  }
+
+  static Future<bool> cacheExists() async {
+    var file = await myfile;
+
+    return file.exists();
+  }
+
+  static writeToFile(jsonData) async {
+    final file = await myfile;
+    file.writeAsString(jsonData);
+  }
+
+  static readToFile() async {
+    try {
+      final file = await myfile;
+
+      // Read the file.
+      String contents = await file.readAsString();
+
+      return contents;
+    } catch (e) {}
+  }
+
+  var myFile = new File('privilege.txt');
 
   TextEditingController searchController = new TextEditingController();
   String filter;
@@ -62,9 +157,9 @@ class PrivilegePageState extends State<PrivilegePage> {
       appBar: PreferredSize(
         child: AppBar(
           title: Text(
-            'Privileges',
+            'PRIVILEGES',
             style: TextStyle(
-              fontSize: 30,
+              fontSize: 20,
             ),
           ),
           backgroundColor: Colors.transparent,
@@ -85,31 +180,25 @@ class PrivilegePageState extends State<PrivilegePage> {
               SizedBox(
                 height: 100,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: 330,
-                    height: 50,
-                    child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                          labelText: "Search",
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: "Search",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(25.0)))),
-                    ),
-                  ),
-                ],
+              Container(
+                width: 350,
+                height: 50,
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(10.0)))),
+                ),
               ),
             ],
           ),
         ),
-        preferredSize: Size.fromHeight(150.0),
+        preferredSize: Size.fromHeight(140.0),
       ),
       backgroundColor: Colors.black,
       body: FutureBuilder(
@@ -136,22 +225,17 @@ class PrivilegePageState extends State<PrivilegePage> {
                 new Expanded(
                   child: Container(
                     child: RefreshIndicator(
-                      onRefresh: _getPrivileges,
-                      child: SingleChildScrollView(
-                        child: ListView.builder(
-                            shrinkWrap: true,
-                            reverse: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: snapshot.data.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return filter == null || filter == ""
-                                  ? Center(
+                      onRefresh: _refreshPrivileges,
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: snapshot.data.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return filter == null || filter == ""
+                                ? SingleChildScrollView(
+                                    child: Center(
                                       child: SafeArea(
                                         child: Column(
                                           children: <Widget>[
-                                            SizedBox(
-                                              height: 5,
-                                            ),
                                             RaisedButton(
                                               color: Colors.black,
                                               onPressed: () {
@@ -169,20 +253,20 @@ class PrivilegePageState extends State<PrivilegePage> {
                                                   ClipRRect(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            50.0),
+                                                            10.0),
                                                     child: new Image.network(
                                                       snapshot
                                                           .data[index].image,
                                                       gaplessPlayback: true,
                                                       width: 450,
                                                       height: 230,
-                                                      fit: BoxFit.fill,
+                                                      fit: BoxFit.cover,
                                                     ),
                                                   ),
                                                   Padding(
                                                     padding:
                                                         EdgeInsets.fromLTRB(0.0,
-                                                            225.0, 0.0, 0.0),
+                                                            205.0, 0.0, 0.0),
                                                     child: Center(
                                                       child: ButtonTheme(
                                                         minWidth: 80,
@@ -226,7 +310,7 @@ class PrivilegePageState extends State<PrivilegePage> {
                                                     child: Padding(
                                                       padding: const EdgeInsets
                                                               .fromLTRB(10.0,
-                                                          280.0, 0.0, 0.0),
+                                                          260.0, 0.0, 0.0),
                                                       child: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
@@ -240,7 +324,7 @@ class PrivilegePageState extends State<PrivilegePage> {
                                                                   Colors.white,
                                                               fontWeight:
                                                                   FontWeight
-                                                                      .bold,
+                                                                      .w400,
                                                               fontSize: 17,
                                                             ),
                                                           ),
@@ -252,153 +336,143 @@ class PrivilegePageState extends State<PrivilegePage> {
                                               ),
                                             ),
                                             SizedBox(
-                                              height: 50,
+                                              height: 20,
                                             ),
                                           ],
                                         ),
                                       ),
-                                    )
-                                  : snapshot.data[index].name
-                                          .toLowerCase()
-                                          .contains(filter.toLowerCase())
-                                      ? SingleChildScrollView(
-                                          child: Center(
-                                            child: SafeArea(
-                                              child: Column(
-                                                children: <Widget>[
-                                                  SizedBox(
-                                                    height: 5,
-                                                  ),
-                                                  RaisedButton(
-                                                    color: Colors.black,
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                PrivilegeDetail(
-                                                                    snapshot.data[
-                                                                        index])),
-                                                      );
-                                                    },
-                                                    child: Stack(
-                                                      children: <Widget>[
-                                                        ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      50.0),
-                                                          child:
-                                                              new Image.network(
-                                                            snapshot.data[index]
-                                                                .image,
-                                                            gaplessPlayback:
-                                                                true,
-                                                            width: 450,
-                                                            height: 230,
-                                                            fit: BoxFit.fill,
-                                                          ),
+                                    ),
+                                  )
+                                : snapshot.data[index].name
+                                        .toLowerCase()
+                                        .contains(filter.toLowerCase())
+                                    ? SingleChildScrollView(
+                                        child: Center(
+                                          child: SafeArea(
+                                            child: Column(
+                                              children: <Widget>[
+                                                RaisedButton(
+                                                  color: Colors.black,
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              PrivilegeDetail(
+                                                                  snapshot.data[
+                                                                      index])),
+                                                    );
+                                                  },
+                                                  child: Stack(
+                                                    children: <Widget>[
+                                                      ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.0),
+                                                        child:
+                                                            new Image.network(
+                                                          snapshot.data[index]
+                                                              .image,
+                                                          gaplessPlayback: true,
+                                                          width: 450,
+                                                          height: 230,
+                                                          fit: BoxFit.cover,
                                                         ),
-                                                        Padding(
-                                                          padding: EdgeInsets
-                                                              .fromLTRB(
-                                                                  0.0,
-                                                                  225.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                          child: Center(
-                                                            child: ButtonTheme(
-                                                              minWidth: 80,
-                                                              height: 30,
-                                                              child:
-                                                                  RaisedButton(
-                                                                color: Color(
-                                                                    0xffc67608),
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  side:
-                                                                      BorderSide(
-                                                                    color: Color(
-                                                                        0xffc67608),
-                                                                  ),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .all(
-                                                                    Radius.circular(
-                                                                        30.0),
-                                                                  ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.fromLTRB(
+                                                                0.0,
+                                                                205.0,
+                                                                0.0,
+                                                                0.0),
+                                                        child: Center(
+                                                          child: ButtonTheme(
+                                                            minWidth: 80,
+                                                            height: 30,
+                                                            child: RaisedButton(
+                                                              color: Color(
+                                                                  0xffc67608),
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                side:
+                                                                    BorderSide(
+                                                                  color: Color(
+                                                                      0xffc67608),
                                                                 ),
-                                                                child: Text(
-                                                                    snapshot
-                                                                        .data[
-                                                                            index]
-                                                                        .type),
-                                                                textColor:
-                                                                    Colors
-                                                                        .black,
-                                                                onPressed: () {
-                                                                  Navigator
-                                                                      .push(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                        builder:
-                                                                            (context) =>
-                                                                                PrivilegeDetail(snapshot.data[index])),
-                                                                  );
-                                                                },
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          30.0),
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Center(
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .fromLTRB(
-                                                                    10.0,
-                                                                    280.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: <
-                                                                  Widget>[
-                                                                Text(
+                                                              child: Text(
                                                                   snapshot
                                                                       .data[
                                                                           index]
-                                                                      .name,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        17,
-                                                                  ),
-                                                                ),
-                                                              ],
+                                                                      .type),
+                                                              textColor:
+                                                                  Colors.black,
+                                                              onPressed: () {
+                                                                Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder: (context) =>
+                                                                          PrivilegeDetail(
+                                                                              snapshot.data[index])),
+                                                                );
+                                                              },
                                                             ),
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
+                                                      ),
+                                                      Center(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .fromLTRB(
+                                                                  10.0,
+                                                                  260.0,
+                                                                  0.0,
+                                                                  0.0),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: <Widget>[
+                                                              Text(
+                                                                snapshot
+                                                                    .data[index]
+                                                                    .name,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400,
+                                                                  fontSize: 17,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  SizedBox(
-                                                    height: 50,
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        )
-                                      : new Container();
-                            }),
-                      ),
+                                        ),
+                                      )
+                                    : new Container();
+                          }),
                     ),
                   ),
                 ),
@@ -431,7 +505,7 @@ class PrivilegePageState extends State<PrivilegePage> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -446,7 +520,7 @@ class PrivilegePageState extends State<PrivilegePage> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -461,7 +535,7 @@ class PrivilegePageState extends State<PrivilegePage> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -524,10 +598,9 @@ class PrivilegeDetail extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          privilege.name,
+          privilege.name.toUpperCase(),
           style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
         backgroundColor: Colors.black,
@@ -549,81 +622,84 @@ class PrivilegeDetail extends StatelessWidget {
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(50.0),
-              child: new Image.network(
-                privilege.image,
-                gaplessPlayback: true,
-                width: 450,
-                height: 230,
-                fit: BoxFit.fill,
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: new Image.network(
+                  privilege.image,
+                  gaplessPlayback: true,
+                ),
               ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              color: Colors.transparent,
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
-                        child: Text(
-                          privilege.desc,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w200,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        color: Colors.black,
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(
-                              height: 50,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                  10.0, 0.0, 20.0, 0.0),
-                              child: ButtonTheme(
-                                minWidth: 350.0,
-                                height: 60.0,
-                                child: RaisedButton(
-                                  color: Color(0xffc67608),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: Color(0xffc67608),
-                                    ),
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10.0),
-                                    ),
-                                  ),
-                                  child: Text("VIEW DISCOUNT"),
-                                  textColor: Colors.white,
-                                  onPressed: () => _showModalSheet(context),
-                                ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                color: Colors.transparent,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                          child: Center(
+                            child: Text(
+                              privilege.desc,
+                              textAlign: TextAlign.justify,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w200,
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          color: Colors.black,
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 50,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    10.0, 0.0, 20.0, 0.0),
+                                child: ButtonTheme(
+                                  minWidth: 350.0,
+                                  height: 60.0,
+                                  child: RaisedButton(
+                                    color: Color(0xffc67608),
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                        color: Color(0xffc67608),
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(10.0),
+                                      ),
+                                    ),
+                                    child: Text("Redeem Code"),
+                                    textColor: Colors.white,
+                                    onPressed: () => _showModalSheet(context),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -649,8 +725,8 @@ class PrivilegeDetail extends StatelessWidget {
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
-                Icons.people,
-                color: Color(0xffc67608),
+                Icons.vpn_lock,
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -665,7 +741,7 @@ class PrivilegeDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -680,7 +756,7 @@ class PrivilegeDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(

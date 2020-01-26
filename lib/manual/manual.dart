@@ -38,11 +38,10 @@ class ManualState extends State<Manual> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Help and Support',
+          'SETTINGS AND SUPPORT',
           style: TextStyle(
-            fontSize: 30,
+            fontSize: 20,
             color: Colors.white,
-            fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: Colors.black,
@@ -131,12 +130,12 @@ class ManualState extends State<Manual> {
                 SizedBox(
                   height: 20,
                 ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10.0, 0.0, 20.0, 0.0),
-                    child: ButtonTheme(
-                      minWidth: 350.0,
-                      height: 60.0,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    ButtonTheme(
+                      minWidth: 300.0,
+                      height: 40.0,
                       child: RaisedButton(
                         color: Color(0xffc67608),
                         shape: RoundedRectangleBorder(
@@ -147,12 +146,17 @@ class ManualState extends State<Manual> {
                             Radius.circular(10.0),
                           ),
                         ),
-                        child: Text("Contact Us"),
-                        textColor: Colors.white,
+                        child: Text(
+                          "Contact Us",
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        textColor: Colors.black,
                         onPressed: _launchURL,
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -183,7 +187,7 @@ class ManualState extends State<Manual> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -198,7 +202,7 @@ class ManualState extends State<Manual> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -213,7 +217,7 @@ class ManualState extends State<Manual> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -231,7 +235,7 @@ class ManualState extends State<Manual> {
 }
 
 _launchURL() async {
-  const url = 'https://flutter.io';
+  const url = 'https://playnetwork.africa/contact-us/';
   if (await canLaunch(url)) {
     await launch(url);
   } else {

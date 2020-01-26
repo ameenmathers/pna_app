@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_world/formsec/form2.dart';
-import 'package:travel_world/register/pay.dart';
+import 'package:travel_world/login/login_screen.dart';
 
 class Register extends StatefulWidget {
   Register({Key key}) : super(key: key);
@@ -22,28 +23,65 @@ class _RegisterState extends State<Register> {
   String _date = "Not set";
   String _country;
 
+  String _error;
+
+  Widget showAlert() {
+    if (_error != null) {
+      return Container(
+        color: Colors.amberAccent,
+        width: double.infinity,
+        padding: EdgeInsets.all(8.0),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Icon(Icons.error_outline),
+            ),
+            Expanded(
+              child: AutoSizeText(
+                _error,
+                maxLines: 3,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _error = null;
+                  });
+                },
+              ),
+            )
+          ],
+        ),
+      );
+    }
+    return SizedBox(
+      height: 0,
+    );
+  }
+
   bool checkboxValue = false;
 
   final _photo1 =
-      "https://www.familyvacationcritic.com/uploads/sites/19/2015/08/AtlantisParadiseIsland-OverviewImage.jpg";
+      "http://mercurytwenty.com/wp-content/uploads/2016/10/default-placeholder-600x600.png";
   final _photo2 =
-      "https://www.familyvacationcritic.com/uploads/sites/19/2015/08/AtlantisParadiseIsland-OverviewImage.jpg";
+      "https://www.oxfordlindyhoppers.co.uk/wp-content/plugins/ht-mega-for-elementor//assets/images/image-placeholder.png";
   final _photo3 =
-      "https://www.familyvacationcritic.com/uploads/sites/19/2015/08/AtlantisParadiseIsland-OverviewImage.jpg";
+      "https://nobelmedicalgroup.com/wp-content/themes/healthway/images/placeholder.png";
   final _photo4 =
-      "https://www.familyvacationcritic.com/uploads/sites/19/2015/08/AtlantisParadiseIsland-OverviewImage.jpg";
+      "https://2x5ito1uusjd19czwpsrbt7c-wpengine.netdna-ssl.com/wp-content/themes/total-child-theme/assets/images/common/image-placeholder.png";
 
   final _photo =
-      'https://cdn4.iconfinder.com/data/icons/business-conceptual-part1-1/513/business-man-512.png';
-
-  final _status = "Available";
+      'https://firebasestorage.googleapis.com/v0/b/play-2f9e6.appspot.com/o/2QlcuNr.png?alt=media&token=a709eb8a-db7f-4696-a641-bec24590701a';
 
   bool showSpinner = false;
 
   final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
   TextEditingController nameInputController;
   TextEditingController aboutMeInputController;
-  TextEditingController cityInputController;
   TextEditingController genderInputController;
   TextEditingController professionInputController;
   TextEditingController reasonInputController;
@@ -55,7 +93,6 @@ class _RegisterState extends State<Register> {
   initState() {
     nameInputController = new TextEditingController();
     aboutMeInputController = new TextEditingController();
-    cityInputController = new TextEditingController();
     genderInputController = new TextEditingController();
     professionInputController = new TextEditingController();
     reasonInputController = new TextEditingController();
@@ -173,6 +210,7 @@ class _RegisterState extends State<Register> {
                               ),
                             ],
                           ),
+                          showAlert(),
                           SizedBox(
                             height: 20,
                           ),
@@ -190,7 +228,7 @@ class _RegisterState extends State<Register> {
                           ),
                           Padding(
                             padding:
-                                const EdgeInsets.fromLTRB(40.0, 0.0, 20.0, 0.0),
+                                const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                             child: Text(
                               "To apply or log in, use your phone number",
                               textAlign: TextAlign.center,
@@ -214,7 +252,10 @@ class _RegisterState extends State<Register> {
                                 ),
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Name',
+                                  hintText: 'Name',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.black,
                                   labelStyle: TextStyle(
@@ -345,57 +386,126 @@ class _RegisterState extends State<Register> {
                                   });
                                 },
                                 items: <String>[
-                                  'Seychelles',
-                                  'Madagascar',
-                                  'Nigeria',
-                                  'Ghana',
-                                  'South Africa',
-                                  'Rwanda',
-                                  'Botswana',
-                                  'Kenya',
-                                  'Cameroon',
-                                  'Mauritius',
+                                  'Australia',
+                                  'Austria',
+                                  'Argentina',
+                                  'Angola',
+                                  'Algeria',
+                                  'Bahamas',
+                                  'Bangladesh',
+                                  'Barbados',
+                                  'Belgium',
                                   'Benin Republic',
+                                  'Brazil',
+                                  'Botswana',
+                                  'Bulgaria',
+                                  'Burkina Faso',
+                                  'Canada',
+                                  'Cameroon',
+                                  'Chile',
+                                  'China',
+                                  'Colombia',
+                                  'Congo',
+                                  'Costa Rica',
+                                  "Cote d'Ivoire",
+                                  'Croatia',
+                                  'Cyprus',
+                                  'Denmark',
+                                  'Ecuador',
+                                  'Egypt',
+                                  'Equatorial Guinea',
+                                  'Estonia',
                                   'Ethopia',
+                                  'Finland',
+                                  'France',
+                                  'Gabon',
+                                  'Gambia',
+                                  'Germany',
+                                  'Ghana',
+                                  'Greece',
+                                  'Guatemala',
+                                  'Guinea',
+                                  'Haiti',
+                                  'Hungary',
+                                  'Iceland',
+                                  'India',
+                                  'Indonesia',
+                                  'Ireland',
+                                  'Israel',
+                                  'Italy',
+                                  'Jamaica',
+                                  'Japan',
+                                  'Jordan',
+                                  'Kenya',
+                                  'Kuwait',
+                                  'Lebanon',
+                                  'Liberia',
+                                  'Lithuania',
+                                  'Luxembourg',
+                                  'Madagascar',
+                                  'Malawi',
+                                  'Malaysia',
+                                  'Maldives',
+                                  'Mali',
+                                  'Mauritius',
+                                  'Mexico',
+                                  'Monaco',
+                                  'Morocco',
+                                  'Mozambique',
+                                  'Namibia',
+                                  'Nepal',
+                                  'Netherlands',
+                                  'New Zealand',
+                                  'Niger',
+                                  'Nigeria',
+                                  'Norway',
+                                  'Panama',
+                                  'Paraguay',
+                                  'Peru',
+                                  'Philippines',
+                                  'Poland',
+                                  'Portugal',
+                                  'Qatar',
+                                  'Romania',
+                                  'Russia',
+                                  'Rwanda',
+                                  'Senegal',
+                                  'Seychelles',
+                                  'Sierra Leone',
+                                  'Singapore',
+                                  'Slovakia',
+                                  'South Africa',
+                                  'South Korea',
+                                  'Spain',
+                                  'Sri Lanka',
+                                  'Sweden',
+                                  'Switzerland',
+                                  'Taiwan',
+                                  'Tanzania',
+                                  'Thailand',
                                   'Togo',
+                                  'Turkey',
+                                  'Uganda',
+                                  'Ukraine',
+                                  'UAE',
+                                  'United Kingdom',
+                                  'United States of America',
+                                  'Uruguay',
+                                  'Venezuela',
+                                  'Zambia',
+                                  'Zimbabwe',
                                 ].map<DropdownMenuItem<String>>((String value) {
                                   return new DropdownMenuItem<String>(
                                     value: value,
-                                    child: new Text(value),
+                                    child: new Text(
+                                      value,
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
                                   );
                                 }).toList(),
                               ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(
-                                16.0, 16.0, 32.0, 16.0),
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'City',
-                                filled: true,
-                                fillColor: Colors.black,
-                                labelStyle: TextStyle(
-                                  color: Colors.white,
-                                ),
-                                focusColor: Colors.white,
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Color(0xffc67608))),
-                              ),
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                              controller: cityInputController,
-                              validator: (value) {
-                                if (value.length < 3) {
-                                  return "Please fill this field.";
-                                }
-                              },
                             ),
                           ),
                           SizedBox(
@@ -408,7 +518,10 @@ class _RegisterState extends State<Register> {
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Profession',
+                                  hintText: 'Profession',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.black,
                                   labelStyle: TextStyle(
@@ -441,7 +554,10 @@ class _RegisterState extends State<Register> {
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Gender',
+                                  hintText: 'Gender',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.black,
                                   labelStyle: TextStyle(
@@ -475,7 +591,10 @@ class _RegisterState extends State<Register> {
                                 maxLines: 14,
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Tell Us More About Yourself',
+                                  hintText: 'Tell Us More About Yourself',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.black,
                                   labelStyle: TextStyle(
@@ -509,7 +628,10 @@ class _RegisterState extends State<Register> {
                                 maxLines: 14,
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Why do you want to join?',
+                                  hintText: 'Why do you want to join?',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.black,
                                   labelStyle: TextStyle(
@@ -542,7 +664,10 @@ class _RegisterState extends State<Register> {
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Email Address',
+                                  hintText: 'Email Address',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.black,
                                   labelStyle: TextStyle(
@@ -573,7 +698,10 @@ class _RegisterState extends State<Register> {
                                 obscureText: true,
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Password',
+                                  hintText: 'Password',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.black,
                                   labelStyle: TextStyle(
@@ -602,8 +730,10 @@ class _RegisterState extends State<Register> {
                               child: TextFormField(
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
-                                  labelText: 'Confirm Password',
-                                  hintText: "********",
+                                  hintText: "Confirm Password",
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.black,
                                   labelStyle: TextStyle(
@@ -617,6 +747,9 @@ class _RegisterState extends State<Register> {
                                 controller: confirmPwdInputController,
                                 obscureText: true,
                                 validator: pwdValidator,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -679,115 +812,124 @@ class _RegisterState extends State<Register> {
                                       showSpinner = true;
                                     });
 
-                                    if (_registerFormKey.currentState
-                                        .validate()) {
-                                      if (!_termsChecked) {
-                                        // The checkbox wasn't checked
-                                        Fluttertoast.showToast(
-                                            msg:
-                                                "Please accept our terms and conditions",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.CENTER,
-                                            timeInSecForIos: 1,
-                                            backgroundColor: Color(0xffc67608),
-                                            textColor: Colors.white,
-                                            fontSize: 16.0);
-                                      } else {
-                                        if (pwdInputController.text ==
-                                            confirmPwdInputController.text) {
-                                          FirebaseAuth.instance
-                                              .createUserWithEmailAndPassword(
-                                                  email:
-                                                      emailInputController.text,
-                                                  password:
-                                                      pwdInputController.text)
-                                              .then((currentUser) => Firestore
-                                                  .instance
-                                                  .collection("users")
-                                                  .document(
-                                                      currentUser.user.uid)
-                                                  .setData({
-                                                    "uid": currentUser.user.uid,
-                                                    "name": nameInputController
-                                                        .text,
-                                                    "aboutMe":
-                                                        aboutMeInputController
-                                                            .text,
-                                                    "city": cityInputController
-                                                        .text,
-                                                    "country": _country,
-                                                    "dob": _date,
-                                                    "gender":
-                                                        genderInputController
-                                                            .text,
-                                                    "profession":
-                                                        professionInputController
-                                                            .text,
-                                                    "reaosn":
-                                                        reasonInputController
-                                                            .text,
-                                                    "email":
-                                                        emailInputController
-                                                            .text,
-                                                    "photoUrl": _photo,
-                                                    "image1": _photo1,
-                                                    "image2": _photo2,
-                                                    "image3": _photo3,
-                                                    "image4": _photo4,
-                                                    "status": _status,
-                                                  })
-                                                  .then((result) => {
-                                                        Navigator.pushAndRemoveUntil(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        Pay()),
-                                                            (_) => false),
-                                                        nameInputController
-                                                            .clear(),
-                                                        cityInputController
-                                                            .clear(),
-                                                        emailInputController
-                                                            .clear(),
-                                                        pwdInputController
-                                                            .clear(),
-                                                        confirmPwdInputController
-                                                            .clear()
-                                                      })
-                                                  .catchError(
-                                                      (err) => print(err)))
-                                              .catchError((err) => print(err));
-
-                                          setState(() {
-                                            showSpinner = false;
-                                          });
+                                    try {
+                                      if (_registerFormKey.currentState
+                                          .validate()) {
+                                        if (!_termsChecked) {
+                                          // The checkbox wasn't checked
+                                          Fluttertoast.showToast(
+                                              msg:
+                                                  "Please accept our terms and conditions",
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              gravity: ToastGravity.CENTER,
+                                              timeInSecForIos: 1,
+                                              backgroundColor:
+                                                  Color(0xffc67608),
+                                              textColor: Colors.white,
+                                              fontSize: 16.0);
                                         } else {
-                                          showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return AlertDialog(
-                                                  title: Text("Error"),
-                                                  content: Text(
-                                                      "The passwords do not match"),
-                                                  actions: <Widget>[
-                                                    FlatButton(
-                                                      child: Text("Close"),
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                    )
-                                                  ],
-                                                );
-                                              });
+                                          if (pwdInputController.text ==
+                                              confirmPwdInputController.text) {
+                                            FirebaseAuth.instance
+                                                .createUserWithEmailAndPassword(
+                                                    email: emailInputController
+                                                        .text,
+                                                    password:
+                                                        pwdInputController.text)
+                                                .then((currentUser) => Firestore
+                                                    .instance
+                                                    .collection("users")
+                                                    .document(
+                                                        currentUser.user.uid)
+                                                    .setData({
+                                                      "uid":
+                                                          currentUser.user.uid,
+                                                      "name":
+                                                          nameInputController
+                                                              .text,
+                                                      "aboutMe":
+                                                          aboutMeInputController
+                                                              .text,
+                                                      "country": _country,
+                                                      "dob": _date,
+                                                      "gender":
+                                                          genderInputController
+                                                              .text,
+                                                      "profession":
+                                                          professionInputController
+                                                              .text,
+                                                      "reaosn":
+                                                          reasonInputController
+                                                              .text,
+                                                      "email":
+                                                          emailInputController
+                                                              .text,
+                                                      "photoUrl": _photo,
+                                                      "image1": _photo1,
+                                                      "image2": _photo2,
+                                                      "image3": _photo3,
+                                                      "image4": _photo4,
+                                                    })
+                                                    .then((result) => {
+                                                          Navigator.pushAndRemoveUntil(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          Login()),
+                                                              (_) => false),
+                                                          nameInputController
+                                                              .clear(),
+                                                          emailInputController
+                                                              .clear(),
+                                                          pwdInputController
+                                                              .clear(),
+                                                          confirmPwdInputController
+                                                              .clear()
+                                                        })
+                                                    .catchError(
+                                                        (err) => print(err)))
+                                                .catchError(
+                                                    (err) => print(err));
+
+                                            setState(() {
+                                              showSpinner = false;
+                                            });
+                                          } else {
+                                            showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: Text("Error"),
+                                                    content: Text(
+                                                        "The passwords do not match"),
+                                                    actions: <Widget>[
+                                                      FlatButton(
+                                                        child: Text("Close"),
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                      )
+                                                    ],
+                                                  );
+                                                });
+                                          }
                                         }
                                       }
-                                    }
 
-                                    setState(() {
-                                      showSpinner = false;
-                                    });
+                                      setState(() {
+                                        showSpinner = false;
+                                      });
+                                    } catch (e) {
+                                      print(e);
+
+                                      setState(() {
+                                        showSpinner = false;
+                                        _error = e.message;
+                                      });
+                                    }
                                   },
                                 ),
                               ),

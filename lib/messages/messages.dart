@@ -15,14 +15,34 @@ class Messages extends StatefulWidget {
 
 class _MessagesState extends State<Messages> {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  FirebaseUser loggedInUser;
   StreamSubscription<QuerySnapshot> _subscription;
   List<DocumentSnapshot> usersList;
   final CollectionReference _collectionReference =
       Firestore.instance.collection("users");
 
+  Future<DocumentSnapshot> getUserDoc() async {
+    final FirebaseUser user = await firebaseAuth.currentUser();
+    final uid = user.uid;
+
+    var sameUser = await Firestore.instance
+        .collection('users')
+        .document(uid)
+        .get()
+        .then((DocumentSnapshot snapshot) => snapshot);
+
+    return sameUser;
+  }
+
   @override
   void initState() {
     super.initState();
+    searchController.addListener(() {
+      setState(() {
+        filter = searchController.text;
+      });
+    });
+
     _subscription = _collectionReference.snapshots().listen((datasnapshot) {
       setState(() {
         usersList = datasnapshot.documents;
@@ -31,8 +51,12 @@ class _MessagesState extends State<Messages> {
     });
   }
 
+  TextEditingController searchController = new TextEditingController();
+  String filter;
+
   @override
   void dispose() {
+    searchController.dispose();
     super.dispose();
     _subscription.cancel();
   }
@@ -40,17 +64,45 @@ class _MessagesState extends State<Messages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Chats',
-          style: TextStyle(
-            fontSize: 33,
-            color: Colors.white,
+      appBar: PreferredSize(
+        child: AppBar(
+          title: Text(
+            'Chats'.toUpperCase(),
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          automaticallyImplyLeading: true,
+          centerTitle: true,
+          flexibleSpace: Column(
+            children: <Widget>[
+              SizedBox(
+                height: 100,
+              ),
+              Container(
+                width: 330,
+                height: 50,
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(10.0)))),
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+            ],
           ),
         ),
-        backgroundColor: Colors.transparent,
-        automaticallyImplyLeading: true,
-        centerTitle: true,
+        preferredSize: Size.fromHeight(125.0),
       ),
       backgroundColor: Colors.black,
       body: usersList != null
@@ -60,33 +112,37 @@ class _MessagesState extends State<Messages> {
                 child: ListView.builder(
                   itemCount: usersList.length,
                   itemBuilder: ((context, index) {
-                    return Card(
-                      color: Colors.white12,
-                      margin: EdgeInsets.all(10.0),
-                      shape: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50.0)),
-                      child: ListTile(
-                        leading: CircleAvatar(
+                    return ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(3.0),
+                        decoration: new BoxDecoration(
+                          color: Color(0xffc67608), // border color
+                          shape: BoxShape.circle,
+                        ),
+                        child: CircleAvatar(
                           backgroundImage:
                               NetworkImage(usersList[index].data['photoUrl']),
                         ),
-                        title: Text(usersList[index].data['name'],
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            )),
-                        onTap: (() {
-                          Navigator.push(
-                              context,
-                              new MaterialPageRoute(
-                                  builder: (context) => ChatScreen(
-                                      name: usersList[index].data['name'],
-                                      photoUrl:
-                                          usersList[index].data['photoUrl'],
-                                      receiverUid:
-                                          usersList[index].data['uid'])));
-                        }),
                       ),
+                      title: Text(usersList[index].data['name'],
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                      subtitle: Text(usersList[index].data['country'],
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 17,
+                          )),
+                      onTap: (() {
+                        Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (context) => ChatScreen(
+                                    name: usersList[index].data['name'],
+                                    photoUrl: usersList[index].data['photoUrl'],
+                                    receiverUid:
+                                        usersList[index].data['uid'])));
+                      }),
                     );
                   }),
                 ),
@@ -107,7 +163,7 @@ class _MessagesState extends State<Messages> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -121,7 +177,7 @@ class _MessagesState extends State<Messages> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -146,7 +202,7 @@ class _MessagesState extends State<Messages> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(

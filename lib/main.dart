@@ -11,7 +11,10 @@ import 'view/view1.dart';
 import 'view/view2.dart';
 import 'view/view3.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  await Future.delayed(Duration(seconds: 3));
+  return runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.

@@ -9,7 +9,6 @@ import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/news/news.dart';
 import 'package:travel_world/privileges/privilege.dart';
 import 'package:travel_world/profile/profile.dart';
-import 'package:travel_world/settings/settings.dart';
 
 class Navigation extends StatefulWidget {
   @override
@@ -21,6 +20,7 @@ class NavigationState extends State<Navigation> {
   FirebaseUser loggedInUser;
   @override
   void initState() {
+    _controller = ScrollController();
     super.initState();
     image1 = Image.asset(
       "images/fire.jpg",
@@ -99,11 +99,14 @@ class NavigationState extends State<Navigation> {
     precacheImage(image7.image, context);
   }
 
+  ScrollController _controller;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
+        controller: _controller,
         child: Stack(
           children: <Widget>[
             SafeArea(
@@ -142,7 +145,7 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(50.0),
+                            borderRadius: BorderRadius.circular(30.0),
                             child: image1,
                           ),
                           Padding(
@@ -192,7 +195,7 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(50.0),
+                            borderRadius: BorderRadius.circular(30.0),
                             child: image2,
                           ),
                           Padding(
@@ -242,7 +245,7 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(50.0),
+                            borderRadius: BorderRadius.circular(30.0),
                             child: image3,
                           ),
                           Padding(
@@ -293,7 +296,7 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(50.0),
+                            borderRadius: BorderRadius.circular(30.0),
                             child: image4,
                           ),
                           Padding(
@@ -343,7 +346,7 @@ class NavigationState extends State<Navigation> {
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(50.0),
+                            borderRadius: BorderRadius.circular(30.0),
                             child: image5,
                           ),
                           Padding(
@@ -386,60 +389,13 @@ class NavigationState extends State<Navigation> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => Settings()),
-                        );
-                      },
-                      child: Stack(
-                        children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(50.0),
-                            child: image6,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
-                            child: Center(
-                              child: ButtonTheme(
-                                minWidth: 80,
-                                height: 30,
-                                child: RaisedButton(
-                                  color: Color(0xffc67608),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Color(0xffc67608)),
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(40.0),
-                                    ),
-                                  ),
-                                  child: Text("Settings"),
-                                  textColor: Colors.black,
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Settings()),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    RaisedButton(
-                      color: Colors.black,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
                           MaterialPageRoute(builder: (context) => Manual()),
                         );
                       },
                       child: Stack(
                         children: <Widget>[
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(50.0),
+                            borderRadius: BorderRadius.circular(30.0),
                             child: image7,
                           ),
                           Padding(
@@ -456,7 +412,7 @@ class NavigationState extends State<Navigation> {
                                       Radius.circular(40.0),
                                     ),
                                   ),
-                                  child: Text("Help and Support"),
+                                  child: Text("Settings and Support"),
                                   textColor: Colors.black,
                                   onPressed: () {
                                     Navigator.push(
@@ -491,14 +447,18 @@ class NavigationState extends State<Navigation> {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
-              onPressed: () {},
+              onPressed: () {
+                _controller.animateTo(0.0,
+                    curve: Curves.linear,
+                    duration: Duration(milliseconds: 500));
+              },
             ),
           ),
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -513,7 +473,7 @@ class NavigationState extends State<Navigation> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -528,7 +488,7 @@ class NavigationState extends State<Navigation> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(

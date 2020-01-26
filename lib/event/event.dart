@@ -17,19 +17,75 @@ class Events extends StatefulWidget {
 }
 
 class _EventsState extends State<Events> {
-  Future<List<Event>> _getEvents() async {
-    var data =
-        await http.get("http://www.playnetworkafrica.com/public/api/events");
+  Future<List<Event>> _getEvents({bool useCache = true}) async {
+    print('Loading events');
 
-    var jsonData = json.decode(data.body);
+    String data;
 
-    var jsonData1 = json.encode(data.body);
+    /// Do we have a cache we can use?
+    var cache = await cacheExists();
+
+    /// If the cache exists and it contains data use that, otherwise we call the API
+    if (cache && useCache) {
+      print('We have cached data');
+
+      data = await readToFile();
+    } else {
+      print('No cache. Fetching from API');
+
+      var apiData =
+          await http.get("http://www.playnetworkafrica.com/public/api/events");
+
+      data = apiData.body;
+
+      /// Now save the fetched data to the cache
+      await writeToFile(data);
+    }
+
+    var jsonData = json.decode(data);
 
     List<Event> events = [];
 
-    for (var u in jsonData) {
-      Event event = Event(u["eid"], u["desc"], u["name"], u["location"],
-          u["image"], u["type"], u["paymenturl"], u["date"]);
+    for (var u in jsonData.reversed) {
+      Event event = Event(u["eid"], u["desc"], u["rsvpurl"], u["name"],
+          u["location"], u["image"], u["type"], u["paymenturl"], u["date"]);
+
+      events.add(event);
+    }
+
+    print(events.length);
+
+    return events;
+  }
+
+  Future<List<Event>> _refreshEvents({bool useCache = true}) async {
+    print('Loading events');
+
+    String data;
+
+    /// Do we have a cache we can use?
+    var cache = await cacheExists();
+
+    /// If the cache exists and it contains data use that, otherwise we call the API
+    if (cache && useCache) {
+      print('We have cached data');
+
+      var apiData =
+          await http.get("http://www.playnetworkafrica.com/public/api/events");
+
+      data = apiData.body;
+
+      /// Now save the fetched data to the cache
+      await writeToFile(data);
+    }
+
+    var jsonData = json.decode(data);
+
+    List<Event> events = [];
+
+    for (var u in jsonData.reversed) {
+      Event event = Event(u["eid"], u["desc"], u["rsvpurl"], u["name"],
+          u["location"], u["image"], u["type"], u["paymenturl"], u["date"]);
 
       events.add(event);
     }
@@ -49,12 +105,18 @@ class _EventsState extends State<Events> {
     return File('$path/file.txt');
   }
 
+  static Future<bool> cacheExists() async {
+    var file = await myfile;
+
+    return file.exists();
+  }
+
   static writeToFile(jsonData) async {
     final file = await myfile;
     file.writeAsString(jsonData);
   }
 
-  static readToFile(jsonData) async {
+  static readToFile() async {
     try {
       final file = await myfile;
 
@@ -66,21 +128,6 @@ class _EventsState extends State<Events> {
   }
 
   var myFile = new File('file.txt');
-
-//  read(jsonData) async {
-//    final prefs = await SharedPreferences.getInstance();
-//    return prefs.getString(jsonData);
-//  }
-//
-//  save(String key, jsonData1) async {
-//    final prefs = await SharedPreferences.getInstance();
-//    prefs.setString(key, jsonData1);
-//  }
-//
-//  remove(jsonData) async {
-//    final prefs = await SharedPreferences.getInstance();
-//    prefs.remove(jsonData);
-//  }
 
   TextEditingController searchController = new TextEditingController();
   String filter;
@@ -111,8 +158,7 @@ class _EventsState extends State<Events> {
           title: Text(
             'EVENTS',
             style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.bold,
+              fontSize: 20,
             ),
           ),
           backgroundColor: Colors.black,
@@ -136,31 +182,25 @@ class _EventsState extends State<Events> {
               SizedBox(
                 height: 100,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: 330,
-                    height: 50,
-                    child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                          labelText: "Search",
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: "Search",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(25.0)))),
-                    ),
-                  ),
-                ],
+              Container(
+                width: 350,
+                height: 50,
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(10.0)))),
+                ),
               ),
             ],
           ),
         ),
-        preferredSize: Size.fromHeight(150.0),
+        preferredSize: Size.fromHeight(140.0),
       ),
       backgroundColor: Colors.black,
       body: FutureBuilder(
@@ -182,276 +222,292 @@ class _EventsState extends State<Events> {
             ));
           } else {
             return Container(
-              child: SingleChildScrollView(
+              child: RefreshIndicator(
+                onRefresh: _refreshEvents,
                 child: ListView.builder(
                   shrinkWrap: true,
-                  reverse: true,
-                  physics: NeverScrollableScrollPhysics(),
                   itemCount: snapshot.data.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return filter == null || filter == ""
-                        ? Column(
-                            children: <Widget>[
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
+                    return Container(
+                      child: filter == null || filter == ""
+                          ? SingleChildScrollView(
+                              child: Column(
                                 children: <Widget>[
-                                  Text(
-                                    snapshot.data[index].name,
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      color: Colors.white,
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        40.0, 0.0, 40.0, 0.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Text(
+                                          snapshot.data[index].name
+                                              .toUpperCase(),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Text(
+                                          snapshot.data[index].date
+                                              .toUpperCase(),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Text(
-                                    snapshot.data[index].date,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                  RaisedButton(
+                                    color: Colors.black,
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => EventDetail(
+                                                snapshot.data[index])),
+                                      );
+                                    },
+                                    child: Stack(
+                                      children: <Widget>[
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          child: new Image.network(
+                                            snapshot.data[index].image,
+                                            gaplessPlayback: true,
+                                            width: 450,
+                                            height: 230,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0.0, 245.0, 0.0, 0.0),
+                                              child: Text(
+                                                snapshot.data[index].location
+                                                    .toUpperCase(),
+                                                style: TextStyle(
+                                                  color: Color(0xffc67608),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  20.0, 190.0, 0.0, 0.0),
+                                              child: Center(
+                                                child: ButtonTheme(
+                                                  minWidth: 80,
+                                                  height: 30,
+                                                  child: RaisedButton(
+                                                    color: Color(0xffc67608),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                        color:
+                                                            Color(0xffc67608),
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                        Radius.circular(40.0),
+                                                      ),
+                                                    ),
+                                                    child: Text("Read More"),
+                                                    textColor: Colors.black,
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                EventDetail(
+                                                                    snapshot.data[
+                                                                        index])),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0.0, 245.0, 0.0, 0.0),
+                                              child: Text(
+                                                snapshot.data[index].type
+                                                    .toUpperCase(),
+                                                style: TextStyle(
+                                                  color: Color(0xffc67608),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
+                                  ),
+                                  SizedBox(
+                                    height: 20,
                                   ),
                                 ],
                               ),
-                              SizedBox(
-                                height: 13,
-                              ),
-                              RaisedButton(
-                                color: Colors.black,
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            EventDetail(snapshot.data[index])),
-                                  );
-                                },
-                                child: Stack(
-                                  children: <Widget>[
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(50.0),
-                                      child: new Image.network(
-                                        snapshot.data[index].image,
-                                        gaplessPlayback: true,
-                                        width: 450,
-                                        height: 230,
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        Padding(
-                                          padding: EdgeInsets.fromLTRB(
-                                              0.0, 265.0, 0.0, 0.0),
-                                          child: Text(
-                                            snapshot.data[index].location,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.fromLTRB(
-                                              20.0, 225.0, 0.0, 0.0),
-                                          child: Center(
-                                            child: ButtonTheme(
-                                              minWidth: 80,
-                                              height: 30,
-                                              child: RaisedButton(
-                                                color: Color(0xffc67608),
-                                                shape: RoundedRectangleBorder(
-                                                  side: BorderSide(
-                                                    color: Color(0xffc67608),
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                    Radius.circular(40.0),
-                                                  ),
-                                                ),
-                                                child: Text("Read More"),
-                                                textColor: Colors.black,
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            EventDetail(snapshot
-                                                                .data[index])),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.fromLTRB(
-                                              0.0, 265.0, 0.0, 0.0),
-                                          child: Text(
-                                            snapshot.data[index].type
-                                                .toUpperCase(),
-                                            style: TextStyle(
-                                              color: Color(0xffc67608),
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 50,
-                              ),
-                            ],
-                          )
-                        : snapshot.data[index].name
-                                .toLowerCase()
-                                .contains(filter.toLowerCase())
-                            ? SingleChildScrollView(
-                                child: Column(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      children: <Widget>[
-                                        SizedBox(
-                                          width: 30,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                          child: Row(
-                                            children: <Widget>[
-                                              Text(
-                                                'Play Network Africa',
-                                                style: TextStyle(
-                                                  fontSize: 17,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width: 200,
-                                              ),
-                                              Text(
-                                                snapshot.data[index].date,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 13,
-                                    ),
-                                    RaisedButton(
-                                      color: Colors.black,
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => EventDetail(
-                                                  snapshot.data[index])),
-                                        );
-                                      },
-                                      child: Stack(
+                            )
+                          : snapshot.data[index].name
+                                  .toLowerCase()
+                                  .contains(filter.toLowerCase())
+                              ? SingleChildScrollView(
+                                  child: Column(
+                                    children: <Widget>[
+                                      Row(
                                         children: <Widget>[
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(50.0),
-                                            child: new Image.network(
-                                              snapshot.data[index].image,
-                                              gaplessPlayback: true,
-                                              width: 450,
-                                              height: 230,
-                                              fit: BoxFit.fill,
-                                            ),
+                                          SizedBox(
+                                            width: 30,
                                           ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: <Widget>[
-                                              Padding(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    0.0, 265.0, 0.0, 0.0),
-                                                child: Text(
-                                                  snapshot.data[index].location,
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0.0, 0.0, 0.0, 0.0),
+                                            child: Row(
+                                              children: <Widget>[
+                                                Text(
+                                                  'Play Network Africa',
                                                   style: TextStyle(
+                                                    fontSize: 17,
                                                     color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    20.0, 225.0, 0.0, 0.0),
-                                                child: Center(
-                                                  child: ButtonTheme(
-                                                    minWidth: 80,
-                                                    height: 30,
-                                                    child: RaisedButton(
-                                                      color: Color(0xffc67608),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        side: BorderSide(
-                                                          color:
-                                                              Color(0xffc67608),
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                          Radius.circular(40.0),
-                                                        ),
-                                                      ),
-                                                      child: Text("Read More"),
-                                                      textColor: Colors.black,
-                                                      onPressed: () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  EventDetail(snapshot
-                                                                          .data[
-                                                                      index])),
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
+                                                SizedBox(
+                                                  width: 200,
                                                 ),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    0.0, 265.0, 0.0, 0.0),
-                                                child: Text(
-                                                  snapshot.data[index].type
-                                                      .toUpperCase(),
+                                                Text(
+                                                  snapshot.data[index].date,
                                                   style: TextStyle(
-                                                    color: Color(0xffc67608),
-                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                    color: Colors.white,
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    SizedBox(
-                                      height: 50,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : new Container();
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      RaisedButton(
+                                        color: Colors.black,
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EventDetail(
+                                                        snapshot.data[index])),
+                                          );
+                                        },
+                                        child: Stack(
+                                          children: <Widget>[
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              child: new Image.network(
+                                                snapshot.data[index].image,
+                                                gaplessPlayback: true,
+                                                width: 450,
+                                                height: 230,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      0.0, 245.0, 0.0, 0.0),
+                                                  child: Text(
+                                                    snapshot
+                                                        .data[index].location
+                                                        .toUpperCase(),
+                                                    style: TextStyle(
+                                                      color: Color(0xffc67608),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      20.0, 190.0, 0.0, 0.0),
+                                                  child: Center(
+                                                    child: ButtonTheme(
+                                                      minWidth: 80,
+                                                      height: 30,
+                                                      child: RaisedButton(
+                                                        color:
+                                                            Color(0xffc67608),
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          side: BorderSide(
+                                                            color: Color(
+                                                                0xffc67608),
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                            Radius.circular(
+                                                                40.0),
+                                                          ),
+                                                        ),
+                                                        child:
+                                                            Text("Read More"),
+                                                        textColor: Colors.black,
+                                                        onPressed: () {
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder: (context) =>
+                                                                    EventDetail(
+                                                                        snapshot
+                                                                            .data[index])),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      0.0, 245.0, 0.0, 0.0),
+                                                  child: Text(
+                                                    snapshot.data[index].type
+                                                        .toUpperCase(),
+                                                    style: TextStyle(
+                                                      color: Color(0xffc67608),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : new Container(),
+                    );
                   },
                 ),
               ),
@@ -483,7 +539,7 @@ class _EventsState extends State<Events> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -498,7 +554,7 @@ class _EventsState extends State<Events> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -513,7 +569,7 @@ class _EventsState extends State<Events> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -544,15 +600,23 @@ class EventDetail extends StatelessWidget {
     }
   }
 
+  _rsvpURL() async {
+    final url = event.rsvpurl;
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          event.name,
+          event.name.toUpperCase(),
           style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
         backgroundColor: Colors.black,
@@ -587,45 +651,14 @@ class EventDetail extends StatelessWidget {
                   child: Column(
                     children: <Widget>[
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(50.0),
+                        borderRadius: BorderRadius.circular(10.0),
                         child: Image.network(
                           event.image,
                           gaplessPlayback: true,
-                          width: 450,
-                          height: 230,
-                          fit: BoxFit.fill,
                         ),
                       ),
                       SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                            child: Center(
-                              child: ButtonTheme(
-                                minWidth: 80,
-                                height: 30,
-                                child: RaisedButton(
-                                  color: Color(0xffc67608),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: Color(0xffc67608),
-                                    ),
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(40.0),
-                                    ),
-                                  ),
-                                  child: Text("RSVP"),
-                                  textColor: Colors.black,
-                                  onPressed: _rsvpURL,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        height: 20,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -637,7 +670,7 @@ class EventDetail extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ),
@@ -648,7 +681,7 @@ class EventDetail extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 17,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ),
@@ -662,7 +695,7 @@ class EventDetail extends StatelessWidget {
                         child: Center(
                           child: Text(
                             event.desc,
-                            textAlign: TextAlign.left,
+                            textAlign: TextAlign.justify,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -677,28 +710,54 @@ class EventDetail extends StatelessWidget {
                 SizedBox(
                   height: 25,
                 ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                  child: Center(
-                    child: ButtonTheme(
-                      minWidth: 200,
-                      height: 50,
-                      child: RaisedButton(
-                        color: Color(0xffc67608),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                            color: Color(0xffc67608),
+                Center(
+                  child: (event.paymenturl == null)
+                      ? Padding(
+                          padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                          child: Center(
+                            child: ButtonTheme(
+                              minWidth: 200,
+                              height: 50,
+                              child: RaisedButton(
+                                color: Color(0xffc67608),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                    color: Color(0xffc67608),
+                                  ),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(40.0),
+                                  ),
+                                ),
+                                child: Text("RSVP"),
+                                textColor: Colors.black,
+                                onPressed: _rsvpURL,
+                              ),
+                            ),
                           ),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(40.0),
+                        )
+                      : Padding(
+                          padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                          child: Center(
+                            child: ButtonTheme(
+                              minWidth: 200,
+                              height: 50,
+                              child: RaisedButton(
+                                color: Color(0xffc67608),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                    color: Color(0xffc67608),
+                                  ),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(40.0),
+                                  ),
+                                ),
+                                child: Text("Buy Ticket"),
+                                textColor: Colors.black,
+                                onPressed: _launchURL,
+                              ),
+                            ),
                           ),
                         ),
-                        child: Text("Buy Tickets"),
-                        textColor: Colors.black,
-                        onPressed: _launchURL,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -728,8 +787,8 @@ class EventDetail extends StatelessWidget {
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
-                Icons.people,
-                color: Color(0xffc67608),
+                Icons.vpn_lock,
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -744,7 +803,7 @@ class EventDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -759,7 +818,7 @@ class EventDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -779,6 +838,7 @@ class EventDetail extends StatelessWidget {
 class Event {
   final int eid;
   final String desc;
+  final String rsvpurl;
   final String name;
   final String location;
   final String image;
@@ -786,15 +846,6 @@ class Event {
   final String paymenturl;
   final String date;
 
-  Event(this.eid, this.desc, this.name, this.location, this.image, this.type,
-      this.paymenturl, this.date);
-}
-
-_rsvpURL() async {
-  const url = 'https://promise3.typeform.com/to/buSJY3';
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Could not launch $url';
-  }
+  Event(this.eid, this.desc, this.rsvpurl, this.name, this.location, this.image,
+      this.type, this.paymenturl, this.date);
 }

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
@@ -16,15 +18,36 @@ class NewsPage extends StatefulWidget {
 class _NewsPageState extends State<NewsPage> {
   DateTime now = DateTime.now();
 
-  Future<List<New>> _getNews() async {
-    var data =
-        await http.get("http://www.playnetworkafrica.com/public/api/news");
+  Future<List<New>> _getNews({bool useCache = true}) async {
+    print('Loading events');
 
-    var jsonData = json.decode(data.body);
+    String data;
+
+    /// Do we have a cache we can use?
+    var cache = await cacheExists();
+
+    /// If the cache exists and it contains data use that, otherwise we call the API
+    if (cache && useCache) {
+      print('We have cached data');
+
+      data = await readToFile();
+    } else {
+      print('No cache. Fetching from API');
+
+      var apiData =
+          await http.get("http://www.playnetworkafrica.com/public/api/news");
+
+      data = apiData.body;
+
+      /// Now save the fetched data to the cache
+      await writeToFile(data);
+    }
+
+    var jsonData = json.decode(data);
 
     List<New> news = [];
 
-    for (var u in jsonData) {
+    for (var u in jsonData.reversed) {
       New newws = New(
         u["nid"],
         u["name"],
@@ -41,6 +64,83 @@ class _NewsPageState extends State<NewsPage> {
 
     return news;
   }
+
+  Future<List<New>> _refreshNews({bool useCache = true}) async {
+    print('Loading events');
+
+    String data;
+
+    /// Do we have a cache we can use?
+    var cache = await cacheExists();
+
+    /// If the cache exists and it contains data use that, otherwise we call the API
+    if (cache && useCache) {
+      print('We have cached data');
+
+      var apiData =
+          await http.get("http://www.playnetworkafrica.com/public/api/news");
+
+      data = apiData.body;
+
+      /// Now save the fetched data to the cache
+      await writeToFile(data);
+    }
+
+    var jsonData = json.decode(data);
+
+    List<New> news = [];
+
+    for (var u in jsonData.reversed) {
+      New newws = New(
+        u["nid"],
+        u["name"],
+        u["desc"],
+        u["image"],
+        u["image2"],
+        u["createdat"],
+      );
+
+      news.add(newws);
+    }
+
+    print(news.length);
+
+    return news;
+  }
+
+  static Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  static Future<File> get myfile async {
+    final path = await _localPath;
+    return File('$path/news.txt');
+  }
+
+  static Future<bool> cacheExists() async {
+    var file = await myfile;
+
+    return file.exists();
+  }
+
+  static writeToFile(jsonData) async {
+    final file = await myfile;
+    file.writeAsString(jsonData);
+  }
+
+  static readToFile() async {
+    try {
+      final file = await myfile;
+
+      // Read the file.
+      String contents = await file.readAsString();
+
+      return contents;
+    } catch (e) {}
+  }
+
+  var myFile = new File('news.txt');
 
   TextEditingController searchController = new TextEditingController();
   String filter;
@@ -69,9 +169,9 @@ class _NewsPageState extends State<NewsPage> {
       appBar: PreferredSize(
         child: AppBar(
           title: Text(
-            'News',
+            'NEWS',
             style: TextStyle(
-              fontSize: 30,
+              fontSize: 20,
             ),
           ),
           backgroundColor: Colors.black,
@@ -95,31 +195,25 @@ class _NewsPageState extends State<NewsPage> {
               SizedBox(
                 height: 100,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: 330,
-                    height: 50,
-                    child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                          labelText: "Search",
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: "Search",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(25.0)))),
-                    ),
-                  ),
-                ],
+              Container(
+                width: 350,
+                height: 50,
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(10.0)))),
+                ),
               ),
             ],
           ),
         ),
-        preferredSize: Size.fromHeight(150.0),
+        preferredSize: Size.fromHeight(140.0),
       ),
       backgroundColor: Colors.black,
       body: FutureBuilder(
@@ -142,20 +236,15 @@ class _NewsPageState extends State<NewsPage> {
           } else {
             return Container(
               child: RefreshIndicator(
-                onRefresh: _getNews,
-                child: SingleChildScrollView(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    reverse: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return filter == null || filter == ""
-                          ? Column(
+                onRefresh: _refreshNews,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return filter == null || filter == ""
+                        ? SingleChildScrollView(
+                            child: Column(
                               children: <Widget>[
-                                SizedBox(
-                                  height: 5,
-                                ),
                                 RaisedButton(
                                   color: Colors.black,
                                   onPressed: () {
@@ -170,7 +259,7 @@ class _NewsPageState extends State<NewsPage> {
                                     children: <Widget>[
                                       ClipRRect(
                                         borderRadius:
-                                            BorderRadius.circular(50.0),
+                                            BorderRadius.circular(10.0),
                                         child: new Image.network(
                                           snapshot.data[index].image,
                                           gaplessPlayback: true,
@@ -181,7 +270,7 @@ class _NewsPageState extends State<NewsPage> {
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(
-                                            0.0, 230.0, 0.0, 0.0),
+                                            0.0, 205.0, 0.0, 0.0),
                                         child: Center(
                                           child: ButtonTheme(
                                             minWidth: 80,
@@ -213,7 +302,7 @@ class _NewsPageState extends State<NewsPage> {
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(
-                                            0.0, 280.0, 0.0, 0.0),
+                                            0.0, 250.0, 0.0, 0.0),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
@@ -224,7 +313,7 @@ class _NewsPageState extends State<NewsPage> {
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 17,
-                                                fontWeight: FontWeight.bold,
+                                                fontWeight: FontWeight.w400,
                                               ),
                                             ),
                                           ],
@@ -234,113 +323,104 @@ class _NewsPageState extends State<NewsPage> {
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 50,
+                                  height: 20,
                                 ),
                               ],
-                            )
-                          : snapshot.data[index].name
-                                  .toLowerCase()
-                                  .contains(filter.toLowerCase())
-                              ? SingleChildScrollView(
-                                  child: Column(
-                                    children: <Widget>[
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      RaisedButton(
-                                        color: Colors.black,
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    NewsDetail(
-                                                        snapshot.data[index])),
-                                          );
-                                        },
-                                        child: Stack(
-                                          children: <Widget>[
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(50.0),
-                                              child: new Image.network(
-                                                snapshot.data[index].image,
-                                                gaplessPlayback: true,
-                                                width: 450,
-                                                height: 230,
-                                                fit: BoxFit.cover,
-                                              ),
+                            ),
+                          )
+                        : snapshot.data[index].name
+                                .toLowerCase()
+                                .contains(filter.toLowerCase())
+                            ? SingleChildScrollView(
+                                child: Column(
+                                  children: <Widget>[
+                                    RaisedButton(
+                                      color: Colors.black,
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => NewsDetail(
+                                                  snapshot.data[index])),
+                                        );
+                                      },
+                                      child: Stack(
+                                        children: <Widget>[
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            child: new Image.network(
+                                              snapshot.data[index].image,
+                                              gaplessPlayback: true,
+                                              width: 450,
+                                              height: 230,
+                                              fit: BoxFit.cover,
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      0.0, 230.0, 0.0, 0.0),
-                                              child: Center(
-                                                child: ButtonTheme(
-                                                  minWidth: 80,
-                                                  height: 30,
-                                                  child: RaisedButton(
-                                                    color: Color(0xffc67608),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                        color:
-                                                            Color(0xffc67608),
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                        Radius.circular(40.0),
-                                                      ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0.0, 205.0, 0.0, 0.0),
+                                            child: Center(
+                                              child: ButtonTheme(
+                                                minWidth: 80,
+                                                height: 30,
+                                                child: RaisedButton(
+                                                  color: Color(0xffc67608),
+                                                  shape: RoundedRectangleBorder(
+                                                    side: BorderSide(
+                                                      color: Color(0xffc67608),
                                                     ),
-                                                    child: Text("Read More"),
-                                                    textColor: Colors.black,
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                NewsDetail(
-                                                                    snapshot.data[
-                                                                        index])),
-                                                      );
-                                                    },
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                      Radius.circular(40.0),
+                                                    ),
                                                   ),
+                                                  child: Text("Read More"),
+                                                  textColor: Colors.black,
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              NewsDetail(
+                                                                  snapshot.data[
+                                                                      index])),
+                                                    );
+                                                  },
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      0.0, 280.0, 0.0, 0.0),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: <Widget>[
-                                                  Text(
-                                                    snapshot.data[index].name,
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 17,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0.0, 250.0, 0.0, 0.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                Text(
+                                                  snapshot.data[index].name,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 17,
+                                                    fontWeight: FontWeight.w400,
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(
-                                        height: 50,
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : new Container();
-                    },
-                  ),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : new Container();
+                  },
                 ),
               ),
             );
@@ -371,7 +451,7 @@ class _NewsPageState extends State<NewsPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.vpn_lock,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -386,7 +466,7 @@ class _NewsPageState extends State<NewsPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -401,7 +481,7 @@ class _NewsPageState extends State<NewsPage> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -428,10 +508,9 @@ class NewsDetail extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          newws.name,
+          newws.name.toUpperCase(),
           style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
         backgroundColor: Colors.black,
@@ -469,13 +548,10 @@ class NewsDetail extends StatelessWidget {
                   child: Column(
                     children: <Widget>[
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(50.0),
+                        borderRadius: BorderRadius.circular(10.0),
                         child: new Image.network(
                           newws.image,
                           gaplessPlayback: true,
-                          width: 450,
-                          height: 230,
-                          fit: BoxFit.cover,
                         ),
                       ),
                       SizedBox(
@@ -486,7 +562,7 @@ class NewsDetail extends StatelessWidget {
                         child: Center(
                           child: Text(
                             newws.desc,
-                            textAlign: TextAlign.left,
+                            textAlign: TextAlign.justify,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -499,13 +575,10 @@ class NewsDetail extends StatelessWidget {
                         height: 35,
                       ),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(30.0),
+                        borderRadius: BorderRadius.circular(10.0),
                         child: new Image.network(
                           newws.image2,
                           gaplessPlayback: true,
-                          width: 450,
-                          height: 230,
-                          fit: BoxFit.cover,
                         ),
                       ),
                     ],
@@ -539,8 +612,8 @@ class NewsDetail extends StatelessWidget {
           BottomNavigationBarItem(
             icon: IconButton(
               icon: Icon(
-                Icons.people,
-                color: Color(0xffc67608),
+                Icons.vpn_lock,
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -555,7 +628,7 @@ class NewsDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -570,7 +643,7 @@ class NewsDetail extends StatelessWidget {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(

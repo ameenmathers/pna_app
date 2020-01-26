@@ -21,6 +21,7 @@ class Meetup extends StatefulWidget {
 class MeetupState extends State<Meetup> {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   StreamSubscription<QuerySnapshot> _subscription;
+  DocumentSnapshot userProfileInfo;
   List<DocumentSnapshot> usersList;
   final CollectionReference _collectionReference =
       Firestore.instance.collection("users");
@@ -28,13 +29,22 @@ class MeetupState extends State<Meetup> {
   @override
   void initState() {
     super.initState();
+    getUserDoc();
     searchController.addListener(() {
       setState(() {
         filter = searchController.text;
       });
     });
+  }
 
-    _subscription = _collectionReference.snapshots().listen((datasnapshot) {
+  TextEditingController searchController = new TextEditingController();
+  String filter;
+
+  void getUsersList() {
+    _subscription = _collectionReference
+        .where('country', isEqualTo: userProfileInfo.data['country'])
+        .snapshots()
+        .listen((datasnapshot) {
       setState(() {
         usersList = datasnapshot.documents;
         print("Users List ${usersList.length}");
@@ -42,8 +52,20 @@ class MeetupState extends State<Meetup> {
     });
   }
 
-  TextEditingController searchController = new TextEditingController();
-  String filter;
+  Future<DocumentSnapshot> getUserDoc() async {
+    final FirebaseUser user = await firebaseAuth.currentUser();
+    final uid = user.uid;
+
+    userProfileInfo = await Firestore.instance
+        .collection('users')
+        .document(uid)
+        .get()
+        .then((DocumentSnapshot snapshot) => snapshot);
+
+    getUsersList();
+
+    return userProfileInfo; //await needs to be placed here
+  }
 
   @override
   void dispose() {
@@ -58,9 +80,9 @@ class MeetupState extends State<Meetup> {
       appBar: PreferredSize(
         child: AppBar(
           title: Text(
-            'Connections',
+            'Connections'.toUpperCase(),
             style: TextStyle(
-              fontSize: 33,
+              fontSize: 20,
               color: Colors.white,
             ),
           ),
@@ -72,32 +94,26 @@ class MeetupState extends State<Meetup> {
               SizedBox(
                 height: 100,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: 330,
-                    height: 50,
-                    child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                          labelText: "Search",
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: "Search",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(25.0)))),
-                    ),
-                  ),
-                ],
+              Container(
+                width: 330,
+                height: 50,
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(10.0)))),
+                ),
               ),
               SizedBox(
                 height: 15,
               ),
               Text(
-                'Search for PNA members around you',
+                'Search for PNA members around you'.toUpperCase(),
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 15,
@@ -106,7 +122,7 @@ class MeetupState extends State<Meetup> {
             ],
           ),
         ),
-        preferredSize: Size.fromHeight(180.0),
+        preferredSize: Size.fromHeight(140.0),
       ),
       backgroundColor: Colors.black,
       body: usersList != null
@@ -119,19 +135,25 @@ class MeetupState extends State<Meetup> {
                   itemBuilder: ((context, index) {
                     return filter == null || filter == ""
                         ? ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  usersList[index].data['photoUrl']),
+                            leading: Container(
+                              padding: const EdgeInsets.all(3.0),
+                              decoration: new BoxDecoration(
+                                color: Color(0xffc67608), // border color
+                                shape: BoxShape.circle,
+                              ),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.black,
+                                backgroundImage: NetworkImage(
+                                    usersList[index].data['photoUrl']),
+                              ),
                             ),
                             title: Text(usersList[index].data['name'],
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
                                 )),
                             subtitle: Text(usersList[index].data['country'],
                                 style: TextStyle(
                                   color: Colors.white70,
-                                  fontWeight: FontWeight.bold,
                                   fontSize: 17,
                                 )),
                             trailing: RaisedButton(
@@ -145,7 +167,12 @@ class MeetupState extends State<Meetup> {
                                   Radius.circular(16.0),
                                 ),
                               ),
-                              child: Text("Connect"),
+                              child: Text(
+                                "Message",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                ),
+                              ),
                               textColor: Color(0xffc67608),
                               onPressed: () {
                                 Navigator.push(
@@ -173,8 +200,6 @@ class MeetupState extends State<Meetup> {
                                               usersList[index].data['aboutMe'],
                                           gender:
                                               usersList[index].data['gender'],
-                                          status:
-                                              usersList[index].data['status'],
                                           photoUrl:
                                               usersList[index].data['photoUrl'],
                                           image1:
@@ -219,7 +244,12 @@ class MeetupState extends State<Meetup> {
                                       Radius.circular(16.0),
                                     ),
                                   ),
-                                  child: Text("Connect"),
+                                  child: Text(
+                                    "Connect",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
                                   textColor: Color(0xffc67608),
                                   onPressed: () {
                                     Navigator.push(
@@ -249,8 +279,6 @@ class MeetupState extends State<Meetup> {
                                                   .data['aboutMe'],
                                               gender: usersList[index]
                                                   .data['gender'],
-                                              status: usersList[index]
-                                                  .data['status'],
                                               photoUrl: usersList[index]
                                                   .data['photoUrl'],
                                               image1: usersList[index]
@@ -285,7 +313,7 @@ class MeetupState extends State<Meetup> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -309,7 +337,7 @@ class MeetupState extends State<Meetup> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -324,7 +352,7 @@ class MeetupState extends State<Meetup> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -345,7 +373,6 @@ class ViewProfile extends StatefulWidget {
   String name;
   String country;
   String aboutMe;
-  String status;
   String profession;
   String gender;
   String photoUrl;
@@ -363,7 +390,6 @@ class ViewProfile extends StatefulWidget {
       this.country,
       this.gender,
       this.profession,
-      this.status,
       this.image1,
       this.image2,
       this.image3,
@@ -416,7 +442,7 @@ class _ViewProfileState extends State<ViewProfile> {
               height: 25,
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -430,133 +456,104 @@ class _ViewProfileState extends State<ViewProfile> {
                     ],
                   ),
                 ),
-                Column(
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        RaisedButton(
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              style: BorderStyle.solid,
-                              color: Color(0xffc67608),
-                            ),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(16.0),
-                            ),
-                          ),
-                          color: Colors.black,
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                    builder: (context) => ChatScreen(
-                                        name: widget.name,
-                                        photoUrl: widget.photoUrl,
-                                        receiverUid: widget.uid)));
-                          },
-                          child: Text(
-                            'Message',
-                            style: TextStyle(
-                              color: Color(0xffc67608),
-                              fontSize: 19,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          style: BorderStyle.solid,
+                          color: Color(0xffc67608),
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (context) => ChatScreen(
+                                    name: widget.name,
+                                    photoUrl: widget.photoUrl,
+                                    receiverUid: widget.uid)));
+                      },
+                      child: Text(
+                        'Message',
+                        style: TextStyle(
+                          color: Color(0xffc67608),
+                          fontSize: 14,
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ],
             ),
             SizedBox(
-              height: 35,
+              height: 10,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  width: 20,
-                ),
-                Text(
-                  'Status:',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  widget.status,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(13.0, 0.0, 0.0, 0.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    widget.country.toUpperCase(),
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'RalewayRegular',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             SizedBox(
               height: 5,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  width: 20,
-                ),
-                Text(
-                  widget.country.toUpperCase(),
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'RalewayRegular',
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(13.0, 0.0, 0.0, 0.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    widget.profession.toUpperCase(),
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'RalewayRegular',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300),
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               height: 5,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  width: 20,
-                ),
-                Text(
-                  widget.profession.toUpperCase(),
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'RalewayRegular',
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  width: 20,
-                ),
-                Text(
-                  widget.gender.toUpperCase(),
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                      fontSize: 17,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(13.0, 0.0, 0.0, 0.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    widget.gender.toUpperCase(),
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'RalewayRegular',
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300),
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               height: 15,
@@ -575,26 +572,26 @@ class _ViewProfileState extends State<ViewProfile> {
               ],
             ),
             SizedBox(
-              height: 25,
+              height: 15,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  width: 20,
-                ),
-                Text(
-                  widget.aboutMe,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    widget.aboutMe,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             SizedBox(
-              height: 25,
+              height: 10,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -749,7 +746,7 @@ class _ViewProfileState extends State<ViewProfile> {
             icon: IconButton(
               icon: Icon(
                 Icons.home,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -773,7 +770,7 @@ class _ViewProfileState extends State<ViewProfile> {
             icon: IconButton(
               icon: Icon(
                 Icons.comment,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(
@@ -788,7 +785,7 @@ class _ViewProfileState extends State<ViewProfile> {
             icon: IconButton(
               icon: Icon(
                 Icons.perm_identity,
-                color: Color(0xffc67608),
+                color: Colors.grey,
               ),
               onPressed: () {
                 Navigator.push(

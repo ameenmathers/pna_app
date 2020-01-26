@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert' as converter;
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,12 +9,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:random_string/random_string.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_world/const.dart';
+import 'package:travel_world/home/home.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
+import 'package:travel_world/profile/editprofile.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Profile extends StatefulWidget {
@@ -43,28 +46,6 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   TabController tabController;
-  TextEditingController controllerName = TextEditingController();
-  TextEditingController controllerAboutMe = TextEditingController();
-  TextEditingController controllerStatus = TextEditingController();
-  TextEditingController controllerCountry = TextEditingController();
-  TextEditingController controllerProfession = TextEditingController();
-
-  SharedPreferences prefs;
-
-  String uid = '';
-  String name = '';
-  String aboutMe = '';
-
-  void readLocal() async {
-    prefs = await SharedPreferences.getInstance();
-    uid = prefs.getString('uid') ?? '';
-    name = prefs.getString('name') ?? '';
-    aboutMe = prefs.getString('aboutMe') ?? '';
-    photoUrl = prefs.getString('photoUrl') ?? '';
-
-    // Force refresh input
-    setState(() {});
-  }
 
   String photoUrl = '';
   String image1 = '';
@@ -186,15 +167,6 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         });
       }
     });
-
-    Fluttertoast.showToast(
-        msg: "Picture Saved Succesfully",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
   }
 
   Future uploadFile3() async {
@@ -217,15 +189,6 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         });
       }
     });
-
-    Fluttertoast.showToast(
-        msg: "Picture Saved Succesfully",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
   }
 
   Future uploadFile4() async {
@@ -248,15 +211,6 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         });
       }
     });
-
-    Fluttertoast.showToast(
-        msg: "Picture Saved Succesfully",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
   }
 
   Future uploadFile() async {
@@ -290,365 +244,299 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         fontSize: 16.0);
   }
 
-  void _updateName() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'name': controllerName.text,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Name Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  void _updateStatus() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'status': controllerStatus.text,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Status Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  void _updateAboutme() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'aboutMe': controllerAboutMe.text,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Bio Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  void _updateCountry() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'country': controllerCountry.text,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Location Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  void _updateProfession() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'profession': controllerProfession.text,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Profession Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  Future<DocumentSnapshot> getUserDoc() async {
+  Future<DocumentSnapshot> getUserDoc({bool useCache = true}) async {
     final FirebaseUser user = await _auth.currentUser();
     final uid = user.uid;
 
-    return await Firestore.instance
+    print('Loading Profile');
+
+    String data;
+
+    /// Do we have a cache we can use?
+    var cache = await cacheExists();
+
+    /// If the cache exists and it contains data use that, otherwise we call the API
+    if (cache && useCache) {
+      print('We have cached data');
+
+      data = await readToFile();
+
+      var cacheData = converter.jsonDecode(data);
+    } else {
+      print('No cache. Fetching from API');
+
+      var sameUser =
+          await Firestore.instance.collection('users').document(uid).get();
+
+      var apiData = converter.jsonEncode(sameUser.data);
+
+      data = apiData;
+
+      /// Now save the fetched data to the cache
+      await writeToFile(data);
+    }
+
+    var sameUser = await Firestore.instance
         .collection('users')
         .document(uid)
         .get()
-        .then((DocumentSnapshot snapshot) =>
-            snapshot); //await needs to be placed here
+        .then((DocumentSnapshot snapshot) => snapshot);
+
+    return sameUser;
+    //await needs to be placed here
   }
+
+  static Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  static Future<File> get myfile async {
+    final path = await _localPath;
+    return File('$path/pro.txt');
+  }
+
+  static Future<bool> cacheExists() async {
+    var file = await myfile;
+
+    return file.exists();
+  }
+
+  static writeToFile(sameUser) async {
+    final file = await myfile;
+    file.writeAsString(sameUser);
+  }
+
+  static readToFile() async {
+    try {
+      final file = await myfile;
+
+      // Read the file.
+      String contents = await file.readAsString();
+
+      return contents;
+    } catch (e) {}
+  }
+
+  var myFile = new File('pro.txt');
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: PreferredSize(
-          child: AppBar(
-            backgroundColor: Colors.black,
-            bottom: TabBar(
-              controller: tabController,
-              tabs: [
-                Tab(
-                  child: Text("ABOUT"),
-                ),
-                Tab(
-                  child: Text("SETTINGS"),
-                ),
-              ],
-              indicatorColor: Color(0xffc67608),
-            ),
-            flexibleSpace: Padding(
-              padding: const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 0.0),
-              child: Container(
-                color: Colors.black,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    (avatarImageFile == null)
-                        ? (photoUrl != ''
-                            ? Material(
-                                child: CachedNetworkImage(
-                                  placeholder: (context, url) => Container(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.0,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          themeColor),
-                                    ),
-                                    width: 90.0,
-                                    height: 90.0,
-                                    padding: EdgeInsets.all(20.0),
-                                  ),
-                                  imageUrl: photoUrl,
-                                  width: 100.0,
-                                  height: 90.0,
-                                  fit: BoxFit.cover,
-                                ),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(45.0)),
-                                clipBehavior: Clip.hardEdge,
-                              )
-                            : Stack(
-                                children: <Widget>[
-                                  FutureBuilder<DocumentSnapshot>(
-                                      future: getUserDoc(),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          return Row(
-                                            children: <Widget>[
-                                              CircleAvatar(
-                                                backgroundImage: NetworkImage(
-                                                  snapshot.data['photoUrl'],
-                                                ),
-                                                radius: 50.0,
-                                              ),
-                                            ],
-                                          );
-                                        } else {
-                                          return Container(
-                                            child: Center(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        30.0, 20.0, 0.0, 0.0),
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                              Color>(
-                                                          Color(0xffc67608)),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      }),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        50.0, 40.0, 0.0, 0.0),
-                                    child: IconButton(
-                                      icon: Icon(
-                                        Icons.camera_alt,
-                                        color: Color(0xffc67608),
-                                      ),
-                                      onPressed: getImage,
-                                      padding: EdgeInsets.all(30.0),
-                                      splashColor: Colors.transparent,
-                                      highlightColor: greyColor,
-                                      iconSize: 30.0,
-                                    ),
-                                  ),
-                                ],
-                              ))
-                        : Material(
-                            child: Image.file(
-                              avatarImageFile,
-                              width: 90.0,
-                              height: 90.0,
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(45.0)),
-                            clipBehavior: Clip.hardEdge,
-                          ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        SizedBox(
-                          height: 100,
-                        ),
-                        FutureBuilder<DocumentSnapshot>(
-                            future: getUserDoc(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                return Column(
-                                  children: <Widget>[
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                          snapshot.data['name'],
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'RalewayRegular',
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                          snapshot.data['country'],
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'RalewayRegular',
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              } else {
-                                return Container();
-                              }
-                            }),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Text(
-                          'Connections',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'RalewayRegular',
-                            fontSize: 20,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  style: BorderStyle.solid,
-                                  color: Color(0xffc67608),
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(16.0),
-                                ),
-                              ),
-                              color: Colors.black,
-                              onPressed: uploadFile,
-                              child: Text(
-                                'Save Picture',
-                                style: TextStyle(
-                                  color: Color(0xffc67608),
-                                  fontSize: 19,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        actions: <Widget>[
+          RaisedButton(
+            color: Colors.black,
+            child: Text(
+              "Log Out",
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
               ),
             ),
+            onPressed: () {
+              _auth.signOut();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+              );
+            },
           ),
-          preferredSize: Size.fromHeight(270.0),
-        ),
-        body: TabBarView(
-          controller: tabController,
-          children: [
-            Container(
-              padding: EdgeInsets.fromLTRB(8.0, 20.0, 0.0, 0.0),
-              color: Colors.black,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
-                      child: Column(
+        ],
+      ),
+      backgroundColor: Colors.black,
+      body: SingleChildScrollView(
+        child: Container(
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Stack(
+                    children: <Widget>[
+                      Column(
                         children: <Widget>[
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
                           FutureBuilder<DocumentSnapshot>(
                               future: getUserDoc(),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   return Row(
                                     children: <Widget>[
-                                      Text(
-                                        snapshot.data['aboutMe'],
-                                        textAlign: TextAlign.left,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
+                                      Container(
+                                        padding: const EdgeInsets.all(3.0),
+                                        decoration: new BoxDecoration(
+                                          color:
+                                              Color(0xffc67608), // border color
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                            snapshot.data['photoUrl'],
+                                          ),
+                                          radius: 50.0,
                                         ),
                                       ),
                                     ],
                                   );
                                 } else {
                                   return Container(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(20.0),
-                                      child: Text(
-                                        'Loading Details....',
-                                        style: TextStyle(
-                                          color: Colors.white,
+                                    child: Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            30.0, 20.0, 0.0, 0.0),
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Color(0xffc67608)),
                                         ),
                                       ),
                                     ),
                                   );
+                                }
+                              }),
+                        ],
+                      ),
+                    ],
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          style: BorderStyle.solid,
+                          color: Color(0xffc67608),
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EditProfile()),
+                        );
+                      },
+                      child: Text(
+                        'Edit Profile',
+                        style: TextStyle(
+                          color: Color(0xffc67608),
+                          fontSize: 14,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
+                child: FutureBuilder<DocumentSnapshot>(
+                    future: getUserDoc(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  snapshot.data['name'].toUpperCase(),
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'RalewayRegular',
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  snapshot.data['country'].toUpperCase(),
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'RalewayRegular',
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  snapshot.data['profession'].toUpperCase(),
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'RalewayRegular',
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Container();
+                      }
+                    }),
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(8.0, 20.0, 0.0, 0.0),
+                color: Colors.black,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
+                      child: Column(
+                        children: <Widget>[
+                          FutureBuilder<DocumentSnapshot>(
+                              future: getUserDoc(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          snapshot.data['aboutMe'],
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                } else {
+                                  return Container();
                                 }
                               }),
                         ],
@@ -660,370 +548,428 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        (_image1 == null)
-                            ? (image1 != ''
-                                ? Material(
-                                    child: CachedNetworkImage(
-                                      placeholder: (context, url) => Container(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.0,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                  themeColor),
-                                        ),
-                                        width: 90.0,
-                                        height: 90.0,
-                                        padding: EdgeInsets.all(20.0),
-                                      ),
-                                      imageUrl: image1,
-                                      width: 167.0,
-                                      height: 111.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : Stack(
-                                    children: <Widget>[
-                                      FutureBuilder<DocumentSnapshot>(
-                                          future: getUserDoc(),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Container(
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0),
-                                                  child: Image(
-                                                    image: NetworkImage(
-                                                      snapshot.data['image1'],
-                                                    ),
-                                                    width: 167,
-                                                    height: 111,
-                                                    fit: BoxFit.cover,
-                                                  ),
+                        Stack(
+                          children: <Widget>[
+                            Column(
+                              children: <Widget>[
+                                (_image1 == null)
+                                    ? (image1 != ''
+                                        ? Material(
+                                            child: CachedNetworkImage(
+                                              placeholder: (context, url) =>
+                                                  Container(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2.0,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(themeColor),
                                                 ),
-                                              );
-                                            } else {
-                                              return Container();
-                                            }
-                                          }),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            40.0, 70.0, 0.0, 0.0),
-                                        child: IconButton(
-                                          icon: Icon(
-                                            Icons.camera_alt,
-                                            color: Color(0xffc67608),
+                                                width: 90.0,
+                                                height: 90.0,
+                                                padding: EdgeInsets.all(20.0),
+                                              ),
+                                              imageUrl: image1,
+                                              width: 167.0,
+                                              height: 111.0,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                        : Stack(
+                                            children: <Widget>[
+                                              FutureBuilder<DocumentSnapshot>(
+                                                  future: getUserDoc(),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot.hasData) {
+                                                      return Container(
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          child: Image(
+                                                            image: NetworkImage(
+                                                              snapshot.data[
+                                                                  'image1'],
+                                                            ),
+                                                            width: 167,
+                                                            height: 111,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      return Container();
+                                                    }
+                                                  }),
+                                            ],
+                                          ))
+                                    : Material(
+                                        child: Container(
+                                          width: 167.0,
+                                          height: 111.0,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            color: Colors.white,
                                           ),
-                                          onPressed: getImage1,
-                                          padding: EdgeInsets.all(30.0),
-                                          splashColor: Colors.transparent,
-                                          highlightColor: greyColor,
-                                          iconSize: 28.0,
-                                        ),
-                                      ),
-                                    ],
-                                  ))
-                            : Material(
-                                child: Container(
-                                  width: 167.0,
-                                  height: 111.0,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    color: Colors.white,
-                                  ),
-                                  child: Image.file(
-                                    _image1,
-                                    width: 167.0,
-                                    height: 111.0,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                                clipBehavior: Clip.hardEdge,
-                              ),
-                        (_image2 == null)
-                            ? (image2 != ''
-                                ? Material(
-                                    child: CachedNetworkImage(
-                                      placeholder: (context, url) => Container(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.0,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                  themeColor),
-                                        ),
-                                        width: 90.0,
-                                        height: 90.0,
-                                        padding: EdgeInsets.all(20.0),
-                                      ),
-                                      imageUrl: image2,
-                                      width: 167.0,
-                                      height: 111.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : Stack(
-                                    children: <Widget>[
-                                      FutureBuilder<DocumentSnapshot>(
-                                          future: getUserDoc(),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Container(
-                                                width: 167.0,
-                                                height: 111.0,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                  color: Colors.white,
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                  child: Image(
-                                                    image: NetworkImage(
-                                                      snapshot.data['image2'],
-                                                    ),
-                                                    width: 167,
-                                                    height: 111,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              return Container();
-                                            }
-                                          }),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            40.0, 70.0, 0.0, 0.0),
-                                        child: IconButton(
-                                          icon: Icon(
-                                            Icons.camera_alt,
-                                            color: Color(0xffc67608),
+                                          child: Image.file(
+                                            _image1,
+                                            width: 167.0,
+                                            height: 111.0,
+                                            fit: BoxFit.cover,
                                           ),
-                                          onPressed: getImage2,
-                                          padding: EdgeInsets.all(30.0),
-                                          splashColor: Colors.transparent,
-                                          highlightColor: greyColor,
-                                          iconSize: 28.0,
                                         ),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10.0)),
+                                        clipBehavior: Clip.hardEdge,
                                       ),
-                                    ],
-                                  ))
-                            : Material(
-                                child: Container(
-                                  width: 167.0,
-                                  height: 111.0,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    color: Colors.white,
-                                  ),
-                                  child: Image.file(
-                                    _image2,
-                                    width: 167.0,
-                                    height: 111.0,
-                                    fit: BoxFit.cover,
-                                  ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                  90.0, 70.0, 0.0, 0.0),
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.camera_alt,
+                                  color: Color(0xffc67608),
                                 ),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                                clipBehavior: Clip.hardEdge,
+                                onPressed: getImage1,
+                                padding: EdgeInsets.all(30.0),
+                                splashColor: Colors.transparent,
+                                highlightColor: greyColor,
+                                iconSize: 28.0,
                               ),
+                            ),
+                          ],
+                        ),
+                        Stack(
+                          children: <Widget>[
+                            Column(
+                              children: <Widget>[
+                                (_image2 == null)
+                                    ? (image2 != ''
+                                        ? Material(
+                                            child: CachedNetworkImage(
+                                              placeholder: (context, url) =>
+                                                  Container(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2.0,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(themeColor),
+                                                ),
+                                                width: 90.0,
+                                                height: 90.0,
+                                                padding: EdgeInsets.all(20.0),
+                                              ),
+                                              imageUrl: image2,
+                                              width: 167.0,
+                                              height: 111.0,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                        : Stack(
+                                            children: <Widget>[
+                                              FutureBuilder<DocumentSnapshot>(
+                                                  future: getUserDoc(),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot.hasData) {
+                                                      return Container(
+                                                        width: 167.0,
+                                                        height: 111.0,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          color: Colors.white,
+                                                        ),
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          child: Image(
+                                                            image: NetworkImage(
+                                                              snapshot.data[
+                                                                  'image2'],
+                                                            ),
+                                                            width: 167,
+                                                            height: 111,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      return Container();
+                                                    }
+                                                  }),
+                                            ],
+                                          ))
+                                    : Material(
+                                        child: Container(
+                                          width: 167.0,
+                                          height: 111.0,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            color: Colors.white,
+                                          ),
+                                          child: Image.file(
+                                            _image2,
+                                            width: 167.0,
+                                            height: 111.0,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10.0)),
+                                        clipBehavior: Clip.hardEdge,
+                                      ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                  90.0, 70.0, 0.0, 0.0),
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.camera_alt,
+                                  color: Color(0xffc67608),
+                                ),
+                                onPressed: getImage2,
+                                padding: EdgeInsets.all(30.0),
+                                splashColor: Colors.transparent,
+                                highlightColor: greyColor,
+                                iconSize: 28.0,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     SizedBox(
-                      height: 20,
+                      height: 5,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        (_image3 == null)
-                            ? (image3 != ''
-                                ? Material(
-                                    child: CachedNetworkImage(
-                                      placeholder: (context, url) => Container(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.0,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                  themeColor),
-                                        ),
-                                        width: 90.0,
-                                        height: 90.0,
-                                        padding: EdgeInsets.all(20.0),
-                                      ),
-                                      imageUrl: image3,
-                                      width: 167.0,
-                                      height: 111.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : Stack(
-                                    children: <Widget>[
-                                      FutureBuilder<DocumentSnapshot>(
-                                          future: getUserDoc(),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Container(
-                                                width: 167.0,
-                                                height: 111.0,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                  color: Colors.white,
+                        Stack(
+                          children: <Widget>[
+                            Column(
+                              children: <Widget>[
+                                (_image3 == null)
+                                    ? (image3 != ''
+                                        ? Material(
+                                            child: CachedNetworkImage(
+                                              placeholder: (context, url) =>
+                                                  Container(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2.0,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(themeColor),
                                                 ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                  child: Image(
-                                                    image: NetworkImage(
-                                                      snapshot.data['image3'],
-                                                    ),
-                                                    width: 167,
-                                                    height: 111,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              return Container();
-                                            }
-                                          }),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            40.0, 70.0, 0.0, 0.0),
-                                        child: IconButton(
-                                          icon: Icon(
-                                            Icons.camera_alt,
-                                            color: Color(0xffc67608),
+                                                width: 90.0,
+                                                height: 90.0,
+                                                padding: EdgeInsets.all(20.0),
+                                              ),
+                                              imageUrl: image3,
+                                              width: 167.0,
+                                              height: 111.0,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                        : Stack(
+                                            children: <Widget>[
+                                              FutureBuilder<DocumentSnapshot>(
+                                                  future: getUserDoc(),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot.hasData) {
+                                                      return Container(
+                                                        width: 167.0,
+                                                        height: 111.0,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          color: Colors.white,
+                                                        ),
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          child: Image(
+                                                            image: NetworkImage(
+                                                              snapshot.data[
+                                                                  'image3'],
+                                                            ),
+                                                            width: 167,
+                                                            height: 111,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      return Container();
+                                                    }
+                                                  }),
+                                            ],
+                                          ))
+                                    : Material(
+                                        child: Container(
+                                          width: 167.0,
+                                          height: 111.0,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            color: Colors.white,
                                           ),
-                                          onPressed: getImage3,
-                                          padding: EdgeInsets.all(30.0),
-                                          splashColor: Colors.transparent,
-                                          highlightColor: greyColor,
-                                          iconSize: 28.0,
-                                        ),
-                                      ),
-                                    ],
-                                  ))
-                            : Material(
-                                child: Container(
-                                  width: 167.0,
-                                  height: 111.0,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    color: Colors.white,
-                                  ),
-                                  child: Image.file(
-                                    _image3,
-                                    width: 167.0,
-                                    height: 111.0,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                                clipBehavior: Clip.hardEdge,
-                              ),
-                        (_image4 == null)
-                            ? (image4 != ''
-                                ? Material(
-                                    child: CachedNetworkImage(
-                                      placeholder: (context, url) => Container(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.0,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                  themeColor),
-                                        ),
-                                        width: 90.0,
-                                        height: 90.0,
-                                        padding: EdgeInsets.all(20.0),
-                                      ),
-                                      imageUrl: image4,
-                                      width: 167.0,
-                                      height: 111.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : Stack(
-                                    children: <Widget>[
-                                      FutureBuilder<DocumentSnapshot>(
-                                          future: getUserDoc(),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Container(
-                                                width: 167.0,
-                                                height: 111.0,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                  color: Colors.white,
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                  child: Image(
-                                                    image: NetworkImage(
-                                                      snapshot.data['image4'],
-                                                    ),
-                                                    width: 167,
-                                                    height: 111,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              return Container();
-                                            }
-                                          }),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            40.0, 70.0, 0.0, 0.0),
-                                        child: IconButton(
-                                          icon: Icon(
-                                            Icons.camera_alt,
-                                            color: Color(0xffc67608),
+                                          child: Image.file(
+                                            _image3,
+                                            width: 167.0,
+                                            height: 111.0,
+                                            fit: BoxFit.cover,
                                           ),
-                                          onPressed: getImage4,
-                                          padding: EdgeInsets.all(30.0),
-                                          splashColor: Colors.transparent,
-                                          highlightColor: greyColor,
-                                          iconSize: 28.0,
                                         ),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10.0)),
+                                        clipBehavior: Clip.hardEdge,
                                       ),
-                                    ],
-                                  ))
-                            : Material(
-                                child: Container(
-                                  width: 167.0,
-                                  height: 111.0,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    color: Colors.white,
-                                  ),
-                                  child: Image.file(
-                                    _image4,
-                                    width: 167.0,
-                                    height: 111.0,
-                                    fit: BoxFit.cover,
-                                  ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                  90.0, 70.0, 0.0, 0.0),
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.camera_alt,
+                                  color: Color(0xffc67608),
                                 ),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                                clipBehavior: Clip.hardEdge,
+                                onPressed: getImage3,
+                                padding: EdgeInsets.all(30.0),
+                                splashColor: Colors.transparent,
+                                highlightColor: greyColor,
+                                iconSize: 28.0,
                               ),
+                            ),
+                          ],
+                        ),
+                        Stack(
+                          children: <Widget>[
+                            Column(
+                              children: <Widget>[
+                                (_image4 == null)
+                                    ? (image4 != ''
+                                        ? Material(
+                                            child: CachedNetworkImage(
+                                              placeholder: (context, url) =>
+                                                  Container(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2.0,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(themeColor),
+                                                ),
+                                                width: 90.0,
+                                                height: 90.0,
+                                                padding: EdgeInsets.all(20.0),
+                                              ),
+                                              imageUrl: image4,
+                                              width: 167.0,
+                                              height: 111.0,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                        : Stack(
+                                            children: <Widget>[
+                                              FutureBuilder<DocumentSnapshot>(
+                                                  future: getUserDoc(),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot.hasData) {
+                                                      return Container(
+                                                        width: 167.0,
+                                                        height: 111.0,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          color: Colors.white,
+                                                        ),
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          child: Image(
+                                                            image: NetworkImage(
+                                                              snapshot.data[
+                                                                  'image4'],
+                                                            ),
+                                                            width: 167,
+                                                            height: 111,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      return Container();
+                                                    }
+                                                  }),
+                                            ],
+                                          ))
+                                    : Material(
+                                        child: Container(
+                                          width: 167.0,
+                                          height: 111.0,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            color: Colors.white,
+                                          ),
+                                          child: Image.file(
+                                            _image4,
+                                            width: 167.0,
+                                            height: 111.0,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10.0)),
+                                        clipBehavior: Clip.hardEdge,
+                                      ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                  90.0, 70.0, 0.0, 0.0),
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.camera_alt,
+                                  color: Color(0xffc67608),
+                                ),
+                                onPressed: getImage4,
+                                padding: EdgeInsets.all(30.0),
+                                splashColor: Colors.transparent,
+                                highlightColor: greyColor,
+                                iconSize: 28.0,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     SizedBox(
-                      height: 35,
+                      height: 5,
                     ),
                     ButtonTheme(
                       minWidth: 300.0,
@@ -1034,9 +980,12 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           side: BorderSide(
                             color: Color(0xffc67608),
                           ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10.0),
+                          ),
                         ),
                         child: Text(
-                          "Upload Images",
+                          "Save Images",
                           style: TextStyle(
                             fontSize: 20,
                           ),
@@ -1050,521 +999,178 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         },
                       ),
                     ),
-                    SizedBox(
-                      height: 35,
-                    ),
-                    ButtonTheme(
-                      minWidth: 300.0,
-                      height: 40.0,
-                      child: RaisedButton(
-                        color: Color(0xffc67608),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                            color: Color(0xffc67608),
-                          ),
-                        ),
-                        child: Text(
-                          "Refer Member",
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                        textColor: Colors.black,
-                        onPressed: _referURL,
-                      ),
-                    ),
                   ],
                 ),
               ),
-            ),
-            Container(
-              color: Colors.black,
-              child: SingleChildScrollView(
-                child: FutureBuilder<DocumentSnapshot>(
-                    future: getUserDoc(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Column(
-                          children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                SizedBox(
-                                  height: 20,
+              Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ButtonTheme(
+                            minWidth: 300.0,
+                            height: 40.0,
+                            child: RaisedButton(
+                              color: Color(0xffc67608),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: Color(0xffc67608),
                                 ),
-                                Row(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      width: 65,
-                                    ),
-                                    Text(
-                                      'Username',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      width: 65,
-                                    ),
-                                    Text(
-                                      snapshot.data['name'],
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Column(
-                              children: <Widget>[
-                                Row(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      width: 65,
-                                    ),
-                                    Text(
-                                      'Status',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      width: 65,
-                                    ),
-                                    Text(
-                                      snapshot.data['status'],
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Column(
-                              children: <Widget>[
-                                Row(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      width: 65,
-                                    ),
-                                    Text(
-                                      'Location',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      width: 65,
-                                    ),
-                                    Text(
-                                      snapshot.data['country'],
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: Column(
-                                    children: <Widget>[
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16.0, 16.0, 32.0, 16.0),
-                                        child: TextFormField(
-                                          decoration: InputDecoration(
-                                            border: UnderlineInputBorder(),
-                                            labelText: 'Name',
-                                            filled: true,
-                                            fillColor: Colors.black,
-                                            labelStyle: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                            focusColor: Colors.white,
-                                            enabledBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: Color(0xffc67608))),
-                                          ),
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                          controller: controllerName,
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: <Widget>[
-                                          RaisedButton(
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                style: BorderStyle.solid,
-                                                color: Color(0xffc67608),
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(16.0),
-                                              ),
-                                            ),
-                                            color: Colors.black,
-                                            onPressed: _updateName,
-                                            child: Text(
-                                              'save',
-                                              style: TextStyle(
-                                                color: Color(0xffc67608),
-                                                fontSize: 19,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16.0, 16.0, 32.0, 16.0),
-                                        child: TextFormField(
-                                          decoration: InputDecoration(
-                                            border: UnderlineInputBorder(),
-                                            labelText: 'Status',
-                                            filled: true,
-                                            fillColor: Colors.black,
-                                            labelStyle: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                            focusColor: Colors.white,
-                                            enabledBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: Color(0xffc67608))),
-                                          ),
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                          controller: controllerStatus,
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: <Widget>[
-                                          RaisedButton(
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                style: BorderStyle.solid,
-                                                color: Color(0xffc67608),
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(16.0),
-                                              ),
-                                            ),
-                                            color: Colors.black,
-                                            onPressed: _updateStatus,
-                                            child: Text(
-                                              'Save',
-                                              style: TextStyle(
-                                                color: Color(0xffc67608),
-                                                fontSize: 19,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16.0, 16.0, 32.0, 16.0),
-                                        child: TextFormField(
-                                          decoration: InputDecoration(
-                                            border: UnderlineInputBorder(),
-                                            labelText: 'Location',
-                                            filled: true,
-                                            fillColor: Colors.black,
-                                            labelStyle: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                            focusColor: Colors.white,
-                                            enabledBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: Color(0xffc67608))),
-                                          ),
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                          controller: controllerCountry,
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: <Widget>[
-                                          RaisedButton(
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                style: BorderStyle.solid,
-                                                color: Color(0xffc67608),
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(16.0),
-                                              ),
-                                            ),
-                                            color: Colors.black,
-                                            onPressed: _updateCountry,
-                                            child: Text(
-                                              'save',
-                                              style: TextStyle(
-                                                color: Color(0xffc67608),
-                                                fontSize: 19,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16.0, 16.0, 32.0, 16.0),
-                                        child: TextFormField(
-                                          decoration: InputDecoration(
-                                            border: UnderlineInputBorder(),
-                                            labelText: 'Profession',
-                                            filled: true,
-                                            fillColor: Colors.black,
-                                            labelStyle: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                            focusColor: Colors.white,
-                                            enabledBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: Color(0xffc67608))),
-                                          ),
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                          controller: controllerProfession,
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: <Widget>[
-                                          RaisedButton(
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                style: BorderStyle.solid,
-                                                color: Color(0xffc67608),
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(16.0),
-                                              ),
-                                            ),
-                                            color: Colors.black,
-                                            onPressed: _updateProfession,
-                                            child: Text(
-                                              'save',
-                                              style: TextStyle(
-                                                color: Color(0xffc67608),
-                                                fontSize: 19,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16.0, 16.0, 32.0, 16.0),
-                                        child: TextFormField(
-                                          maxLines: 3,
-                                          decoration: InputDecoration(
-                                            border: UnderlineInputBorder(),
-                                            labelText: 'Bio',
-                                            filled: true,
-                                            fillColor: Colors.black,
-                                            labelStyle: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                            focusColor: Colors.white,
-                                            enabledBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: Color(0xffc67608))),
-                                          ),
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                          controller: controllerAboutMe,
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: <Widget>[
-                                          RaisedButton(
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                style: BorderStyle.solid,
-                                                color: Color(0xffc67608),
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                Radius.circular(16.0),
-                                              ),
-                                            ),
-                                            color: Colors.black,
-                                            onPressed: _updateAboutme,
-                                            child: Text(
-                                              'save',
-                                              style: TextStyle(
-                                                color: Color(0xffc67608),
-                                                fontSize: 19,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                      } else {
-                        return Container(
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(
-                                'Loading Details....',
-                                style: TextStyle(
-                                  color: Colors.white,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10.0),
                                 ),
                               ),
+                              child: Text(
+                                "Refer Member",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                              textColor: Colors.black,
+                              onPressed: _referURL,
                             ),
                           ),
-                        );
-                      }
-                    }),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.black,
-          items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              backgroundColor: Colors.black,
-              title: Text(''),
-              icon: IconButton(
-                icon: Icon(
-                  Icons.home,
-                  color: Color(0xffc67608),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Navigation()),
-                  );
-                },
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.black,
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            backgroundColor: Colors.black,
+            title: Text(''),
+            icon: IconButton(
+              icon: Icon(
+                Icons.home,
+                color: Colors.grey,
               ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Navigation()),
+                );
+              },
             ),
-            BottomNavigationBarItem(
-              icon: IconButton(
-                icon: Icon(
-                  Icons.vpn_lock,
-                  color: Color(0xffc67608),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Meetup()),
-                  );
-                },
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(
+              icon: Icon(
+                Icons.vpn_lock,
+                color: Colors.grey,
               ),
-              title: Text(''),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Meetup()),
+                );
+              },
             ),
-            BottomNavigationBarItem(
-              icon: IconButton(
-                icon: Icon(
-                  Icons.comment,
-                  color: Color(0xffc67608),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Messages()),
-                  );
-                },
+            title: Text(''),
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(
+              icon: Icon(
+                Icons.comment,
+                color: Colors.grey,
               ),
-              title: Text(''),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Messages()),
+                );
+              },
             ),
-            BottomNavigationBarItem(
-              icon: IconButton(
-                icon: Icon(
-                  Icons.perm_identity,
-                  color: Color(0xffc67608),
-                ),
-                onPressed: () {},
+            title: Text(''),
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(
+              icon: Icon(
+                Icons.person,
+                color: Color(0xffc67608),
               ),
-              title: Text(''),
+              onPressed: () {},
             ),
-          ],
-        ),
+            title: Text(''),
+          ),
+        ],
       ),
     );
   }
 }
 
 _referURL() async {
-  const url = 'https://flutter.io';
+  const url = 'https://playnetwork.africa/refer-member';
   if (await canLaunch(url)) {
     await launch(url);
   } else {
     throw 'Could not launch $url';
+  }
+}
+
+class User {
+  final int uid;
+  final String name;
+  final String aboutMe;
+  final String country;
+  final String city;
+  final String profession;
+  final String photoUrl;
+  final String image1;
+  final String image2;
+  final String image3;
+  final String image4;
+
+  User(
+      {this.uid,
+      this.name,
+      this.aboutMe,
+      this.country,
+      this.city,
+      this.profession,
+      this.photoUrl,
+      this.image1,
+      this.image2,
+      this.image3,
+      this.image4});
+
+  factory User.fromMap(Map data) {
+    return User(
+      name: data['name'],
+      aboutMe: data['aboutMe'],
+      country: data['country'],
+      city: data['city'],
+      profession: data['profession'],
+      photoUrl: data['photoUrl'],
+      image1: data['image1'],
+      image2: data['image2'],
+      image3: data['image3'],
+      image4: data['image4'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'aboutMe': aboutMe,
+      'country': country,
+      'city': city,
+      'profession': profession,
+      'photoUrl': photoUrl,
+      'image1': image1,
+      'image2': image2,
+      'image3': image3,
+      'image4': image4,
+    };
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Full_gallery1 extends StatefulWidget {
-  String image_1;
-  Full_gallery1({this.image_1});
+  String image;
+  Full_gallery1({this.image});
 
   _Full_gallery1State createState() => _Full_gallery1State();
 }
@@ -17,8 +17,8 @@ class _Full_gallery1State extends State<Full_gallery1> {
             Align(
               alignment: Alignment.center,
               child: Hero(
-                tag: widget.image_1,
-                child: Image.network(widget.image_1),
+                tag: widget.image,
+                child: Image.network(widget.image),
               ),
             ),
             Align(
