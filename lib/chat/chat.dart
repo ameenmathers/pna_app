@@ -132,8 +132,13 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.name),
-          backgroundColor: Color(0xffc67608),
+          title: Text(
+            widget.name.toUpperCase(),
+            style: TextStyle(
+              fontSize: 20,
+            ),
+          ),
+          backgroundColor: Colors.black,
         ),
         backgroundColor: Colors.black,
         body: Form(
@@ -171,7 +176,7 @@ class _ChatScreenState extends State<ChatScreen> {
               splashColor: Colors.black,
               icon: Icon(
                 Icons.camera_alt,
-                color: Colors.white,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 pickImage();
@@ -192,10 +197,18 @@ class _ChatScreenState extends State<ChatScreen> {
               decoration: InputDecoration(
                   hintText: "Enter message...",
                   labelText: "Message",
-                  fillColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.white,
+                  ),
+                  fillColor: Colors.black,
+                  filled: true,
                   focusColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xffc67608)),
+                    borderRadius: BorderRadius.circular(50.0),
+                  ),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0))),
+                      borderRadius: BorderRadius.circular(50.0))),
               onFieldSubmitted: (value) {
                 _messageController.text = value;
               },
@@ -207,7 +220,7 @@ class _ChatScreenState extends State<ChatScreen> {
               splashColor: Colors.black,
               icon: Icon(
                 Icons.send,
-                color: Colors.white,
+                color: Color(0xffc67608),
               ),
               onPressed: () {
                 if (_formKey.currentState.validate()) {
@@ -350,22 +363,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 ? MainAxisAlignment.end
                 : MainAxisAlignment.start,
             children: <Widget>[
-              snapshot['senderUid'] == _senderuid
-                  ? CircleAvatar(
-                      backgroundImage: senderPhotoUrl == null
-                          ? AssetImage('')
-                          : NetworkImage(senderPhotoUrl),
-                      radius: 20.0,
-                    )
-                  : CircleAvatar(
-                      backgroundImage: receiverPhotoUrl == null
-                          ? AssetImage('')
-                          : NetworkImage(receiverPhotoUrl),
-                      radius: 20.0,
-                    ),
-              SizedBox(
-                width: 10.0,
-              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
