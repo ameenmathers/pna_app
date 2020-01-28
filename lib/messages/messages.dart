@@ -17,9 +17,17 @@ class _MessagesState extends State<Messages> {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   FirebaseUser loggedInUser;
   StreamSubscription<QuerySnapshot> _subscription;
-  List<DocumentSnapshot> usersList;
+  var _newMessageSubscription;
   final CollectionReference _collectionReference =
       Firestore.instance.collection("users");
+  bool _newMessagesFirstListenFlag = true;
+  List<DocumentSnapshot> _connectedUserList;
+  Set<DocumentSnapshot> _indexesWithNewMessagesSet = Set();
+
+  final _newMessageCollectionReference =
+      Firestore.instance.collection('messages');
+
+  final _myListKey = GlobalKey<AnimatedListState>();
 
   Future<DocumentSnapshot> getUserDoc() async {
     final FirebaseUser user = await firebaseAuth.currentUser();
@@ -43,12 +51,94 @@ class _MessagesState extends State<Messages> {
       });
     });
 
+    _setUpSubscriptions();
+  }
+
+  Future<void> _setUpSubscriptions() async {
+    final FirebaseUser user = await firebaseAuth.currentUser();
+    final uid = user.uid;
     _subscription = _collectionReference.snapshots().listen((datasnapshot) {
-      setState(() {
-        usersList = datasnapshot.documents;
-        print("Users List ${usersList.length}");
-      });
+      List<DocumentSnapshot> totalUserList = datasnapshot.documents;
+
+      if (totalUserList != null) {
+        int userSubscriptionCounter = 0;
+        for (var user in totalUserList) {
+          _newMessageSubscription = Firestore.instance
+              .collection('messages')
+              .document(uid)
+              .collection(user.data['uid'])
+              .snapshots()
+              .listen((documentSnapshot) {
+            if (_connectedUserList == null) {
+              _connectedUserList = [];
+            }
+            _connectedUserList.add(totalUserList.firstWhere(
+                (userFromSnapshot) =>
+                    userFromSnapshot.data['uid'] == user.data['uid']));
+
+            int numberOfDocumentChanges =
+                documentSnapshot.documentChanges.length;
+
+            if (numberOfDocumentChanges == 0) {
+              setState(() {
+                //Refresh screen
+              });
+            } else {
+              for (var documentChange in documentSnapshot.documentChanges) {
+                if (_newMessagesFirstListenFlag == false) {
+                  bool showNewMessageIndicator = false;
+
+                  if (documentSnapshot.documents.last['receiverUid'] == uid) {
+                    showNewMessageIndicator = true;
+                  }
+
+                  _moveUserToTop(
+                      uid: user.data['uid'],
+                      showNewMessageIndicator: showNewMessageIndicator);
+                }
+
+                if (numberOfDocumentChanges - 1 ==
+                    documentSnapshot.documentChanges.indexOf(documentChange)) {
+                  userSubscriptionCounter = userSubscriptionCounter + 1;
+                }
+
+                if (userSubscriptionCounter == totalUserList.length) {
+                  //This is executed when the loop is complete
+                  _newMessagesFirstListenFlag = false;
+
+                  setState(() {
+                    //Refresh screen
+                  });
+                }
+              }
+            }
+          });
+        }
+      }
     });
+  }
+
+  _moveUserToTop(
+      {@required String uid, @required bool showNewMessageIndicator}) {
+    var user = _connectedUserList.firstWhere((userItem) {
+      return userItem.data['uid'] == uid;
+    });
+
+    var index = _connectedUserList.indexOf(user);
+
+    _connectedUserList.remove(user);
+
+    _myListKey.currentState.removeItem(index, (context, animation) {
+      return _buildChatListTile(index, context);
+    });
+
+    _connectedUserList.insert(0, user);
+
+    _myListKey.currentState.insertItem(index);
+
+    if (showNewMessageIndicator) {
+      _indexesWithNewMessagesSet.add(user);
+    }
   }
 
   TextEditingController searchController = new TextEditingController();
@@ -59,6 +149,7 @@ class _MessagesState extends State<Messages> {
     searchController.dispose();
     super.dispose();
     _subscription.cancel();
+    _newMessageSubscription.cancel();
   }
 
   @override
@@ -79,7 +170,7 @@ class _MessagesState extends State<Messages> {
           flexibleSpace: Column(
             children: <Widget>[
               SizedBox(
-                height: 100,
+                height: kBottomNavigationBarHeight,
               ),
               Container(
                 width: 330,
@@ -105,45 +196,15 @@ class _MessagesState extends State<Messages> {
         preferredSize: Size.fromHeight(125.0),
       ),
       backgroundColor: Colors.black,
-      body: usersList != null
+      body: _connectedUserList != null
           ? Container(
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
-                child: ListView.builder(
-                  itemCount: usersList.length,
-                  itemBuilder: ((context, index) {
-                    return ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(3.0),
-                        decoration: new BoxDecoration(
-                          color: Color(0xffc67608), // border color
-                          shape: BoxShape.circle,
-                        ),
-                        child: CircleAvatar(
-                          backgroundImage:
-                              NetworkImage(usersList[index].data['photoUrl']),
-                        ),
-                      ),
-                      title: Text(usersList[index].data['name'],
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      subtitle: Text(usersList[index].data['country'],
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 17,
-                          )),
-                      onTap: (() {
-                        Navigator.push(
-                            context,
-                            new MaterialPageRoute(
-                                builder: (context) => ChatScreen(
-                                    name: usersList[index].data['name'],
-                                    photoUrl: usersList[index].data['photoUrl'],
-                                    receiverUid:
-                                        usersList[index].data['uid'])));
-                      }),
-                    );
+                child: AnimatedList(
+                  initialItemCount: _connectedUserList.length,
+                  key: _myListKey,
+                  itemBuilder: ((context, index, animation) {
+                    return _buildChatListTile(index, context);
                   }),
                 ),
               ),
@@ -215,6 +276,49 @@ class _MessagesState extends State<Messages> {
           ),
         ],
       ),
+    );
+  }
+
+  ListTile _buildChatListTile(int index, BuildContext context) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(3.0),
+        decoration: new BoxDecoration(
+          color: Color(0xffc67608), // border color
+          shape: BoxShape.circle,
+        ),
+        child: CircleAvatar(
+          backgroundImage:
+              NetworkImage(_connectedUserList[index].data['photoUrl']),
+        ),
+      ),
+      title: Text(_connectedUserList[index].data['name'],
+          style: TextStyle(
+            color: Colors.white,
+          )),
+      subtitle: Text(
+          _connectedUserList[index].data['country'] == null
+              ? ''
+              : _connectedUserList[index].data['country'],
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 17,
+          )),
+      trailing: _indexesWithNewMessagesSet.contains(_connectedUserList[index])
+          ? CircleAvatar(
+              backgroundColor: Colors.red,
+              radius: 8.0,
+            )
+          : null,
+      onTap: (() {
+        Navigator.push(
+            context,
+            new MaterialPageRoute(
+                builder: (context) => ChatScreen(
+                    name: _connectedUserList[index].data['name'],
+                    photoUrl: _connectedUserList[index].data['photoUrl'],
+                    receiverUid: _connectedUserList[index].data['uid'])));
+      }),
     );
   }
 }

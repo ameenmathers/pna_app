@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Image4 extends StatefulWidget {
-  String image4;
-  Image4({this.image4});
+class FullScreenImage extends StatefulWidget {
+  String image;
+  FullScreenImage({this.image});
 
-  _Image4State createState() => _Image4State();
+  _FullScreenImageState createState() => _FullScreenImageState();
 }
 
-class _Image4State extends State<Image4> {
+class _FullScreenImageState extends State<FullScreenImage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,8 +17,8 @@ class _Image4State extends State<Image4> {
             Align(
               alignment: Alignment.center,
               child: Hero(
-                tag: widget.image4,
-                child: Image.network(widget.image4),
+                tag: widget.image,
+                child: Image.network(widget.image),
               ),
             ),
             Align(

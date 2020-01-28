@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class FullScreenImage extends StatefulWidget {
 
-  String photoUrl;
-  FullScreenImage({this.photoUrl});
+  String imageUrl;
+  FullScreenImage({this.imageUrl});
 
   _FullScreenImageState createState() => _FullScreenImageState();
 }
@@ -18,8 +18,8 @@ class _FullScreenImageState extends State<FullScreenImage> {
               Align(
                 alignment: Alignment.center,
                 child: Hero(
-                  tag: widget.photoUrl,
-                  child: Image.network(widget.photoUrl),
+                  tag: widget.imageUrl,
+                  child: Image.network(widget.imageUrl),
                 ),
               ),
               Align(

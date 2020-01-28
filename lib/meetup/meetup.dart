@@ -5,10 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:travel_world/chat/chat.dart';
-import 'package:travel_world/image/image1.dart';
-import 'package:travel_world/image/image2.dart';
-import 'package:travel_world/image/image3.dart';
-import 'package:travel_world/image/image4.dart';
+import 'package:travel_world/image/full_screen_image.dart';
+
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
@@ -202,14 +200,8 @@ class MeetupState extends State<Meetup> {
                                               usersList[index].data['gender'],
                                           photoUrl:
                                               usersList[index].data['photoUrl'],
-                                          image1:
-                                              usersList[index].data['image1'],
-                                          image2:
-                                              usersList[index].data['image2'],
-                                          image3:
-                                              usersList[index].data['image3'],
-                                          image4:
-                                              usersList[index].data['image4'],
+                                          images:
+                                              usersList[index].data['images'],
                                           uid: usersList[index].data['uid'])));
                             }),
                           )
@@ -281,14 +273,8 @@ class MeetupState extends State<Meetup> {
                                                   .data['gender'],
                                               photoUrl: usersList[index]
                                                   .data['photoUrl'],
-                                              image1: usersList[index]
-                                                  .data['image1'],
-                                              image2: usersList[index]
-                                                  .data['image2'],
-                                              image3: usersList[index]
-                                                  .data['image3'],
-                                              image4: usersList[index]
-                                                  .data['image4'],
+                                              images: usersList[index]
+                                                  .data['images'],
                                               uid: usersList[index]
                                                   .data['uid'])));
                                 }),
@@ -376,10 +362,7 @@ class ViewProfile extends StatefulWidget {
   String profession;
   String gender;
   String photoUrl;
-  String image1;
-  String image2;
-  String image3;
-  String image4;
+  final List images;
   String uid;
 
   ViewProfile(
@@ -390,10 +373,7 @@ class ViewProfile extends StatefulWidget {
       this.country,
       this.gender,
       this.profession,
-      this.image1,
-      this.image2,
-      this.image3,
-      this.image4});
+      this.images});
 
   @override
   _ViewProfileState createState() => _ViewProfileState();
@@ -593,143 +573,21 @@ class _ViewProfileState extends State<ViewProfile> {
             SizedBox(
               height: 10,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                InkWell(
-                  onTap: (() {
-                    Navigator.push(
-                        context,
-                        new MaterialPageRoute(
-                            builder: (context) => Image1(
-                                  image1: widget.image1,
-                                )));
-                  }),
-                  child: Hero(
-                    tag: widget.image1,
-                    child: Container(
-                      width: 167.0,
-                      height: 111.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: FadeInImage(
-                          image: NetworkImage(widget.image1),
-                          placeholder: AssetImage(''),
-                          width: 167.0,
-                          height: 111.0,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+            widget.images.isEmpty
+                ? Container()
+                : Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Wrap(
+                          alignment: WrapAlignment.start,
+                          children: widget.images
+                              .map((imageUrl) => ProfileImageItem(
+                                    imageUrl: imageUrl,
+                                  ))
+                              .toList()),
                     ),
                   ),
-                ),
-                InkWell(
-                  onTap: (() {
-                    Navigator.push(
-                        context,
-                        new MaterialPageRoute(
-                            builder: (context) => Image2(
-                                  image2: widget.image2,
-                                )));
-                  }),
-                  child: Hero(
-                    tag: widget.image2,
-                    child: Container(
-                      width: 167.0,
-                      height: 111.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: FadeInImage(
-                          image: NetworkImage(widget.image2),
-                          placeholder: AssetImage(''),
-                          width: 167.0,
-                          height: 111.0,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                InkWell(
-                  onTap: (() {
-                    Navigator.push(
-                        context,
-                        new MaterialPageRoute(
-                            builder: (context) => Image3(
-                                  image3: widget.image3,
-                                )));
-                  }),
-                  child: Hero(
-                    tag: widget.image3,
-                    child: Container(
-                      width: 167.0,
-                      height: 111.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: FadeInImage(
-                          image: NetworkImage(widget.image3),
-                          placeholder: AssetImage(''),
-                          width: 167.0,
-                          height: 111.0,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: (() {
-                    Navigator.push(
-                        context,
-                        new MaterialPageRoute(
-                            builder: (context) => Image4(
-                                  image4: widget.image4,
-                                )));
-                  }),
-                  child: Hero(
-                    tag: widget.image4,
-                    child: Container(
-                      width: 167.0,
-                      height: 111.0,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: FadeInImage(
-                          image: NetworkImage(widget.image4),
-                          placeholder: AssetImage(''),
-                          width: 167.0,
-                          height: 111.0,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
             SizedBox(
               height: 35,
             ),

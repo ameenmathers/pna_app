@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:travel_world/full_screen_image.dart';
 import 'package:travel_world/models/message.dart';
@@ -107,19 +108,19 @@ class _ChatScreenState extends State<ChatScreen> {
     map = message.toMap();
 
     print("Map : ${map}");
-    _collectionReference = Firestore.instance
-        .collection("messages")
-        .document(message.senderUid)
-        .collection(widget.receiverUid);
+    _collectionReference = await _getCollectionReference(
+        firstCollectionPath: 'messages',
+        documentPath: message.senderUid,
+        secondCollectionPath: widget.receiverUid);
 
     _collectionReference.add(map).whenComplete(() {
       print("Messages added to db");
     });
 
-    _collectionReference = Firestore.instance
-        .collection("messages")
-        .document(widget.receiverUid)
-        .collection(message.senderUid);
+    _collectionReference = await _getCollectionReference(
+        firstCollectionPath: 'messages',
+        documentPath: widget.receiverUid,
+        secondCollectionPath: message.senderUid);
 
     _collectionReference.add(map).whenComplete(() {
       print("Messages added to db");
@@ -251,7 +252,25 @@ class _ChatScreenState extends State<ChatScreen> {
     return url;
   }
 
-  void uploadImageToDb(String downloadUrl) {
+  Future<CollectionReference> _getCollectionReference(
+      {@required String firstCollectionPath,
+      @required String documentPath,
+      @required String secondCollectionPath}) async {
+    final CollectionReference collectionReference =
+        Firestore.instance.collection(firstCollectionPath);
+
+    final DocumentReference documentReference =
+        collectionReference.document(documentPath);
+
+    await documentReference.setData({}); //This creates the document
+
+    final CollectionReference finalCollectionReference =
+        documentReference.collection(secondCollectionPath);
+
+    return finalCollectionReference;
+  }
+
+  Future<void> uploadImageToDb(String downloadUrl) async {
     _message = Message.withoutMessage(
         receiverUid: widget.receiverUid,
         senderUid: _senderuid,
@@ -266,19 +285,19 @@ class _ChatScreenState extends State<ChatScreen> {
     map['photoUrl'] = _message.photoUrl;
 
     print("Map : ${map}");
-    _collectionReference = Firestore.instance
-        .collection("messages")
-        .document(_message.senderUid)
-        .collection(widget.receiverUid);
+    _collectionReference = await _getCollectionReference(
+        firstCollectionPath: 'messages',
+        documentPath: _message.senderUid,
+        secondCollectionPath: widget.receiverUid);
 
     _collectionReference.add(map).whenComplete(() {
       print("Messages added to db");
     });
 
-    _collectionReference = Firestore.instance
-        .collection("messages")
-        .document(widget.receiverUid)
-        .collection(_message.senderUid);
+    _collectionReference = await _getCollectionReference(
+        firstCollectionPath: 'messages',
+        documentPath: widget.receiverUid,
+        secondCollectionPath: _message.senderUid);
 
     _collectionReference.add(map).whenComplete(() {
       print("Messages added to db");
@@ -387,7 +406,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 context,
                                 new MaterialPageRoute(
                                     builder: (context) => FullScreenImage(
-                                          photoUrl: snapshot['photoUrl'],
+                                          imageUrl: snapshot['photoUrl'],
                                         )));
                           }),
                           child: Material(
@@ -409,7 +428,14 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         )
                 ],
-              )
+              ),
+              snapshot['senderUid'] == _senderuid
+                  ? Icon(
+                      MaterialCommunityIcons.check_all,
+                      color: Colors.white,
+                      size: 14.0,
+                    )
+                  : SizedBox.shrink()
             ],
           ),
         ),
