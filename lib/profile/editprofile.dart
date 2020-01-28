@@ -14,6 +14,18 @@ import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 
 class EditProfile extends StatefulWidget {
+  final String name;
+  final String country;
+  final String profession;
+  final String bio;
+
+  const EditProfile({
+    Key key,
+    @required this.name,
+    @required this.country,
+    @required this.profession,
+    @required this.bio,
+  }) : super(key: key);
   @override
   State createState() => EditProfileState();
 }
@@ -26,12 +38,15 @@ class EditProfileState extends State<EditProfile> {
   TextEditingController controllerAboutMe;
   TextEditingController controllerProfession;
 
+  bool _countryDropdownHasErrors = false;
+
   @override
   void initState() {
     super.initState();
-    controllerName = new TextEditingController();
-    controllerAboutMe = TextEditingController();
-    controllerProfession = TextEditingController();
+    controllerName = new TextEditingController()..text = widget.name;
+    controllerAboutMe = TextEditingController()..text = widget.bio;
+    controllerProfession = TextEditingController()..text = widget.profession;
+    _country = widget.country;
     getCurrentUser();
   }
 
@@ -370,19 +385,21 @@ class EditProfileState extends State<EditProfile> {
                         FractionallySizedBox(
                           widthFactor: 1.0,
                           child: Container(
-                            height: 50,
-                            decoration: UnderlineTabIndicator(
-                                borderSide: BorderSide(
-                              color: Color(0xffc67608),
-                            )),
-                            padding: EdgeInsets.fromLTRB(10.0, 5.0, 0.0, 0.0),
+                            padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
                             child: Theme(
                               data: Theme.of(context).copyWith(
                                 canvasColor: Colors.black,
                               ),
-                              child: new DropdownButton<String>(
+                              child: new DropdownButtonFormField<String>(
                                 iconEnabledColor: Colors.white,
                                 value: _country,
+                                isExpanded: true,
+                                validator: (String newValue) {
+                                  if (newValue == null) {
+                                    return 'Please enter country';
+                                  }
+                                  return null;
+                                },
                                 hint: Text(
                                   'Country',
                                   style: TextStyle(
@@ -607,35 +624,55 @@ class EditProfileState extends State<EditProfile> {
                                   final FirebaseUser user =
                                       await _auth.currentUser();
                                   final uid = user.uid;
-                                  Firestore.instance
+                                  await Firestore.instance
                                       .collection('users')
                                       .document(uid)
                                       .updateData({
                                     'name': controllerName.text,
                                   });
 
-                                  Firestore.instance
+                                  await Firestore.instance
                                       .collection('users')
                                       .document(uid)
                                       .updateData({
                                     'country': _country,
                                   });
 
-                                  Firestore.instance
+                                  await Firestore.instance
                                       .collection('users')
                                       .document(uid)
                                       .updateData({
                                     'profession': controllerProfession.text,
                                   });
 
-                                  Firestore.instance
+                                  await Firestore.instance
                                       .collection('users')
                                       .document(uid)
                                       .updateData({
                                     'aboutMe': controllerAboutMe.text,
                                   });
+
+                                  Fluttertoast.showToast(
+                                      msg: "Profile Saved Succesfully",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIos: 1,
+                                      backgroundColor: Color(0xffc67608),
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+
+                                  Navigator.pop(context);
                                 } catch (e) {
-                                  print(e);
+                                  Fluttertoast.showToast(
+                                      msg: "Something went wrong",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIos: 1,
+                                      backgroundColor: Color(0xffc67608),
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+
+                                  Navigator.pop(context);
                                 }
                               }
                             },

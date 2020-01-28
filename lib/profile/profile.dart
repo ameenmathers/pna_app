@@ -344,39 +344,49 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             SizedBox(
               height: 10,
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  RaisedButton(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        style: BorderStyle.solid,
-                        color: Color(0xffc67608),
-                      ),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(16.0),
-                      ),
+            FutureBuilder<DocumentSnapshot>(
+                future: getUserDoc(),
+                builder: (context, snapshot) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        RaisedButton(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              style: BorderStyle.solid,
+                              color: Color(0xffc67608),
+                            ),
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(16.0),
+                            ),
+                          ),
+                          color: Colors.black,
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditProfile(
+                                    name: snapshot.data['name'],
+                                    bio: snapshot.data['aboutMe'],
+                                    profession: snapshot.data['profession'],
+                                    country: snapshot.data['country'],
+                                  ),
+                                ));
+                          },
+                          child: Text(
+                            'Edit Profile',
+                            style: TextStyle(
+                              color: Color(0xffc67608),
+                              fontSize: 14,
+                            ),
+                          ),
+                        )
+                      ],
                     ),
-                    color: Colors.black,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => EditProfile()),
-                      );
-                    },
-                    child: Text(
-                      'Edit Profile',
-                      style: TextStyle(
-                        color: Color(0xffc67608),
-                        fontSize: 14,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
+                  );
+                }),
             SizedBox(
               height: 15,
             ),
@@ -668,7 +678,8 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   showLimitErrorSnackbar() {
-    final snackBar = SnackBar(content: Text('Can not upload more than 20 images'));
+    final snackBar =
+        SnackBar(content: Text('Can not upload more than 20 images'));
     _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 }
