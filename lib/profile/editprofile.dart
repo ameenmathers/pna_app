@@ -105,11 +105,11 @@ class EditProfileState extends State<EditProfile> {
     Fluttertoast.showToast(
         msg: "Picture Saved Succesfully",
         toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+        gravity: ToastGravity.TOP,
         timeInSecForIos: 1,
         backgroundColor: Color(0xffc67608),
         textColor: Colors.white,
-        fontSize: 16.0);
+        fontSize: 14.0);
   }
 
   void _updateAboutme() async {
@@ -123,11 +123,11 @@ class EditProfileState extends State<EditProfile> {
     Fluttertoast.showToast(
         msg: "Bio Updated",
         toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+        gravity: ToastGravity.TOP,
         timeInSecForIos: 1,
         backgroundColor: Color(0xffc67608),
         textColor: Colors.white,
-        fontSize: 16.0);
+        fontSize: 14.0);
   }
 
   void _updateCountry() async {
@@ -141,11 +141,11 @@ class EditProfileState extends State<EditProfile> {
     Fluttertoast.showToast(
         msg: "Country Updated",
         toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+        gravity: ToastGravity.TOP,
         timeInSecForIos: 1,
         backgroundColor: Color(0xffc67608),
         textColor: Colors.white,
-        fontSize: 16.0);
+        fontSize: 14.0);
   }
 
   void _updateProfession() async {
@@ -159,11 +159,11 @@ class EditProfileState extends State<EditProfile> {
     Fluttertoast.showToast(
         msg: "Profession Updated",
         toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+        gravity: ToastGravity.TOP,
         timeInSecForIos: 1,
         backgroundColor: Color(0xffc67608),
         textColor: Colors.white,
-        fontSize: 16.0);
+        fontSize: 14.0);
   }
 
   Future<DocumentSnapshot> getUserDoc({bool useCache = true}) async {
@@ -385,15 +385,25 @@ class EditProfileState extends State<EditProfile> {
                         FractionallySizedBox(
                           widthFactor: 1.0,
                           child: Container(
-                            padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                            padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                             child: Theme(
                               data: Theme.of(context).copyWith(
                                 canvasColor: Colors.black,
                               ),
                               child: new DropdownButtonFormField<String>(
-                                iconEnabledColor: Colors.white,
                                 value: _country,
-                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.black,
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                  focusColor: Colors.white,
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
+                                ),
                                 validator: (String newValue) {
                                   if (newValue == null) {
                                     return 'Please enter country';
@@ -406,9 +416,6 @@ class EditProfileState extends State<EditProfile> {
                                     fontSize: 17,
                                     color: Colors.white,
                                   ),
-                                ),
-                                style: TextStyle(
-                                  color: Colors.black,
                                 ),
                                 onChanged: (String newValue) {
                                   setState(() {
@@ -655,22 +662,22 @@ class EditProfileState extends State<EditProfile> {
                                   Fluttertoast.showToast(
                                       msg: "Profile Saved Succesfully",
                                       toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
+                                      gravity: ToastGravity.TOP,
                                       timeInSecForIos: 1,
                                       backgroundColor: Color(0xffc67608),
                                       textColor: Colors.white,
-                                      fontSize: 16.0);
+                                      fontSize: 14.0);
 
                                   Navigator.pop(context);
                                 } catch (e) {
                                   Fluttertoast.showToast(
                                       msg: "Something went wrong",
                                       toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
+                                      gravity: ToastGravity.TOP,
                                       timeInSecForIos: 1,
                                       backgroundColor: Color(0xffc67608),
                                       textColor: Colors.white,
-                                      fontSize: 16.0);
+                                      fontSize: 14.0);
 
                                   Navigator.pop(context);
                                 }

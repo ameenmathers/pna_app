@@ -111,11 +111,11 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     Fluttertoast.showToast(
         msg: "Picture Saved Succesfully",
         toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+        gravity: ToastGravity.TOP,
         timeInSecForIos: 1,
         backgroundColor: Color(0xffc67608),
         textColor: Colors.white,
-        fontSize: 16.0);
+        fontSize: 14.0);
   }
 
   Future uploadFile() async {
@@ -142,11 +142,11 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     Fluttertoast.showToast(
         msg: "Picture Saved Succesfully",
         toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+        gravity: ToastGravity.TOP,
         timeInSecForIos: 1,
         backgroundColor: Color(0xffc67608),
         textColor: Colors.white,
-        fontSize: 16.0);
+        fontSize: 14.0);
   }
 
   Future<DocumentSnapshot> getUserDoc({bool useCache = true}) async {
@@ -243,20 +243,20 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       Fluttertoast.showToast(
           msg: "Picture Deleted Succesfully",
           toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+          gravity: ToastGravity.TOP,
           timeInSecForIos: 1,
           backgroundColor: Color(0xffc67608),
           textColor: Colors.white,
-          fontSize: 16.0);
+          fontSize: 14.0);
     } catch (e) {
       Fluttertoast.showToast(
           msg: "Error in Deleting Picture ",
           toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+          gravity: ToastGravity.TOP,
           timeInSecForIos: 1,
           backgroundColor: Color(0xffc67608),
           textColor: Colors.white,
-          fontSize: 16.0);
+          fontSize: 14.0);
     }
   }
 
@@ -348,9 +348,9 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 future: getUserDoc(),
                 builder: (context, snapshot) {
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                    padding: const EdgeInsets.fromLTRB(40.0, 0.0, 40.0, 0.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         RaisedButton(
                           shape: RoundedRectangleBorder(
@@ -377,6 +377,26 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           },
                           child: Text(
                             'Edit Profile',
+                            style: TextStyle(
+                              color: Color(0xffc67608),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        RaisedButton(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              style: BorderStyle.solid,
+                              color: Color(0xffc67608),
+                            ),
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(16.0),
+                            ),
+                          ),
+                          color: Colors.black,
+                          onPressed: _referURL,
+                          child: Text(
+                            'Refer Member',
                             style: TextStyle(
                               color: Color(0xffc67608),
                               fontSize: 14,
@@ -570,44 +590,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   }
                 }),
             SizedBox(
-              height: 50.0,
-            ),
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        ButtonTheme(
-                          minWidth: 300.0,
-                          height: 40.0,
-                          child: RaisedButton(
-                            color: Color(0xffc67608),
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                color: Color(0xffc67608),
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10.0),
-                              ),
-                            ),
-                            child: Text(
-                              "Refer Member",
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
-                            ),
-                            textColor: Colors.black,
-                            onPressed: _referURL,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              height: 40.0,
             ),
           ],
         ),

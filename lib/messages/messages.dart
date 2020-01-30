@@ -170,6 +170,9 @@ class _MessagesState extends State<Messages> {
           flexibleSpace: Column(
             children: <Widget>[
               SizedBox(
+                height: 60,
+              ),
+              SizedBox(
                 height: kBottomNavigationBarHeight,
               ),
               Container(
@@ -193,7 +196,7 @@ class _MessagesState extends State<Messages> {
             ],
           ),
         ),
-        preferredSize: Size.fromHeight(125.0),
+        preferredSize: Size.fromHeight(140.0),
       ),
       backgroundColor: Colors.black,
       body: _connectedUserList != null
