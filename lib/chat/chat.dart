@@ -77,6 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
 //    registerNotification();
     _messageController = TextEditingController();
+
     getUID().then((user) {
       setState(() {
         _senderuid = user.uid;
@@ -99,8 +100,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     subscription?.cancel();
+
+    super.dispose();
   }
 
   void addMessageToDb(Message message) async {
@@ -355,12 +357,17 @@ class _ChatScreenState extends State<ChatScreen> {
             );
           } else {
             listItem = snapshot.data.documents;
-            return ListView.builder(
-              padding: EdgeInsets.all(10.0),
-              itemBuilder: (context, index) =>
-                  chatMessageItem(snapshot.data.documents[index]),
-              itemCount: snapshot.data.documents.length,
-            );
+            return ListView(
+                reverse: true,
+                shrinkWrap: true,
+                padding: EdgeInsets.all(10.0),
+                children: [
+                  ...snapshot.data.documents
+                      .map((documentSnapshot) =>
+                          chatMessageItem(documentSnapshot))
+                      .toList()
+                      .reversed
+                ]);
           }
         },
       ),
