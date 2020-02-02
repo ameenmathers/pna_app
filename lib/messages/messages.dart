@@ -27,7 +27,9 @@ class _MessagesState extends State<Messages> {
   @override
   void initState() {
     super.initState();
-    _setUpSubscriptions();
+    _getMessages();
+    _setUpSubscription();
+
     searchController.addListener(() {
       setState(() {
         filter = searchController.text;
@@ -35,20 +37,46 @@ class _MessagesState extends State<Messages> {
     });
   }
 
-  Future<void> _setUpSubscriptions() async {
+  final CollectionReference _collectionReference =
+      Firestore.instance.collection("messages");
+
+  Future<void> _getMessages() async {
     final FirebaseUser user = await firebaseAuth.currentUser();
     uid = user.uid;
-    final CollectionReference _collectionReference =
-        Firestore.instance.collection("messages");
-    _subscription = _collectionReference
+
+    var snapshot = await _collectionReference
         .where('userIdList', arrayContains: uid)
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .listen((datasnapshot) {
-      setState(() {
-        _connectedUserList = datasnapshot.documents;
-      });
+        .orderBy('timestamp')
+        .getDocuments();
+
+    setState(() {
+      if (snapshot.documents.isEmpty) {
+        _connectedUserList = [];
+      } else {
+        var tempList = snapshot.documents
+            .where((snapshot) =>
+                (snapshot.data['userIdList'] as List).contains(uid))
+            .toList();
+        if (snapshot.documents.length > 1) {
+          tempList.sort((a, b) => (b.data['timestamp'] as Timestamp)
+              .compareTo(a.data['timestamp'] as Timestamp));
+        }
+
+        _connectedUserList = tempList;
+      }
     });
+  }
+
+  StreamSubscription<QuerySnapshot> _setUpSubscription() {
+    return _subscription = _collectionReference.snapshots().listen(
+      (datasnapshot) {
+        setState(
+          () {
+            _getMessages();
+          },
+        );
+      },
+    );
   }
 
   TextEditingController searchController = new TextEditingController();
@@ -72,18 +100,25 @@ class _MessagesState extends State<Messages> {
           _buildSearchBar(),
           Expanded(
             child: _connectedUserList != null
-                ? Container(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: AnimatedList(
-                        initialItemCount: _connectedUserList.length,
-                        key: _myListKey,
-                        itemBuilder: ((context, index, animation) {
-                          return _buildChatListTile(index, context);
-                        }),
-                      ),
-                    ),
-                  )
+                ? _connectedUserList.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No chats found',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )
+                    : Container(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: AnimatedList(
+                            initialItemCount: _connectedUserList.length,
+                            key: _myListKey,
+                            itemBuilder: ((context, index, animation) {
+                              return _buildChatListTile(index, context);
+                            }),
+                          ),
+                        ),
+                      )
                 : Center(
                     child: CircularProgressIndicator(
                       valueColor:
@@ -242,7 +277,7 @@ class _MessagesState extends State<Messages> {
                       receiverUid: otherUserId,
                       country: otherCountry,
                     ))).whenComplete(() {
-          _setUpSubscriptions(); //Refresh screen
+          _getMessages(); //Refresh screen
         });
       }),
     );
