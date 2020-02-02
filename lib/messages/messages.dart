@@ -17,7 +17,6 @@ class _MessagesState extends State<Messages> {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   FirebaseUser loggedInUser;
   StreamSubscription<QuerySnapshot> _subscription;
-  var _newMessageSubscription;
 
   List<DocumentSnapshot> _connectedUserList;
 
@@ -43,6 +42,7 @@ class _MessagesState extends State<Messages> {
         Firestore.instance.collection("messages");
     _subscription = _collectionReference
         .where('userIdList', arrayContains: uid)
+        .orderBy('timestamp', descending: true)
         .snapshots()
         .listen((datasnapshot) {
       setState(() {
@@ -59,7 +59,6 @@ class _MessagesState extends State<Messages> {
     searchController.dispose();
     super.dispose();
     _subscription.cancel();
-    _newMessageSubscription.cancel();
   }
 
   @override
@@ -242,7 +241,9 @@ class _MessagesState extends State<Messages> {
                       photoUrl: otherPhotoUrl,
                       receiverUid: otherUserId,
                       country: otherCountry,
-                    )));
+                    ))).whenComplete(() {
+          _setUpSubscriptions(); //Refresh screen
+        });
       }),
     );
   }

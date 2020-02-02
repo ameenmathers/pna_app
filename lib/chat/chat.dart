@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:travel_world/full_screen_image.dart';
+import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/models/message.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -146,7 +147,8 @@ class _ChatScreenState extends State<ChatScreen> {
         _senderUid: senderCountry,
         widget.receiverUid: widget.country
       },
-      'userIdList': [_senderUid, widget.receiverUid]
+      'userIdList': [_senderUid, widget.receiverUid],
+      'timestamp': FieldValue.serverTimestamp(),
     }, merge: true);
 
     CollectionReference collectionReference =
@@ -160,40 +162,38 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            widget.name.toUpperCase(),
-            style: TextStyle(
-              fontSize: 20,
-            ),
-          ),
-          backgroundColor: Colors.black,
+    appBar: AppBar(
+      title: Text(
+        widget.name.toUpperCase(),
+        style: TextStyle(
+          fontSize: 20,
         ),
-        backgroundColor: Colors.black,
-        body: Form(
-          key: _formKey,
-          child: _senderUid == null
-              ? Container(
-                  child: CircularProgressIndicator(),
-                )
-              : Column(
-                  children: <Widget>[
-                    //buildListLayout(),
-                    ChatMessagesListWidget(),
-                    Divider(
-                      height: 20.0,
-                      color: Colors.white,
-                    ),
-                    _buildChatInputWidget(),
-                    SizedBox(
-                      height: 10.0,
-                    )
-                  ],
+      ),
+      backgroundColor: Colors.black,
+    ),
+    backgroundColor: Colors.black,
+    body: Form(
+      key: _formKey,
+      child: _senderUid == null
+          ? Container(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              children: <Widget>[
+                //buildListLayout(),
+                ChatMessagesListWidget(),
+                Divider(
+                  height: 20.0,
+                  color: Colors.white,
                 ),
-        ));
+                _buildChatInputWidget(),
+                SizedBox(
+                  height: 10.0,
+                )
+              ],
+            ),
+    ));
   }
 
   Widget _buildChatInputWidget() {
