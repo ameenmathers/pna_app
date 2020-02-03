@@ -163,37 +163,37 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    appBar: AppBar(
-      title: Text(
-        widget.name.toUpperCase(),
-        style: TextStyle(
-          fontSize: 20,
-        ),
-      ),
-      backgroundColor: Colors.black,
-    ),
-    backgroundColor: Colors.black,
-    body: Form(
-      key: _formKey,
-      child: _senderUid == null
-          ? Container(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              children: <Widget>[
-                //buildListLayout(),
-                ChatMessagesListWidget(),
-                Divider(
-                  height: 20.0,
-                  color: Colors.white,
-                ),
-                _buildChatInputWidget(),
-                SizedBox(
-                  height: 10.0,
-                )
-              ],
+        appBar: AppBar(
+          title: Text(
+            widget.name.toUpperCase(),
+            style: TextStyle(
+              fontSize: 20,
             ),
-    ));
+          ),
+          backgroundColor: Colors.black,
+        ),
+        backgroundColor: Colors.black,
+        body: Form(
+          key: _formKey,
+          child: _senderUid == null
+              ? Container(
+                  child: CircularProgressIndicator(),
+                )
+              : Column(
+                  children: <Widget>[
+                    //buildListLayout(),
+                    ChatMessagesListWidget(),
+                    Divider(
+                      height: 20.0,
+                      color: Colors.white,
+                    ),
+                    _buildChatInputWidget(),
+                    SizedBox(
+                      height: 10.0,
+                    )
+                  ],
+                ),
+        ));
   }
 
   Widget _buildChatInputWidget() {
@@ -231,9 +231,7 @@ class _ChatScreenState extends State<ChatScreen> {
               decoration: InputDecoration(
                   hintText: "Enter message...",
                   labelText: "Message",
-                  labelStyle: TextStyle(
-                    color: Colors.white,
-                  ),
+                  labelStyle: TextStyle(color: Colors.white),
                   fillColor: Colors.black,
                   filled: true,
                   focusColor: Colors.white,
@@ -339,7 +337,11 @@ class _ChatScreenState extends State<ChatScreen> {
         senderUid: _senderUid,
         message: text,
         timestamp: FieldValue.serverTimestamp(),
-        type: 'text');
+        type: 'text',
+        mapOfUidToReadStatus: {
+          widget.receiverUid: false,
+          _senderUid: true,
+        });
     print(
         "receiverUid: ${widget.receiverUid} , senderUid : $_senderUid , message: $text");
     print(

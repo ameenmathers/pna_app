@@ -57,9 +57,16 @@ class _MessagesState extends State<Messages> {
             .where((snapshot) =>
                 (snapshot.data['userIdList'] as List).contains(uid))
             .toList();
+
         if (snapshot.documents.length > 1) {
-          tempList.sort((a, b) => (b.data['timestamp'] as Timestamp)
-              .compareTo(a.data['timestamp'] as Timestamp));
+          tempList.sort((a, b) {
+            if (a.data['timestamp'] == null || b.data['timestamp'] == null) {
+              return 0;
+            }
+            var x = (b.data['timestamp'] as Timestamp)
+                .compareTo(a.data['timestamp'] as Timestamp);
+            return x;
+          });
         }
 
         _connectedUserList = tempList;
@@ -70,11 +77,9 @@ class _MessagesState extends State<Messages> {
   StreamSubscription<QuerySnapshot> _setUpSubscription() {
     return _subscription = _collectionReference.snapshots().listen(
       (datasnapshot) {
-        setState(
-          () {
-            _getMessages();
-          },
-        );
+        setState(() {
+          _getMessages();
+        });
       },
     );
   }
