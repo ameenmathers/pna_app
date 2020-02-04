@@ -202,7 +202,7 @@ class _MessagesState extends State<Messages> {
           color: Colors.white,
         ),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.black,
       automaticallyImplyLeading: true,
       centerTitle: true,
     );

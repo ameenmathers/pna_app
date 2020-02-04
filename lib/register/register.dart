@@ -65,15 +65,6 @@ class _RegisterState extends State<Register> {
 
   bool checkboxValue = false;
 
-  final _photo1 =
-      "http://mercurytwenty.com/wp-content/uploads/2016/10/default-placeholder-600x600.png";
-  final _photo2 =
-      "https://www.oxfordlindyhoppers.co.uk/wp-content/plugins/ht-mega-for-elementor//assets/images/image-placeholder.png";
-  final _photo3 =
-      "https://nobelmedicalgroup.com/wp-content/themes/healthway/images/placeholder.png";
-  final _photo4 =
-      "https://2x5ito1uusjd19czwpsrbt7c-wpengine.netdna-ssl.com/wp-content/themes/total-child-theme/assets/images/common/image-placeholder.png";
-
   final _photo =
       'https://firebasestorage.googleapis.com/v0/b/play-2f9e6.appspot.com/o/2QlcuNr.png?alt=media&token=a709eb8a-db7f-4696-a641-bec24590701a';
 
@@ -868,10 +859,6 @@ class _RegisterState extends State<Register> {
                                                           emailInputController
                                                               .text,
                                                       "photoUrl": _photo,
-                                                      "image1": _photo1,
-                                                      "image2": _photo2,
-                                                      "image3": _photo3,
-                                                      "image4": _photo4,
                                                     })
                                                     .then((result) => {
                                                           Navigator.pushAndRemoveUntil(

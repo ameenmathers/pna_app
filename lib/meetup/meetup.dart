@@ -5,8 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:travel_world/chat/chat.dart';
-import 'package:travel_world/image/full_screen_image.dart';
-
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
@@ -169,7 +167,7 @@ class MeetupState extends State<Meetup> {
                       _sameCountryUsersDocumentSnapshotList[index].data,
                   context: context)
               : _sameCountryUsersDocumentSnapshotList[index]
-                      .data['country']
+                      .data['name']
                       .toLowerCase()
                       .contains(filter.toLowerCase())
                   ? _buildUserListTile(
@@ -297,7 +295,7 @@ class MeetupState extends State<Meetup> {
           color: Colors.white,
         ),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.black,
       automaticallyImplyLeading: true,
       centerTitle: true,
     );
@@ -408,11 +406,10 @@ class _ViewProfileState extends State<ViewProfile> {
                             context,
                             new MaterialPageRoute(
                                 builder: (context) => ChatScreen(
-                                    name: widget.name,
-                                    photoUrl: widget.photoUrl,
-                                    receiverUid: widget.uid, 
-                                    country: widget.country ,
-                                    
+                                      name: widget.name,
+                                      photoUrl: widget.photoUrl,
+                                      receiverUid: widget.uid,
+                                      country: widget.country,
                                     )));
                       },
                       child: Text(

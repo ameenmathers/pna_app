@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert' as converter;
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -9,7 +8,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:random_string/random_string.dart';
 import 'package:travel_world/const.dart';
 import 'package:travel_world/full_screen_image.dart';
@@ -57,6 +55,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   String image4 = '';
 
   bool isLoading = false;
+
   File avatarImageFile;
 
   Future getImage() async {
@@ -155,31 +154,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
     print('Loading Profile');
 
-    String data;
-
-    /// Do we have a cache we can use?
-    var cache = await cacheExists();
-
     /// If the cache exists and it contains data use that, otherwise we call the API
-    if (cache && useCache) {
-      print('We have cached data');
-
-      data = await readToFile();
-
-      var cacheData = converter.jsonDecode(data);
-    } else {
-      print('No cache. Fetching from API');
-
-      var sameUser =
-          await Firestore.instance.collection('users').document(uid).get();
-
-      var apiData = converter.jsonEncode(sameUser.data);
-
-      data = apiData;
-
-      /// Now save the fetched data to the cache
-      await writeToFile(data);
-    }
 
     var sameUser = await Firestore.instance
         .collection('users')
@@ -190,40 +165,6 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     return sameUser;
     //await needs to be placed here
   }
-
-  static Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
-  static Future<File> get myfile async {
-    final path = await _localPath;
-    return File('$path/pro.txt');
-  }
-
-  static Future<bool> cacheExists() async {
-    var file = await myfile;
-
-    return file.exists();
-  }
-
-  static writeToFile(sameUser) async {
-    final file = await myfile;
-    file.writeAsString(sameUser);
-  }
-
-  static readToFile() async {
-    try {
-      final file = await myfile;
-
-      // Read the file.
-      String contents = await file.readAsString();
-
-      return contents;
-    } catch (e) {}
-  }
-
-  var myFile = new File('pro.txt');
 
   Future<void> deleteImageFromFirestore(String imageUrl) async {
     print('delete this $imageUrl');
@@ -731,62 +672,5 @@ _referURL() async {
     await launch(url);
   } else {
     throw 'Could not launch $url';
-  }
-}
-
-class User {
-  final int uid;
-  final String name;
-  final String aboutMe;
-  final String country;
-  final String city;
-  final String profession;
-  final String photoUrl;
-  final String image1;
-  final String image2;
-  final String image3;
-  final String image4;
-
-  User(
-      {this.uid,
-      this.name,
-      this.aboutMe,
-      this.country,
-      this.city,
-      this.profession,
-      this.photoUrl,
-      this.image1,
-      this.image2,
-      this.image3,
-      this.image4});
-
-  factory User.fromMap(Map data) {
-    return User(
-      name: data['name'],
-      aboutMe: data['aboutMe'],
-      country: data['country'],
-      city: data['city'],
-      profession: data['profession'],
-      photoUrl: data['photoUrl'],
-      image1: data['image1'],
-      image2: data['image2'],
-      image3: data['image3'],
-      image4: data['image4'],
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'aboutMe': aboutMe,
-      'country': country,
-      'city': city,
-      'profession': profession,
-      'photoUrl': photoUrl,
-      'image1': image1,
-      'image2': image2,
-      'image3': image3,
-      'image4': image4,
-    };
   }
 }
