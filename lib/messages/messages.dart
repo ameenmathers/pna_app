@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_world/chat/chat.dart';
+import 'package:travel_world/const.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
@@ -18,9 +20,7 @@ class _MessagesState extends State<Messages> {
   FirebaseUser loggedInUser;
   StreamSubscription<QuerySnapshot> _subscription;
 
-  List<DocumentSnapshot> _connectedUserList;
-
-  final _myListKey = GlobalKey<AnimatedListState>();
+  Map<DocumentSnapshot, bool> _mapOfConnectedUserToAllMessagesReadStatus;
 
   String uid;
 
@@ -48,21 +48,31 @@ class _MessagesState extends State<Messages> {
         .where('userIdList', arrayContains: uid)
         .orderBy('timestamp')
         .getDocuments();
+    _mapOfConnectedUserToAllMessagesReadStatus = {};
+
+    if (snapshot.documents.isNotEmpty) {
+      for (var doc in snapshot.documents) {
+        var areAllMessagesRead = (await doc.reference
+                .collection('messageList')
+                .getDocuments())
+            .documents
+            .every((document) =>
+                (document.data['mapOfUidToReadStatus'] as Map)[uid] == true);
+        _mapOfConnectedUserToAllMessagesReadStatus[doc] = areAllMessagesRead;
+      }
+    }
 
     setState(() {
-      if (snapshot.documents.isEmpty) {
-        _connectedUserList = [];
-      } else {
-        var tempList = snapshot.documents
-            .where((snapshot) =>
-                (snapshot.data['userIdList'] as List).contains(uid))
-            .toList();
-        if (snapshot.documents.length > 1) {
-          tempList.sort((a, b) => (b.data['timestamp'] as Timestamp)
-              .compareTo(a.data['timestamp'] as Timestamp));
-        }
-
-        _connectedUserList = tempList;
+      if (_mapOfConnectedUserToAllMessagesReadStatus.length > 1) {
+        _mapOfConnectedUserToAllMessagesReadStatus = SplayTreeMap.from(
+            _mapOfConnectedUserToAllMessagesReadStatus, (a, b) {
+          if (a.data['timestamp'] == null || b.data['timestamp'] == null) {
+            return 0;
+          }
+          var x = (b.data['timestamp'] as Timestamp)
+              .compareTo(a.data['timestamp'] as Timestamp);
+          return x;
+        });
       }
     });
   }
@@ -70,11 +80,9 @@ class _MessagesState extends State<Messages> {
   StreamSubscription<QuerySnapshot> _setUpSubscription() {
     return _subscription = _collectionReference.snapshots().listen(
       (datasnapshot) {
-        setState(
-          () {
-            _getMessages();
-          },
-        );
+        setState(() {
+          _getMessages();
+        });
       },
     );
   }
@@ -99,8 +107,8 @@ class _MessagesState extends State<Messages> {
           _buildAppBar(),
           _buildSearchBar(),
           Expanded(
-            child: _connectedUserList != null
-                ? _connectedUserList.isEmpty
+            child: _mapOfConnectedUserToAllMessagesReadStatus != null
+                ? _mapOfConnectedUserToAllMessagesReadStatus.isEmpty
                     ? Center(
                         child: Text(
                           'No chats found',
@@ -110,10 +118,11 @@ class _MessagesState extends State<Messages> {
                     : Container(
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
-                          child: AnimatedList(
-                            initialItemCount: _connectedUserList.length,
-                            key: _myListKey,
-                            itemBuilder: ((context, index, animation) {
+                          child: ListView.builder(
+                            itemCount:
+                                _mapOfConnectedUserToAllMessagesReadStatus
+                                    .length,
+                            itemBuilder: ((context, index) {
                               return _buildChatListTile(index, context);
                             }),
                           ),
@@ -237,15 +246,23 @@ class _MessagesState extends State<Messages> {
   }
 
   ListTile _buildChatListTile(int index, BuildContext context) {
-    String otherUserId = ((_connectedUserList[index].data['userIdList'] as List)
+    String otherUserId = ((_mapOfConnectedUserToAllMessagesReadStatus.keys
+            .elementAt(index)
+            .data['userIdList'] as List)
         .singleWhere((uidFromList) => uidFromList != uid, orElse: () => uid));
 
-    String otherName = (_connectedUserList[index].data['mapOfUidToUsername']
-        as Map)[otherUserId];
-    String otherPhotoUrl = (_connectedUserList[index].data['mapOfUidToPhotoUrl']
-        as Map)[otherUserId];
-    String otherCountry = (_connectedUserList[index].data['mapOfUidToCountry']
-        as Map)[otherUserId];
+    String otherName = (_mapOfConnectedUserToAllMessagesReadStatus.keys
+        .elementAt(index)
+        .data['mapOfUidToUsername'] as Map)[otherUserId];
+    String otherPhotoUrl = (_mapOfConnectedUserToAllMessagesReadStatus.keys
+        .elementAt(index)
+        .data['mapOfUidToPhotoUrl'] as Map)[otherUserId];
+    String otherCountry = (_mapOfConnectedUserToAllMessagesReadStatus.keys
+        .elementAt(index)
+        .data['mapOfUidToCountry'] as Map)[otherUserId];
+
+    bool areAllMessagesRead =
+        _mapOfConnectedUserToAllMessagesReadStatus.values.elementAt(index);
 
     return ListTile(
       leading: Container(
@@ -267,6 +284,9 @@ class _MessagesState extends State<Messages> {
             color: Colors.white70,
             fontSize: 17,
           )),
+      trailing: areAllMessagesRead
+          ? SizedBox.shrink()
+          : CircleAvatar(backgroundColor: Colors.red, radius: 8.0),
       onTap: (() {
         Navigator.push(
             context,
@@ -277,6 +297,9 @@ class _MessagesState extends State<Messages> {
                       receiverUid: otherUserId,
                       country: otherCountry,
                     ))).whenComplete(() {
+          setState(() {
+            if (areAllMessagesRead == false) areAllMessagesRead = true;
+          });
           _getMessages(); //Refresh screen
         });
       }),
