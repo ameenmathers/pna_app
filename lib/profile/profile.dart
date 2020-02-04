@@ -249,7 +249,6 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         isLoading = false;
       });
 
-      
       Fluttertoast.showToast(
           msg: "Picture Deleted Succesfully",
           toastLength: Toast.LENGTH_SHORT,
@@ -326,7 +325,8 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                             shape: BoxShape.circle,
                                           ),
                                           child: CircleAvatar(
-                                            backgroundImage: NetworkImage(
+                                            backgroundImage:
+                                                CachedNetworkImageProvider(
                                               snapshot.data['photoUrl'],
                                             ),
                                             radius: 50.0,

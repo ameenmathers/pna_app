@@ -116,60 +116,6 @@ class EditProfileState extends State<EditProfile> {
         fontSize: 14.0);
   }
 
-  void _updateAboutme() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'aboutMe': controllerAboutMe.text,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Bio Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 14.0);
-  }
-
-  void _updateCountry() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'country': _country,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Country Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 14.0);
-  }
-
-  void _updateProfession() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'profession': controllerProfession.text,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Profession Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 14.0);
-  }
-
   Future<DocumentSnapshot> getUserDoc({bool useCache = true}) async {
     final FirebaseUser user = await _auth.currentUser();
     final uid = user.uid;
@@ -256,7 +202,7 @@ class EditProfileState extends State<EditProfile> {
                                                             ),
                                                             child: CircleAvatar(
                                                               backgroundImage:
-                                                                  NetworkImage(
+                                                                  CachedNetworkImageProvider(
                                                                 snapshot.data[
                                                                     'photoUrl'],
                                                               ),

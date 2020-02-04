@@ -286,7 +286,7 @@ class _MessagesState extends State<Messages> {
           )),
       trailing: areAllMessagesRead
           ? SizedBox.shrink()
-          : CircleAvatar(backgroundColor: themeColor, radius: 8.0),
+          : CircleAvatar(backgroundColor: Colors.red, radius: 8.0),
       onTap: (() {
         Navigator.push(
             context,
