@@ -85,6 +85,9 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   Future uploadImageFromGallery() async {
+    setState(() {
+      isLoading = true;
+    });
     final FirebaseUser user = await _auth.currentUser();
     final uid = user.uid;
     String fileName1 = randomString(10);
@@ -92,20 +95,19 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         FirebaseStorage.instance.ref().child(fileName1);
     StorageUploadTask uploadTask = reference.putFile(_imageFromGallery);
     StorageTaskSnapshot storageTaskSnapshot;
-    uploadTask.onComplete.then((value) {
-      if (value.error == null) {
-        storageTaskSnapshot = value;
-        storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) async {
-          image1 = downloadUrl;
-          await Firestore.instance.collection('users').document(uid).setData({
-            'images': FieldValue.arrayUnion([image1]),
-          }, merge: true);
+    storageTaskSnapshot = await uploadTask.onComplete;
 
-          setState(() {
-            _imageFromGallery = null;
-          });
-        });
-      }
+    photoUrl = await storageTaskSnapshot.ref.getDownloadURL();
+
+    image1 = photoUrl;
+
+    await Firestore.instance.collection('users').document(uid).setData({
+      'images': FieldValue.arrayUnion([image1]),
+    }, merge: true);
+    setState(() {
+      isLoading = false;
+      _imageFromGallery = null;
+      print(' not loading');
     });
 
     Fluttertoast.showToast(
@@ -299,10 +301,10 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         ],
       ),
       backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        child: Stack(
-          children: <Widget>[
-            Column(
+      body: Stack(
+        children: <Widget>[
+          SingleChildScrollView(
+            child: Column(
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -612,22 +614,22 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 ),
               ],
             ),
-            isLoading
-                ? Positioned(
-                    top: 0.0,
-                    left: 0.0,
-                    bottom: 0.0,
-                    right: 0.0,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.0,
-                        valueColor: AlwaysStoppedAnimation<Color>(themeColor),
-                      ),
+          ),
+          isLoading
+              ? Positioned(
+                  top: 0.0,
+                  left: 0.0,
+                  bottom: 0.0,
+                  right: 0.0,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(themeColor),
                     ),
-                  )
-                : SizedBox.shrink(),
-          ],
-        ),
+                  ),
+                )
+              : SizedBox.shrink(),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
