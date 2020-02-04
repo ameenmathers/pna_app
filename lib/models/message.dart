@@ -7,19 +7,22 @@ class Message {
   String message;
   FieldValue timestamp;
   String photoUrl;
+  Map<String, bool> mapOfUidToReadStatus;
 
   Message(
       {this.senderUid,
       this.receiverUid,
       this.type,
       this.message,
-      this.timestamp});
+      this.timestamp,
+      this.mapOfUidToReadStatus});
   Message.withoutMessage(
       {this.senderUid,
       this.receiverUid,
       this.type,
       this.timestamp,
-      this.photoUrl});
+      this.photoUrl,
+      this.mapOfUidToReadStatus});
 
   Map toMap() {
     var map = Map<String, dynamic>();
@@ -28,6 +31,7 @@ class Message {
     map['type'] = this.type;
     map['message'] = this.message;
     map['timestamp'] = this.timestamp;
+    map['mapOfUidToReadStatus'] = this.mapOfUidToReadStatus;
     return map;
   }
 
@@ -38,6 +42,8 @@ class Message {
     _message.type = map['type'];
     _message.message = map['message'];
     _message.timestamp = map['timestamp'];
+    _message.mapOfUidToReadStatus = map['mapOfUidToReadStatus'];
+
     return _message;
   }
 }

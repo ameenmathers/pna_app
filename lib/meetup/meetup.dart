@@ -19,15 +19,14 @@ class Meetup extends StatefulWidget {
 class MeetupState extends State<Meetup> {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   StreamSubscription<QuerySnapshot> _subscription;
-  DocumentSnapshot userProfileInfo;
-  List<DocumentSnapshot> usersList;
-  final CollectionReference _collectionReference =
+  List<DocumentSnapshot> _sameCountryUsersDocumentSnapshotList;
+  final CollectionReference _usersCollectionReference =
       Firestore.instance.collection("users");
 
   @override
   void initState() {
     super.initState();
-    getUserDoc();
+    _getSameCountryUsers();
     searchController.addListener(() {
       setState(() {
         filter = searchController.text;
@@ -38,31 +37,30 @@ class MeetupState extends State<Meetup> {
   TextEditingController searchController = new TextEditingController();
   String filter;
 
-  void getUsersList() {
-    _subscription = _collectionReference
-        .where('country', isEqualTo: userProfileInfo.data['country'])
-        .snapshots()
-        .listen((datasnapshot) {
-      setState(() {
-        usersList = datasnapshot.documents;
-        print("Users List ${usersList.length}");
-      });
-    });
+  Future<List<DocumentSnapshot>> getDocumentSnapshotListOfSameCountryUsers(
+      {@required String country}) async {
+    QuerySnapshot querySnapshot = await _usersCollectionReference
+        .where('country', isEqualTo: country)
+        .getDocuments();
+
+    return querySnapshot.documents;
   }
 
-  Future<DocumentSnapshot> getUserDoc() async {
+  Future<void> _getSameCountryUsers() async {
     final FirebaseUser user = await firebaseAuth.currentUser();
     final uid = user.uid;
 
-    userProfileInfo = await Firestore.instance
-        .collection('users')
-        .document(uid)
-        .get()
-        .then((DocumentSnapshot snapshot) => snapshot);
+    DocumentSnapshot userProfileInfo =
+        await _usersCollectionReference.document(uid).get();
 
-    getUsersList();
+    String country = userProfileInfo.data['country'];
 
-    return userProfileInfo; //await needs to be placed here
+    List<DocumentSnapshot> usersList =
+        await getDocumentSnapshotListOfSameCountryUsers(country: country);
+
+    setState(() {
+      _sameCountryUsersDocumentSnapshotList = usersList;
+    });
   }
 
   @override
@@ -75,220 +73,24 @@ class MeetupState extends State<Meetup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        child: AppBar(
-          title: Text(
-            'Connections'.toUpperCase(),
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.transparent,
-          automaticallyImplyLeading: true,
-          centerTitle: true,
-          flexibleSpace: Column(
-            children: <Widget>[
-              SizedBox(
-                height: 100,
-              ),
-              Container(
-                width: 330,
-                height: 50,
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: "Search",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(10.0)))),
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Text(
-                'Search for PNA members around you'.toUpperCase(),
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-        ),
-        preferredSize: Size.fromHeight(140.0),
-      ),
       backgroundColor: Colors.black,
-      body: usersList != null
-          ? Container(
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: usersList.length,
-                  itemBuilder: ((context, index) {
-                    return filter == null || filter == ""
-                        ? ListTile(
-                            leading: Container(
-                              padding: const EdgeInsets.all(3.0),
-                              decoration: new BoxDecoration(
-                                color: Color(0xffc67608), // border color
-                                shape: BoxShape.circle,
-                              ),
-                              child: CircleAvatar(
-                                backgroundColor: Colors.black,
-                                backgroundImage: NetworkImage(
-                                    usersList[index].data['photoUrl']),
-                              ),
-                            ),
-                            title: Text(usersList[index].data['name'],
-                                style: TextStyle(
-                                  color: Colors.white,
-                                )),
-                            subtitle: Text(usersList[index].data['country'],
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 17,
-                                )),
-                            trailing: RaisedButton(
-                              color: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  style: BorderStyle.solid,
-                                  color: Color(0xffc67608),
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(16.0),
-                                ),
-                              ),
-                              child: Text(
-                                "Message",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                ),
-                              ),
-                              textColor: Color(0xffc67608),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    new MaterialPageRoute(
-                                        builder: (context) => ChatScreen(
-                                            name: usersList[index].data['name'],
-                                            photoUrl: usersList[index]
-                                                .data['photoUrl'],
-                                            receiverUid:
-                                                usersList[index].data['uid'])));
-                              },
-                            ),
-                            onTap: (() {
-                              Navigator.push(
-                                  context,
-                                  new MaterialPageRoute(
-                                      builder: (context) => ViewProfile(
-                                          name: usersList[index].data['name'],
-                                          profession: usersList[index]
-                                              .data['profession'],
-                                          country:
-                                              usersList[index].data['country'],
-                                          aboutMe:
-                                              usersList[index].data['aboutMe'],
-                                          gender:
-                                              usersList[index].data['gender'],
-                                          photoUrl:
-                                              usersList[index].data['photoUrl'],
-                                          images:
-                                              usersList[index].data['images'],
-                                          uid: usersList[index].data['uid'])));
-                            }),
-                          )
-                        : usersList[index]
-                                .data['country']
-                                .toLowerCase()
-                                .contains(filter.toLowerCase())
-                            ? ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                      usersList[index].data['photoUrl']),
-                                ),
-                                title: Text(usersList[index].data['name'],
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                                subtitle: Text(usersList[index].data['country'],
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 17,
-                                    )),
-                                trailing: RaisedButton(
-                                  color: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      style: BorderStyle.solid,
-                                      color: Color(0xffc67608),
-                                    ),
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(16.0),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    "Connect",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  textColor: Color(0xffc67608),
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        new MaterialPageRoute(
-                                            builder: (context) => ChatScreen(
-                                                name: usersList[index]
-                                                    .data['name'],
-                                                photoUrl: usersList[index]
-                                                    .data['photoUrl'],
-                                                receiverUid: usersList[index]
-                                                    .data['uid'])));
-                                  },
-                                ),
-                                onTap: (() {
-                                  Navigator.push(
-                                      context,
-                                      new MaterialPageRoute(
-                                          builder: (context) => ViewProfile(
-                                              name:
-                                                  usersList[index].data['name'],
-                                              profession: usersList[index]
-                                                  .data['profession'],
-                                              country: usersList[index]
-                                                  .data['country'],
-                                              aboutMe: usersList[index]
-                                                  .data['aboutMe'],
-                                              gender: usersList[index]
-                                                  .data['gender'],
-                                              photoUrl: usersList[index]
-                                                  .data['photoUrl'],
-                                              images: usersList[index]
-                                                  .data['images'],
-                                              uid: usersList[index]
-                                                  .data['uid'])));
-                                }),
-                              )
-                            : new Container();
-                  }),
-                ),
-              ),
-            )
-          : Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
-              ),
-            ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          _buildAppBar(),
+          _buildSearchBar(),
+          Expanded(
+            child: _sameCountryUsersDocumentSnapshotList != null
+                ? _buildUsersList()
+                : Center(
+                    child: CircularProgressIndicator(
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
+                    ),
+                  ),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.black,
@@ -351,6 +153,153 @@ class MeetupState extends State<Meetup> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildUsersList() {
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: _sameCountryUsersDocumentSnapshotList.length,
+        itemBuilder: ((context, index) {
+          return filter == null || filter == ""
+              ? _buildUserListTile(
+                  userDataMap:
+                      _sameCountryUsersDocumentSnapshotList[index].data,
+                  context: context)
+              : _sameCountryUsersDocumentSnapshotList[index]
+                      .data['country']
+                      .toLowerCase()
+                      .contains(filter.toLowerCase())
+                  ? _buildUserListTile(
+                      userDataMap:
+                          _sameCountryUsersDocumentSnapshotList[index].data,
+                      context: context)
+                  : SizedBox.shrink();
+        }),
+      ),
+    );
+  }
+
+  Widget _buildUserListTile(
+      {@required Map userDataMap, @required BuildContext context}) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(3.0),
+        decoration: new BoxDecoration(
+          color: Color(0xffc67608), // border color
+          shape: BoxShape.circle,
+        ),
+        child: CircleAvatar(
+          backgroundColor: Colors.black,
+          backgroundImage: NetworkImage(userDataMap['photoUrl']),
+        ),
+      ),
+      title: Text(userDataMap['name'],
+          style: TextStyle(
+            color: Colors.white,
+          )),
+      subtitle: Text(userDataMap['country'],
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 17,
+          )),
+      trailing: RaisedButton(
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            style: BorderStyle.solid,
+            color: Color(0xffc67608),
+          ),
+          borderRadius: BorderRadius.all(
+            Radius.circular(16.0),
+          ),
+        ),
+        child: Text(
+          "Message",
+          style: TextStyle(
+            fontSize: 14,
+          ),
+        ),
+        textColor: Color(0xffc67608),
+        onPressed: () {
+          Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) => ChatScreen(
+                        name: userDataMap['name'],
+                        photoUrl: userDataMap['photoUrl'],
+                        receiverUid: userDataMap['uid'],
+                        country: userDataMap['country'],
+                      )));
+        },
+      ),
+      onTap: (() {
+        Navigator.push(
+            context,
+            new MaterialPageRoute(
+                builder: (context) => ViewProfile(
+                    name: userDataMap['name'],
+                    profession: userDataMap['profession'],
+                    country: userDataMap['country'],
+                    aboutMe: userDataMap['aboutMe'],
+                    gender: userDataMap['gender'],
+                    photoUrl: userDataMap['photoUrl'],
+                    images: userDataMap['images'],
+                    uid: userDataMap['uid'])));
+      }),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        SizedBox(
+          height: 20.0,
+        ),
+        Container(
+          width: 330,
+          height: 50,
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                hintText: "Search",
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)))),
+          ),
+        ),
+        SizedBox(
+          height: 15,
+        ),
+        Text(
+          'Search for PNA members around you'.toUpperCase(),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 15,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAppBar() {
+    return AppBar(
+      title: Text(
+        'Connections'.toUpperCase(),
+        style: TextStyle(
+          fontSize: 20,
+          color: Colors.white,
+        ),
+      ),
+      backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: true,
+      centerTitle: true,
     );
   }
 }
@@ -461,7 +410,10 @@ class _ViewProfileState extends State<ViewProfile> {
                                 builder: (context) => ChatScreen(
                                     name: widget.name,
                                     photoUrl: widget.photoUrl,
-                                    receiverUid: widget.uid)));
+                                    receiverUid: widget.uid, 
+                                    country: widget.country ,
+                                    
+                                    )));
                       },
                       child: Text(
                         'Message',
@@ -573,7 +525,7 @@ class _ViewProfileState extends State<ViewProfile> {
             SizedBox(
               height: 10,
             ),
-            widget.images.isEmpty
+            (widget.images == null || widget.images.isEmpty)
                 ? Container()
                 : Align(
                     alignment: Alignment.centerLeft,

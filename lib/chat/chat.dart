@@ -8,35 +8,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:travel_world/full_screen_image.dart';
+import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/models/message.dart';
 
 class ChatScreen extends StatefulWidget {
-  String name;
-  String photoUrl;
-  String receiverUid;
-  ChatScreen({this.name, this.photoUrl, this.receiverUid});
+  final String name;
+  final String photoUrl;
+  final String receiverUid;
+  final String country;
+  ChatScreen({
+    @required this.name,
+    @required this.photoUrl,
+    @required this.receiverUid,
+    @required this.country,
+  });
 
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
   Message _message;
-  final _auth = FirebaseAuth.instance;
 
   var _formKey = GlobalKey<FormState>();
   var map = Map<String, dynamic>();
 
-  CollectionReference _collectionReference;
-  DocumentReference _receiverDocumentReference;
-  DocumentReference _senderDocumentReference;
-  DocumentReference _documentReference;
-  DocumentSnapshot documentSnapshot;
-
   FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  String _senderuid;
+  String _senderUid;
   var listItem;
-  String receiverPhotoUrl, senderPhotoUrl, receiverName, senderName;
-  StreamSubscription<DocumentSnapshot> subscription;
+  String receiverPhotoUrl,
+      senderPhotoUrl,
+      receiverName,
+      senderName,
+      senderCountry;
+
+  Stream<QuerySnapshot> snapshotStream;
+
+  StreamSubscription<QuerySnapshot> subscription;
+
   File imageFile;
   StorageReference _storageReference;
   TextEditingController _messageController;
@@ -77,14 +85,26 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
 //    registerNotification();
     _messageController = TextEditingController();
+
     getUID().then((user) {
       setState(() {
-        _senderuid = user.uid;
-        print("sender uid : $_senderuid");
-        getSenderPhotoUrl(_senderuid).then((snapshot) {
+        _senderUid = user.uid;
+        snapshotStream = Firestore.instance
+            .collection('messages')
+            .document(_getDocumentId(_senderUid, widget.receiverUid))
+            .collection('messageList')
+            .orderBy('timestamp', descending: false)
+            .snapshots();
+
+        subscription = snapshotStream.listen((snapshot) {
+          _setAsRead(snapshot);
+        });
+        print("sender uid : $_senderUid");
+        getSenderPhotoUrl(_senderUid).then((snapshot) {
           setState(() {
             senderPhotoUrl = snapshot['photoUrl'];
             senderName = snapshot['name'];
+            senderCountry = snapshot['country'];
           });
         });
         getReceiverPhotoUrl(widget.receiverUid).then((snapshot) {
@@ -99,32 +119,65 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     subscription?.cancel();
+
+    super.dispose();
   }
 
-  void addMessageToDb(Message message) async {
+  String _getDocumentId(String senderUid, String receiverUid) {
+    String _documentId;
+    if (senderUid.compareTo(receiverUid).isNegative) {
+      _documentId = senderUid + receiverUid;
+    } else {
+      _documentId = receiverUid + senderUid;
+    }
+
+    return _documentId;
+  }
+
+  Future<void> addMessageToDb(Message message) async {
+    String documentPath = _getDocumentId(_senderUid, widget.receiverUid);
+
     print("Message : ${message.message}");
     map = message.toMap();
 
-    print("Map : ${map}");
-    _collectionReference = await _getCollectionReference(
-        firstCollectionPath: 'messages',
-        documentPath: message.senderUid,
-        secondCollectionPath: widget.receiverUid);
+    print("Map : $map");
 
-    _collectionReference.add(map).whenComplete(() {
-      print("Messages added to db");
-    });
+    DocumentReference documentReference = _getDocumentReference(
+      collectionPath: 'messages',
+      documentPath: documentPath,
+    );
 
-    _collectionReference = await _getCollectionReference(
-        firstCollectionPath: 'messages',
-        documentPath: widget.receiverUid,
-        secondCollectionPath: message.senderUid);
+    var batch = Firestore.instance.batch();
 
-    _collectionReference.add(map).whenComplete(() {
-      print("Messages added to db");
-    });
+    batch.setData(
+        documentReference,
+        {
+          'mapOfUidToUsername': {
+            _senderUid: senderName,
+            widget.receiverUid: widget.name
+          },
+          'mapOfUidToPhotoUrl': {
+            _senderUid: senderPhotoUrl,
+            widget.receiverUid: widget.photoUrl,
+          },
+          'mapOfUidToCountry': {
+            _senderUid: senderCountry,
+            widget.receiverUid: widget.country
+          },
+          'userIdList': [_senderUid, widget.receiverUid],
+          'timestamp': FieldValue.serverTimestamp(),
+        },
+        merge: true);
+
+    CollectionReference collectionReference =
+        documentReference.collection('messageList');
+
+    batch.setData(collectionReference.document(), map);
+
+    await batch.commit();
+
+    print("Messages added to db");
 
     _messageController.text = "";
   }
@@ -144,7 +197,7 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: Colors.black,
         body: Form(
           key: _formKey,
-          child: _senderuid == null
+          child: _senderUid == null
               ? Container(
                   child: CircularProgressIndicator(),
                 )
@@ -156,7 +209,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       height: 20.0,
                       color: Colors.white,
                     ),
-                    ChatInputWidget(),
+                    _buildChatInputWidget(),
                     SizedBox(
                       height: 10.0,
                     )
@@ -165,7 +218,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ));
   }
 
-  Widget ChatInputWidget() {
+  Widget _buildChatInputWidget() {
     return Container(
       height: 55.0,
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -190,6 +243,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (input.isEmpty) {
                   return "Please enter message";
                 }
+
+                return null;
               },
               controller: _messageController,
               style: TextStyle(
@@ -198,9 +253,7 @@ class _ChatScreenState extends State<ChatScreen> {
               decoration: InputDecoration(
                   hintText: "Enter message...",
                   labelText: "Message",
-                  labelStyle: TextStyle(
-                    color: Colors.white,
-                  ),
+                  labelStyle: TextStyle(color: Colors.white),
                   fillColor: Colors.black,
                   filled: true,
                   focusColor: Colors.white,
@@ -252,28 +305,23 @@ class _ChatScreenState extends State<ChatScreen> {
     return url;
   }
 
-  Future<CollectionReference> _getCollectionReference(
-      {@required String firstCollectionPath,
-      @required String documentPath,
-      @required String secondCollectionPath}) async {
+  DocumentReference _getDocumentReference({
+    @required String collectionPath,
+    @required String documentPath,
+  }) {
     final CollectionReference collectionReference =
-        Firestore.instance.collection(firstCollectionPath);
+        Firestore.instance.collection(collectionPath);
 
     final DocumentReference documentReference =
         collectionReference.document(documentPath);
 
-    await documentReference.setData({}); //This creates the document
-
-    final CollectionReference finalCollectionReference =
-        documentReference.collection(secondCollectionPath);
-
-    return finalCollectionReference;
+    return documentReference;
   }
 
   Future<void> uploadImageToDb(String downloadUrl) async {
     _message = Message.withoutMessage(
         receiverUid: widget.receiverUid,
-        senderUid: _senderuid,
+        senderUid: _senderUid,
         photoUrl: downloadUrl,
         timestamp: FieldValue.serverTimestamp(),
         type: 'image');
@@ -284,24 +332,22 @@ class _ChatScreenState extends State<ChatScreen> {
     map['timestamp'] = _message.timestamp;
     map['photoUrl'] = _message.photoUrl;
 
-    print("Map : ${map}");
-    _collectionReference = await _getCollectionReference(
-        firstCollectionPath: 'messages',
-        documentPath: _message.senderUid,
-        secondCollectionPath: widget.receiverUid);
+    print("Map : $map");
 
-    _collectionReference.add(map).whenComplete(() {
-      print("Messages added to db");
-    });
+    String documentPath = _getDocumentId(_senderUid, widget.receiverUid);
 
-    _collectionReference = await _getCollectionReference(
-        firstCollectionPath: 'messages',
-        documentPath: widget.receiverUid,
-        secondCollectionPath: _message.senderUid);
+    DocumentReference documentReference = _getDocumentReference(
+      collectionPath: 'messages',
+      documentPath: documentPath,
+    );
 
-    _collectionReference.add(map).whenComplete(() {
-      print("Messages added to db");
-    });
+    documentReference.setData({});
+
+    CollectionReference collectionReference =
+        documentReference.collection('messageList');
+
+    await collectionReference.add(map);
+    print("Messages added to db");
   }
 
   void sendMessage() async {
@@ -310,15 +356,19 @@ class _ChatScreenState extends State<ChatScreen> {
     print(text);
     _message = Message(
         receiverUid: widget.receiverUid,
-        senderUid: _senderuid,
+        senderUid: _senderUid,
         message: text,
         timestamp: FieldValue.serverTimestamp(),
-        type: 'text');
+        type: 'text',
+        mapOfUidToReadStatus: {
+          widget.receiverUid: false,
+          _senderUid: true,
+        });
     print(
-        "receiverUid: ${widget.receiverUid} , senderUid : ${_senderuid} , message: ${text}");
+        "receiverUid: ${widget.receiverUid} , senderUid : $_senderUid , message: $text");
     print(
         "timestamp: ${DateTime.now().millisecond}, type: ${text != null ? 'text' : 'image'}");
-    addMessageToDb(_message);
+    await addMessageToDb(_message);
   }
 
   Future<FirebaseUser> getUID() async {
@@ -338,16 +388,41 @@ class _ChatScreenState extends State<ChatScreen> {
     return receiverDocumentSnapshot;
   }
 
+  _setAsRead(QuerySnapshot snapshot) async {
+    String documentPath = _getDocumentId(_senderUid, widget.receiverUid);
+    DocumentReference documentReference = _getDocumentReference(
+      collectionPath: 'messages',
+      documentPath: documentPath,
+    );
+
+    CollectionReference collectionReference =
+        documentReference.collection('messageList');
+
+    var batch = Firestore.instance.batch();
+
+    for (var doc in snapshot.documents) {
+      print('loop');
+      batch.updateData(
+        collectionReference.document(doc.documentID),
+        {'mapOfUidToReadStatus.$_senderUid': true},
+      );
+    }
+
+    print('after loop');
+
+    try {
+      await batch.commit();
+      print('done');
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Widget ChatMessagesListWidget() {
-    print("SENDERUID : $_senderuid");
-    return Flexible(
+    print("SENDERUID : $_senderUid");
+    return Expanded(
       child: StreamBuilder(
-        stream: Firestore.instance
-            .collection('messages')
-            .document(_senderuid)
-            .collection(widget.receiverUid)
-            .orderBy('timestamp', descending: false)
-            .snapshots(),
+        stream: snapshotStream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(
@@ -355,12 +430,17 @@ class _ChatScreenState extends State<ChatScreen> {
             );
           } else {
             listItem = snapshot.data.documents;
-            return ListView.builder(
-              padding: EdgeInsets.all(10.0),
-              itemBuilder: (context, index) =>
-                  chatMessageItem(snapshot.data.documents[index]),
-              itemCount: snapshot.data.documents.length,
-            );
+            return ListView(
+                reverse: true,
+                shrinkWrap: true,
+                padding: EdgeInsets.all(10.0),
+                children: [
+                  ...snapshot.data.documents
+                      .map((documentSnapshot) =>
+                          chatMessageItem(documentSnapshot))
+                      .toList()
+                      .reversed
+                ]);
           }
         },
       ),
@@ -378,7 +458,7 @@ class _ChatScreenState extends State<ChatScreen> {
         Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
-            mainAxisAlignment: snapshot['senderUid'] == _senderuid
+            mainAxisAlignment: snapshot['senderUid'] == _senderUid
                 ? MainAxisAlignment.end
                 : MainAxisAlignment.start,
             children: <Widget>[
@@ -429,7 +509,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         )
                 ],
               ),
-              snapshot['senderUid'] == _senderuid
+              snapshot['senderUid'] == _senderUid
                   ? Icon(
                       MaterialCommunityIcons.check_all,
                       color: Colors.white,

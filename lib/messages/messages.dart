@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_world/chat/chat.dart';
+import 'package:travel_world/const.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
@@ -17,128 +19,72 @@ class _MessagesState extends State<Messages> {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   FirebaseUser loggedInUser;
   StreamSubscription<QuerySnapshot> _subscription;
-  var _newMessageSubscription;
-  final CollectionReference _collectionReference =
-      Firestore.instance.collection("users");
-  bool _newMessagesFirstListenFlag = true;
-  List<DocumentSnapshot> _connectedUserList;
-  Set<DocumentSnapshot> _indexesWithNewMessagesSet = Set();
 
-  final _newMessageCollectionReference =
-      Firestore.instance.collection('messages');
+  Map<DocumentSnapshot, bool> _mapOfConnectedUserToAllMessagesReadStatus;
 
-  final _myListKey = GlobalKey<AnimatedListState>();
-
-  Future<DocumentSnapshot> getUserDoc() async {
-    final FirebaseUser user = await firebaseAuth.currentUser();
-    final uid = user.uid;
-
-    var sameUser = await Firestore.instance
-        .collection('users')
-        .document(uid)
-        .get()
-        .then((DocumentSnapshot snapshot) => snapshot);
-
-    return sameUser;
-  }
+  String uid;
 
   @override
   void initState() {
     super.initState();
+    _getMessages();
+    _setUpSubscription();
+
     searchController.addListener(() {
       setState(() {
         filter = searchController.text;
       });
     });
-
-    _setUpSubscriptions();
   }
 
-  Future<void> _setUpSubscriptions() async {
+  final CollectionReference _collectionReference =
+      Firestore.instance.collection("messages");
+
+  Future<void> _getMessages() async {
     final FirebaseUser user = await firebaseAuth.currentUser();
-    final uid = user.uid;
-    _subscription = _collectionReference.snapshots().listen((datasnapshot) {
-      List<DocumentSnapshot> totalUserList = datasnapshot.documents;
+    uid = user.uid;
 
-      if (totalUserList != null) {
-        int userSubscriptionCounter = 0;
-        for (var user in totalUserList) {
-          _newMessageSubscription = Firestore.instance
-              .collection('messages')
-              .document(uid)
-              .collection(user.data['uid'])
-              .snapshots()
-              .listen((documentSnapshot) {
-            if (_connectedUserList == null) {
-              _connectedUserList = [];
-            }
-            _connectedUserList.add(totalUserList.firstWhere(
-                (userFromSnapshot) =>
-                    userFromSnapshot.data['uid'] == user.data['uid']));
+    var snapshot = await _collectionReference
+        .where('userIdList', arrayContains: uid)
+        .orderBy('timestamp')
+        .getDocuments();
+    _mapOfConnectedUserToAllMessagesReadStatus = {};
 
-            int numberOfDocumentChanges =
-                documentSnapshot.documentChanges.length;
+    if (snapshot.documents.isNotEmpty) {
+      for (var doc in snapshot.documents) {
+        var areAllMessagesRead = (await doc.reference
+                .collection('messageList')
+                .getDocuments())
+            .documents
+            .every((document) =>
+                (document.data['mapOfUidToReadStatus'] as Map)[uid] == true);
+        _mapOfConnectedUserToAllMessagesReadStatus[doc] = areAllMessagesRead;
+      }
+    }
 
-            if (numberOfDocumentChanges == 0) {
-              setState(() {
-                //Refresh screen
-              });
-            } else {
-              for (var documentChange in documentSnapshot.documentChanges) {
-                if (_newMessagesFirstListenFlag == false) {
-                  bool showNewMessageIndicator = false;
-
-                  if (documentSnapshot.documents.last['receiverUid'] == uid) {
-                    showNewMessageIndicator = true;
-                  }
-
-                  _moveUserToTop(
-                      uid: user.data['uid'],
-                      showNewMessageIndicator: showNewMessageIndicator);
-                }
-
-                if (numberOfDocumentChanges - 1 ==
-                    documentSnapshot.documentChanges.indexOf(documentChange)) {
-                  userSubscriptionCounter = userSubscriptionCounter + 1;
-                }
-
-                if (userSubscriptionCounter == totalUserList.length) {
-                  //This is executed when the loop is complete
-                  _newMessagesFirstListenFlag = false;
-
-                  setState(() {
-                    //Refresh screen
-                  });
-                }
-              }
-            }
-          });
-        }
+    setState(() {
+      if (_mapOfConnectedUserToAllMessagesReadStatus.length > 1) {
+        _mapOfConnectedUserToAllMessagesReadStatus = SplayTreeMap.from(
+            _mapOfConnectedUserToAllMessagesReadStatus, (a, b) {
+          if (a.data['timestamp'] == null || b.data['timestamp'] == null) {
+            return 0;
+          }
+          var x = (b.data['timestamp'] as Timestamp)
+              .compareTo(a.data['timestamp'] as Timestamp);
+          return x;
+        });
       }
     });
   }
 
-  _moveUserToTop(
-      {@required String uid, @required bool showNewMessageIndicator}) {
-    var user = _connectedUserList.firstWhere((userItem) {
-      return userItem.data['uid'] == uid;
-    });
-
-    var index = _connectedUserList.indexOf(user);
-
-    _connectedUserList.remove(user);
-
-    _myListKey.currentState.removeItem(index, (context, animation) {
-      return _buildChatListTile(index, context);
-    });
-
-    _connectedUserList.insert(0, user);
-
-    _myListKey.currentState.insertItem(index);
-
-    if (showNewMessageIndicator) {
-      _indexesWithNewMessagesSet.add(user);
-    }
+  StreamSubscription<QuerySnapshot> _setUpSubscription() {
+    return _subscription = _collectionReference.snapshots().listen(
+      (datasnapshot) {
+        setState(() {
+          _getMessages();
+        });
+      },
+    );
   }
 
   TextEditingController searchController = new TextEditingController();
@@ -149,71 +95,48 @@ class _MessagesState extends State<Messages> {
     searchController.dispose();
     super.dispose();
     _subscription.cancel();
-    _newMessageSubscription.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        child: AppBar(
-          title: Text(
-            'Chats'.toUpperCase(),
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.transparent,
-          automaticallyImplyLeading: true,
-          centerTitle: true,
-          flexibleSpace: Column(
-            children: <Widget>[
-              SizedBox(
-                height: kBottomNavigationBarHeight,
-              ),
-              Container(
-                width: 330,
-                height: 50,
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: "Search",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(10.0)))),
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-            ],
-          ),
-        ),
-        preferredSize: Size.fromHeight(125.0),
-      ),
       backgroundColor: Colors.black,
-      body: _connectedUserList != null
-          ? Container(
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: AnimatedList(
-                  initialItemCount: _connectedUserList.length,
-                  key: _myListKey,
-                  itemBuilder: ((context, index, animation) {
-                    return _buildChatListTile(index, context);
-                  }),
-                ),
-              ),
-            )
-          : Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
-              ),
-            ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          _buildAppBar(),
+          _buildSearchBar(),
+          Expanded(
+            child: _mapOfConnectedUserToAllMessagesReadStatus != null
+                ? _mapOfConnectedUserToAllMessagesReadStatus.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No chats found',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )
+                    : Container(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: ListView.builder(
+                            itemCount:
+                                _mapOfConnectedUserToAllMessagesReadStatus
+                                    .length,
+                            itemBuilder: ((context, index) {
+                              return _buildChatListTile(index, context);
+                            }),
+                          ),
+                        ),
+                      )
+                : Center(
+                    child: CircularProgressIndicator(
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
+                    ),
+                  ),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.black,
@@ -279,7 +202,68 @@ class _MessagesState extends State<Messages> {
     );
   }
 
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text(
+        'Chats'.toUpperCase(),
+        style: TextStyle(
+          fontSize: 20,
+          color: Colors.white,
+        ),
+      ),
+      backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: true,
+      centerTitle: true,
+    );
+  }
+
+  Column _buildSearchBar() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        SizedBox(
+          height: 20,
+        ),
+        Container(
+          width: 330,
+          height: 50,
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                hintText: "Search",
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)))),
+          ),
+        ),
+        SizedBox(
+          height: 15,
+        ),
+      ],
+    );
+  }
+
   ListTile _buildChatListTile(int index, BuildContext context) {
+    String otherUserId = ((_mapOfConnectedUserToAllMessagesReadStatus.keys
+            .elementAt(index)
+            .data['userIdList'] as List)
+        .singleWhere((uidFromList) => uidFromList != uid, orElse: () => uid));
+
+    String otherName = (_mapOfConnectedUserToAllMessagesReadStatus.keys
+        .elementAt(index)
+        .data['mapOfUidToUsername'] as Map)[otherUserId];
+    String otherPhotoUrl = (_mapOfConnectedUserToAllMessagesReadStatus.keys
+        .elementAt(index)
+        .data['mapOfUidToPhotoUrl'] as Map)[otherUserId];
+    String otherCountry = (_mapOfConnectedUserToAllMessagesReadStatus.keys
+        .elementAt(index)
+        .data['mapOfUidToCountry'] as Map)[otherUserId];
+
+    bool areAllMessagesRead =
+        _mapOfConnectedUserToAllMessagesReadStatus.values.elementAt(index);
+
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(3.0),
@@ -288,36 +272,36 @@ class _MessagesState extends State<Messages> {
           shape: BoxShape.circle,
         ),
         child: CircleAvatar(
-          backgroundImage:
-              NetworkImage(_connectedUserList[index].data['photoUrl']),
+          backgroundImage: NetworkImage(otherPhotoUrl),
         ),
       ),
-      title: Text(_connectedUserList[index].data['name'],
+      title: Text(otherName,
           style: TextStyle(
             color: Colors.white,
           )),
-      subtitle: Text(
-          _connectedUserList[index].data['country'] == null
-              ? ''
-              : _connectedUserList[index].data['country'],
+      subtitle: Text(otherCountry == null ? '' : otherCountry,
           style: TextStyle(
             color: Colors.white70,
             fontSize: 17,
           )),
-      trailing: _indexesWithNewMessagesSet.contains(_connectedUserList[index])
-          ? CircleAvatar(
-              backgroundColor: Colors.red,
-              radius: 8.0,
-            )
-          : null,
+      trailing: areAllMessagesRead
+          ? SizedBox.shrink()
+          : CircleAvatar(backgroundColor: Colors.red, radius: 8.0),
       onTap: (() {
         Navigator.push(
             context,
             new MaterialPageRoute(
                 builder: (context) => ChatScreen(
-                    name: _connectedUserList[index].data['name'],
-                    photoUrl: _connectedUserList[index].data['photoUrl'],
-                    receiverUid: _connectedUserList[index].data['uid'])));
+                      name: otherName,
+                      photoUrl: otherPhotoUrl,
+                      receiverUid: otherUserId,
+                      country: otherCountry,
+                    ))).whenComplete(() {
+          setState(() {
+            if (areAllMessagesRead == false) areAllMessagesRead = true;
+          });
+          _getMessages(); //Refresh screen
+        });
       }),
     );
   }

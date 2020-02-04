@@ -14,6 +14,18 @@ import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 
 class EditProfile extends StatefulWidget {
+  final String name;
+  final String country;
+  final String profession;
+  final String bio;
+
+  const EditProfile({
+    Key key,
+    @required this.name,
+    @required this.country,
+    @required this.profession,
+    @required this.bio,
+  }) : super(key: key);
   @override
   State createState() => EditProfileState();
 }
@@ -26,12 +38,15 @@ class EditProfileState extends State<EditProfile> {
   TextEditingController controllerAboutMe;
   TextEditingController controllerProfession;
 
+  bool _countryDropdownHasErrors = false;
+
   @override
   void initState() {
     super.initState();
-    controllerName = new TextEditingController();
-    controllerAboutMe = TextEditingController();
-    controllerProfession = TextEditingController();
+    controllerName = new TextEditingController()..text = widget.name;
+    controllerAboutMe = TextEditingController()..text = widget.bio;
+    controllerProfession = TextEditingController()..text = widget.profession;
+    _country = widget.country;
     getCurrentUser();
   }
 
@@ -67,6 +82,10 @@ class EditProfileState extends State<EditProfile> {
   }
 
   Future uploadFile() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final FirebaseUser user = await _auth.currentUser();
     final uid = user.uid;
     String fileName1 = uid;
@@ -74,81 +93,27 @@ class EditProfileState extends State<EditProfile> {
         FirebaseStorage.instance.ref().child(fileName1);
     StorageUploadTask uploadTask = reference.putFile(avatarImageFile);
     StorageTaskSnapshot storageTaskSnapshot;
-    uploadTask.onComplete.then((value) {
-      if (value.error == null) {
-        storageTaskSnapshot = value;
-        storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-          photoUrl = downloadUrl;
-          Firestore.instance
-              .collection('users')
-              .document(uid)
-              .updateData({'photoUrl': photoUrl});
-        });
-      }
+
+    storageTaskSnapshot = await uploadTask.onComplete;
+    photoUrl = await storageTaskSnapshot.ref.getDownloadURL();
+
+    await Firestore.instance
+        .collection('users')
+        .document(uid)
+        .updateData({'photoUrl': photoUrl});
+
+    setState(() {
+      isLoading = false;
     });
 
     Fluttertoast.showToast(
         msg: "Picture Saved Succesfully",
         toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+        gravity: ToastGravity.TOP,
         timeInSecForIos: 1,
         backgroundColor: Color(0xffc67608),
         textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  void _updateAboutme() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'aboutMe': controllerAboutMe.text,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Bio Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  void _updateCountry() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'country': _country,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Country Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  void _updateProfession() async {
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    // here you write the codes to input the data into firestore
-    Firestore.instance.collection('users').document(uid).updateData({
-      'profession': controllerProfession.text,
-    });
-
-    Fluttertoast.showToast(
-        msg: "Profession Updated",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 16.0);
+        fontSize: 14.0);
   }
 
   Future<DocumentSnapshot> getUserDoc({bool useCache = true}) async {
@@ -175,423 +140,140 @@ class EditProfileState extends State<EditProfile> {
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          children: <Widget>[
+            Form(
+              key: _formKey,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
                   children: <Widget>[
-                    Stack(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Column(
+                        Stack(
                           children: <Widget>[
-                            (avatarImageFile == null)
-                                ? (photoUrl != ''
-                                    ? Material(
-                                        child: CachedNetworkImage(
-                                          placeholder: (context, url) =>
-                                              Container(
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2.0,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                      themeColor),
+                            Column(
+                              children: <Widget>[
+                                (avatarImageFile == null)
+                                    ? (photoUrl != ''
+                                        ? Material(
+                                            child: CachedNetworkImage(
+                                              placeholder: (context, url) =>
+                                                  Container(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2.0,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(themeColor),
+                                                ),
+                                                width: 90.0,
+                                                height: 90.0,
+                                                padding: EdgeInsets.all(20.0),
+                                              ),
+                                              imageUrl: photoUrl,
+                                              width: 100.0,
+                                              height: 90.0,
+                                              fit: BoxFit.cover,
                                             ),
-                                            width: 90.0,
-                                            height: 90.0,
-                                            padding: EdgeInsets.all(20.0),
-                                          ),
-                                          imageUrl: photoUrl,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(45.0)),
+                                            clipBehavior: Clip.hardEdge,
+                                          )
+                                        : Stack(
+                                            children: <Widget>[
+                                              FutureBuilder<DocumentSnapshot>(
+                                                  future: getUserDoc(),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot.hasData) {
+                                                      return Row(
+                                                        children: <Widget>[
+                                                          Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(3.0),
+                                                            decoration:
+                                                                new BoxDecoration(
+                                                              color: Color(
+                                                                  0xffc67608), // border color
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                            ),
+                                                            child: CircleAvatar(
+                                                              backgroundImage:
+                                                                  CachedNetworkImageProvider(
+                                                                snapshot.data[
+                                                                    'photoUrl'],
+                                                              ),
+                                                              radius: 50.0,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    } else {
+                                                      return Container(
+                                                        child: Center(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .fromLTRB(
+                                                                    30.0,
+                                                                    20.0,
+                                                                    0.0,
+                                                                    0.0),
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              valueColor:
+                                                                  AlwaysStoppedAnimation<
+                                                                          Color>(
+                                                                      Color(
+                                                                          0xffc67608)),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                  }),
+                                            ],
+                                          ))
+                                    : Material(
+                                        child: Image.file(
+                                          avatarImageFile,
                                           width: 100.0,
-                                          height: 90.0,
+                                          height: 100.0,
                                           fit: BoxFit.cover,
                                         ),
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(45.0)),
                                         clipBehavior: Clip.hardEdge,
-                                      )
-                                    : Stack(
-                                        children: <Widget>[
-                                          FutureBuilder<DocumentSnapshot>(
-                                              future: getUserDoc(),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.hasData) {
-                                                  return Row(
-                                                    children: <Widget>[
-                                                      Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(3.0),
-                                                        decoration:
-                                                            new BoxDecoration(
-                                                          color: Color(
-                                                              0xffc67608), // border color
-                                                          shape:
-                                                              BoxShape.circle,
-                                                        ),
-                                                        child: CircleAvatar(
-                                                          backgroundImage:
-                                                              NetworkImage(
-                                                            snapshot.data[
-                                                                'photoUrl'],
-                                                          ),
-                                                          radius: 50.0,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                } else {
-                                                  return Container(
-                                                    child: Center(
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .fromLTRB(
-                                                                30.0,
-                                                                20.0,
-                                                                0.0,
-                                                                0.0),
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                          valueColor:
-                                                              AlwaysStoppedAnimation<
-                                                                      Color>(
-                                                                  Color(
-                                                                      0xffc67608)),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                              }),
-                                        ],
-                                      ))
-                                : Material(
-                                    child: Image.file(
-                                      avatarImageFile,
-                                      width: 100.0,
-                                      height: 100.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(45.0)),
-                                    clipBehavior: Clip.hardEdge,
-                                  ),
-                          ],
-                        ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(65.0, 65.0, 0.0, 0.0),
-                          child: IconButton(
-                              icon: Icon(
-                                Icons.add_box,
-                                color: Color(0xffc67608),
-                                size: 30,
-                              ),
-                              onPressed: getImage),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                            style: BorderStyle.solid,
-                            color: Color(0xffc67608),
-                          ),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(16.0),
-                          ),
-                        ),
-                        color: Colors.black,
-                        onPressed: uploadFile,
-                        child: Text(
-                          'Save Image',
-                          style: TextStyle(
-                            color: Color(0xffc67608),
-                            fontSize: 14,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Container(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: <Widget>[
-                        Container(
-                          height: 50,
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              border: UnderlineInputBorder(),
-                              filled: true,
-                              fillColor: Colors.black,
-                              hintText: "Name",
-                              hintStyle: TextStyle(
-                                color: Colors.white,
-                              ),
-                              focusColor: Colors.white,
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Color(0xffc67608))),
-                            ),
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                            controller: controllerName,
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter Name';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        FractionallySizedBox(
-                          widthFactor: 1.0,
-                          child: Container(
-                            height: 50,
-                            decoration: UnderlineTabIndicator(
-                                borderSide: BorderSide(
-                              color: Color(0xffc67608),
-                            )),
-                            padding: EdgeInsets.fromLTRB(10.0, 5.0, 0.0, 0.0),
-                            child: Theme(
-                              data: Theme.of(context).copyWith(
-                                canvasColor: Colors.black,
-                              ),
-                              child: new DropdownButton<String>(
-                                iconEnabledColor: Colors.white,
-                                value: _country,
-                                hint: Text(
-                                  'Country',
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                style: TextStyle(
-                                  color: Colors.black,
-                                ),
-                                onChanged: (String newValue) {
-                                  setState(() {
-                                    _country = newValue;
-                                  });
-                                },
-                                items: <String>[
-                                  'Australia',
-                                  'Austria',
-                                  'Argentina',
-                                  'Angola',
-                                  'Algeria',
-                                  'Bahamas',
-                                  'Bangladesh',
-                                  'Barbados',
-                                  'Belgium',
-                                  'Benin Republic',
-                                  'Brazil',
-                                  'Botswana',
-                                  'Bulgaria',
-                                  'Burkina Faso',
-                                  'Canada',
-                                  'Cameroon',
-                                  'Chile',
-                                  'China',
-                                  'Colombia',
-                                  'Congo',
-                                  'Costa Rica',
-                                  "Cote d'Ivoire",
-                                  'Croatia',
-                                  'Cyprus',
-                                  'Denmark',
-                                  'Ecuador',
-                                  'Egypt',
-                                  'Equatorial Guinea',
-                                  'Estonia',
-                                  'Ethopia',
-                                  'Finland',
-                                  'France',
-                                  'Gabon',
-                                  'Gambia',
-                                  'Germany',
-                                  'Ghana',
-                                  'Greece',
-                                  'Guatemala',
-                                  'Guinea',
-                                  'Haiti',
-                                  'Hungary',
-                                  'Iceland',
-                                  'India',
-                                  'Indonesia',
-                                  'Ireland',
-                                  'Israel',
-                                  'Italy',
-                                  'Jamaica',
-                                  'Japan',
-                                  'Jordan',
-                                  'Kenya',
-                                  'Kuwait',
-                                  'Lebanon',
-                                  'Liberia',
-                                  'Lithuania',
-                                  'Luxembourg',
-                                  'Madagascar',
-                                  'Malawi',
-                                  'Malaysia',
-                                  'Maldives',
-                                  'Mali',
-                                  'Mauritius',
-                                  'Mexico',
-                                  'Monaco',
-                                  'Morocco',
-                                  'Mozambique',
-                                  'Namibia',
-                                  'Nepal',
-                                  'Netherlands',
-                                  'New Zealand',
-                                  'Niger',
-                                  'Nigeria',
-                                  'Norway',
-                                  'Panama',
-                                  'Paraguay',
-                                  'Peru',
-                                  'Philippines',
-                                  'Poland',
-                                  'Portugal',
-                                  'Qatar',
-                                  'Romania',
-                                  'Russia',
-                                  'Rwanda',
-                                  'Senegal',
-                                  'Seychelles',
-                                  'Sierra Leone',
-                                  'Singapore',
-                                  'Slovakia',
-                                  'South Africa',
-                                  'South Korea',
-                                  'Spain',
-                                  'Sri Lanka',
-                                  'Sweden',
-                                  'Switzerland',
-                                  'Taiwan',
-                                  'Tanzania',
-                                  'Thailand',
-                                  'Togo',
-                                  'Turkey',
-                                  'Uganda',
-                                  'Ukraine',
-                                  'UAE',
-                                  'United Kingdom',
-                                  'United States of America',
-                                  'Uruguay',
-                                  'Venezuela',
-                                  'Zambia',
-                                  'Zimbabwe',
-                                ].map<DropdownMenuItem<String>>((String value) {
-                                  return new DropdownMenuItem<String>(
-                                    value: value,
-                                    child: new Text(
-                                      value,
-                                      style: TextStyle(
-                                        color: Colors.white,
                                       ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
+                              ],
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Container(
-                          height: 50,
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              border: UnderlineInputBorder(),
-                              filled: true,
-                              fillColor: Colors.black,
-                              hintText: "Profession",
-                              hintStyle: TextStyle(
-                                color: Colors.white,
-                              ),
-                              focusColor: Colors.white,
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Color(0xffc67608))),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                  65.0, 65.0, 0.0, 0.0),
+                              child: IconButton(
+                                  icon: Icon(
+                                    Icons.add_box,
+                                    color: Color(0xffc67608),
+                                    size: 30,
+                                  ),
+                                  onPressed: getImage),
                             ),
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                            controller: controllerProfession,
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter Profession';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Container(
-                          height: 50,
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              border: UnderlineInputBorder(),
-                              filled: true,
-                              fillColor: Colors.black,
-                              hintText: "Bio",
-                              hintStyle: TextStyle(
-                                color: Colors.white,
-                              ),
-                              focusColor: Colors.white,
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Color(0xffc67608))),
-                            ),
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                            controller: controllerAboutMe,
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter Bio';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Container(
-                          width: 70,
-                          height: 30,
-                          child: RaisedButton(
-                            color: Colors.black,
+                          ],
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          RaisedButton(
                             shape: RoundedRectangleBorder(
                               side: BorderSide(
                                 style: BorderStyle.solid,
@@ -601,59 +283,399 @@ class EditProfileState extends State<EditProfile> {
                                 Radius.circular(16.0),
                               ),
                             ),
-                            onPressed: () async {
-                              if (_formKey.currentState.validate()) {
-                                try {
-                                  final FirebaseUser user =
-                                      await _auth.currentUser();
-                                  final uid = user.uid;
-                                  Firestore.instance
-                                      .collection('users')
-                                      .document(uid)
-                                      .updateData({
-                                    'name': controllerName.text,
-                                  });
-
-                                  Firestore.instance
-                                      .collection('users')
-                                      .document(uid)
-                                      .updateData({
-                                    'country': _country,
-                                  });
-
-                                  Firestore.instance
-                                      .collection('users')
-                                      .document(uid)
-                                      .updateData({
-                                    'profession': controllerProfession.text,
-                                  });
-
-                                  Firestore.instance
-                                      .collection('users')
-                                      .document(uid)
-                                      .updateData({
-                                    'aboutMe': controllerAboutMe.text,
-                                  });
-                                } catch (e) {
-                                  print(e);
-                                }
-                              }
-                            },
+                            color: Colors.black,
+                            onPressed: uploadFile,
                             child: Text(
-                              'save',
+                              'Save Image',
                               style: TextStyle(
                                 color: Color(0xffc67608),
+                                fontSize: 14,
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              height: 50,
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.black,
+                                  hintText: "Name",
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                  focusColor: Colors.white,
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
+                                ),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                                controller: controllerName,
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter Name';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            FractionallySizedBox(
+                              widthFactor: 1.0,
+                              child: Container(
+                                padding:
+                                    EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                    canvasColor: Colors.black,
+                                  ),
+                                  child: new DropdownButtonFormField<String>(
+                                    value: _country,
+                                    decoration: InputDecoration(
+                                      border: UnderlineInputBorder(),
+                                      filled: true,
+                                      fillColor: Colors.black,
+                                      hintStyle: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      focusColor: Colors.white,
+                                      enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Color(0xffc67608))),
+                                    ),
+                                    validator: (String newValue) {
+                                      if (newValue == null) {
+                                        return 'Please enter country';
+                                      }
+                                      return null;
+                                    },
+                                    hint: Text(
+                                      'Country',
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    onChanged: (String newValue) {
+                                      setState(() {
+                                        _country = newValue;
+                                      });
+                                    },
+                                    items: <String>[
+                                      'Australia',
+                                      'Austria',
+                                      'Argentina',
+                                      'Angola',
+                                      'Algeria',
+                                      'Bahamas',
+                                      'Bangladesh',
+                                      'Barbados',
+                                      'Belgium',
+                                      'Benin Republic',
+                                      'Brazil',
+                                      'Botswana',
+                                      'Bulgaria',
+                                      'Burkina Faso',
+                                      'Canada',
+                                      'Cameroon',
+                                      'Chile',
+                                      'China',
+                                      'Colombia',
+                                      'Congo',
+                                      'Costa Rica',
+                                      "Cote d'Ivoire",
+                                      'Croatia',
+                                      'Cyprus',
+                                      'Denmark',
+                                      'Ecuador',
+                                      'Egypt',
+                                      'Equatorial Guinea',
+                                      'Estonia',
+                                      'Ethopia',
+                                      'Finland',
+                                      'France',
+                                      'Gabon',
+                                      'Gambia',
+                                      'Germany',
+                                      'Ghana',
+                                      'Greece',
+                                      'Guatemala',
+                                      'Guinea',
+                                      'Haiti',
+                                      'Hungary',
+                                      'Iceland',
+                                      'India',
+                                      'Indonesia',
+                                      'Ireland',
+                                      'Israel',
+                                      'Italy',
+                                      'Jamaica',
+                                      'Japan',
+                                      'Jordan',
+                                      'Kenya',
+                                      'Kuwait',
+                                      'Lebanon',
+                                      'Liberia',
+                                      'Lithuania',
+                                      'Luxembourg',
+                                      'Madagascar',
+                                      'Malawi',
+                                      'Malaysia',
+                                      'Maldives',
+                                      'Mali',
+                                      'Mauritius',
+                                      'Mexico',
+                                      'Monaco',
+                                      'Morocco',
+                                      'Mozambique',
+                                      'Namibia',
+                                      'Nepal',
+                                      'Netherlands',
+                                      'New Zealand',
+                                      'Niger',
+                                      'Nigeria',
+                                      'Norway',
+                                      'Panama',
+                                      'Paraguay',
+                                      'Peru',
+                                      'Philippines',
+                                      'Poland',
+                                      'Portugal',
+                                      'Qatar',
+                                      'Romania',
+                                      'Russia',
+                                      'Rwanda',
+                                      'Senegal',
+                                      'Seychelles',
+                                      'Sierra Leone',
+                                      'Singapore',
+                                      'Slovakia',
+                                      'South Africa',
+                                      'South Korea',
+                                      'Spain',
+                                      'Sri Lanka',
+                                      'Sweden',
+                                      'Switzerland',
+                                      'Taiwan',
+                                      'Tanzania',
+                                      'Thailand',
+                                      'Togo',
+                                      'Turkey',
+                                      'Uganda',
+                                      'Ukraine',
+                                      'UAE',
+                                      'United Kingdom',
+                                      'United States of America',
+                                      'Uruguay',
+                                      'Venezuela',
+                                      'Zambia',
+                                      'Zimbabwe',
+                                    ].map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return new DropdownMenuItem<String>(
+                                        value: value,
+                                        child: new Text(
+                                          value,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Container(
+                              height: 50,
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.black,
+                                  hintText: "Profession",
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                  focusColor: Colors.white,
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
+                                ),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                                controller: controllerProfession,
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter Profession';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Container(
+                              height: 50,
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.black,
+                                  hintText: "Bio",
+                                  hintStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                  focusColor: Colors.white,
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xffc67608))),
+                                ),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                                controller: controllerAboutMe,
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter Bio';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Container(
+                              width: 70,
+                              height: 30,
+                              child: RaisedButton(
+                                color: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                    style: BorderStyle.solid,
+                                    color: Color(0xffc67608),
+                                  ),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(16.0),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  if (_formKey.currentState.validate()) {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+
+                                    try {
+                                      final FirebaseUser user =
+                                          await _auth.currentUser();
+                                      final uid = user.uid;
+
+                                      var batch = Firestore.instance.batch();
+
+                                      batch.updateData(
+                                          Firestore.instance
+                                              .collection('users')
+                                              .document(uid),
+                                          {
+                                            'name': controllerName.text,
+                                          });
+                                      batch.updateData(
+                                          Firestore.instance
+                                              .collection('users')
+                                              .document(uid),
+                                          {
+                                            'country': _country,
+                                            'name': controllerName.text,
+                                            'profession':
+                                                controllerProfession.text,
+                                            'aboutMe': controllerAboutMe.text,
+                                          });
+
+                                      await batch.commit();
+
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+
+                                      Fluttertoast.showToast(
+                                          msg: "Profile Saved Succesfully",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.TOP,
+                                          timeInSecForIos: 1,
+                                          backgroundColor: Color(0xffc67608),
+                                          textColor: Colors.white,
+                                          fontSize: 14.0);
+
+                                      Navigator.pop(context);
+                                    } catch (e) {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      Fluttertoast.showToast(
+                                          msg: "Something went wrong",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.TOP,
+                                          timeInSecForIos: 1,
+                                          backgroundColor: Color(0xffc67608),
+                                          textColor: Colors.white,
+                                          fontSize: 14.0);
+
+                                      Navigator.pop(context);
+                                    }
+                                  }
+                                },
+                                child: Text(
+                                  'save',
+                                  style: TextStyle(
+                                    color: Color(0xffc67608),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            isLoading
+                ? Positioned(
+                    top: 0.0,
+                    left: 0.0,
+                    bottom: 0.0,
+                    right: 0.0,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(themeColor),
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
