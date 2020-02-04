@@ -119,6 +119,10 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   Future uploadFile() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final FirebaseUser user = await _auth.currentUser();
     final uid = user.uid;
     String fileName1 = uid;
@@ -126,17 +130,18 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         FirebaseStorage.instance.ref().child(fileName1);
     StorageUploadTask uploadTask = reference.putFile(avatarImageFile);
     StorageTaskSnapshot storageTaskSnapshot;
-    uploadTask.onComplete.then((value) {
-      if (value.error == null) {
-        storageTaskSnapshot = value;
-        storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-          photoUrl = downloadUrl;
-          Firestore.instance
-              .collection('users')
-              .document(uid)
-              .updateData({'photoUrl': photoUrl});
-        });
-      }
+
+    storageTaskSnapshot = await uploadTask.onComplete;
+
+    photoUrl = await storageTaskSnapshot.ref.getDownloadURL();
+
+    await Firestore.instance
+        .collection('users')
+        .document(uid)
+        .updateData({'photoUrl': photoUrl});
+
+    setState(() {
+      isLoading = false;
     });
 
     Fluttertoast.showToast(
@@ -288,310 +293,331 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
-        child: Column(
+        child: Stack(
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Column(
               children: <Widget>[
-                Stack(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Column(
+                    Stack(
                       children: <Widget>[
-                        FutureBuilder<DocumentSnapshot>(
-                            future: getUserDoc(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                return Row(
-                                  children: <Widget>[
-                                    Container(
-                                      padding: const EdgeInsets.all(3.0),
-                                      decoration: new BoxDecoration(
-                                        color:
-                                            Color(0xffc67608), // border color
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                          snapshot.data['photoUrl'],
+                        Column(
+                          children: <Widget>[
+                            FutureBuilder<DocumentSnapshot>(
+                                future: getUserDoc(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Row(
+                                      children: <Widget>[
+                                        Container(
+                                          padding: const EdgeInsets.all(3.0),
+                                          decoration: new BoxDecoration(
+                                            color: Color(
+                                                0xffc67608), // border color
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              snapshot.data['photoUrl'],
+                                            ),
+                                            radius: 50.0,
+                                          ),
                                         ),
-                                        radius: 50.0,
+                                      ],
+                                    );
+                                  } else {
+                                    return Container(
+                                      child: Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              30.0, 20.0, 0.0, 0.0),
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Color(0xffc67608)),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                );
-                              } else {
-                                return Container(
-                                  child: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          30.0, 20.0, 0.0, 0.0),
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Color(0xffc67608)),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                            }),
-                      ],
-                    ),
-                  ],
-                )
-              ],
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            FutureBuilder<DocumentSnapshot>(
-                future: getUserDoc(),
-                builder: (context, snapshot) {
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(40.0, 0.0, 40.0, 0.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        RaisedButton(
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              style: BorderStyle.solid,
-                              color: Color(0xffc67608),
-                            ),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(16.0),
-                            ),
-                          ),
-                          color: Colors.black,
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditProfile(
-                                    name: snapshot.data['name'],
-                                    bio: snapshot.data['aboutMe'],
-                                    profession: snapshot.data['profession'],
-                                    country: snapshot.data['country'],
-                                  ),
-                                ));
-                          },
-                          child: Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              color: Color(0xffc67608),
-                              fontSize: 14,
-                            ),
-                          ),
+                                    );
+                                  }
+                                }),
+                          ],
                         ),
-                        RaisedButton(
+                      ],
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                FutureBuilder<DocumentSnapshot>(
+                    future: getUserDoc(),
+                    builder: (context, snapshot) {
+                      return Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(40.0, 0.0, 40.0, 0.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            RaisedButton(
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  style: BorderStyle.solid,
+                                  color: Color(0xffc67608),
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(16.0),
+                                ),
+                              ),
+                              color: Colors.black,
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditProfile(
+                                        name: snapshot.data['name'],
+                                        bio: snapshot.data['aboutMe'],
+                                        profession: snapshot.data['profession'],
+                                        country: snapshot.data['country'],
+                                      ),
+                                    ));
+                              },
+                              child: Text(
+                                'Edit Profile',
+                                style: TextStyle(
+                                  color: Color(0xffc67608),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            RaisedButton(
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  style: BorderStyle.solid,
+                                  color: Color(0xffc67608),
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(16.0),
+                                ),
+                              ),
+                              color: Colors.black,
+                              onPressed: _referURL,
+                              child: Text(
+                                'Refer Member',
+                                style: TextStyle(
+                                  color: Color(0xffc67608),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }),
+                SizedBox(
+                  height: 15,
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
+                  child: FutureBuilder<DocumentSnapshot>(
+                      future: getUserDoc(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    snapshot.data['name'] == null
+                                        ? ''
+                                        : snapshot.data['name']
+                                            .toString()
+                                            .toUpperCase(),
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'RalewayRegular',
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    snapshot.data['country'] == null
+                                        ? ''
+                                        : snapshot.data['country']
+                                            .toString()
+                                            .toUpperCase(),
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'RalewayRegular',
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    snapshot.data['profession'].toUpperCase(),
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'RalewayRegular',
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Container();
+                        }
+                      }),
+                ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(8.0, 20.0, 0.0, 0.0),
+                  color: Colors.black,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
+                    child: FutureBuilder<DocumentSnapshot>(
+                        future: getUserDoc(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            List<dynamic> imageUrlList =
+                                snapshot.data['images'];
+
+                            return Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    snapshot.data['aboutMe'],
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  _imageFromGallery == null
+                                      ? Container(
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Color(0xffc67608)),
+                                              shape: BoxShape.circle),
+                                          child: IconButton(
+                                            onPressed: (imageUrlList != null &&
+                                                    imageUrlList.length > 20)
+                                                ? showLimitErrorSnackbar
+                                                : getImageFromGallery,
+                                            icon: Icon(
+                                              Icons.camera_alt,
+                                              color: Color(0xffc67608),
+                                            ),
+                                          ),
+                                        )
+                                      : Image.file(_imageFromGallery),
+                                ],
+                              ),
+                            );
+                          } else {
+                            return Container();
+                          }
+                        }),
+                  ),
+                ),
+                _imageFromGallery == null
+                    ? Container()
+                    : ButtonTheme(
+                        minWidth: 300.0,
+                        height: 40.0,
+                        child: RaisedButton(
+                          color: Color(0xffc67608),
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                              style: BorderStyle.solid,
                               color: Color(0xffc67608),
                             ),
                             borderRadius: BorderRadius.all(
-                              Radius.circular(16.0),
+                              Radius.circular(10.0),
                             ),
                           ),
-                          color: Colors.black,
-                          onPressed: _referURL,
                           child: Text(
-                            'Refer Member',
+                            "Save Image",
                             style: TextStyle(
-                              color: Color(0xffc67608),
-                              fontSize: 14,
+                              fontSize: 20,
                             ),
                           ),
-                        )
-                      ],
-                    ),
-                  );
-                }),
-            SizedBox(
-              height: 15,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
-              child: FutureBuilder<DocumentSnapshot>(
-                  future: getUserDoc(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                snapshot.data['name'] == null
-                                    ? ''
-                                    : snapshot.data['name']
-                                        .toString()
-                                        .toUpperCase(),
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'RalewayRegular',
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                snapshot.data['country'] == null
-                                    ? ''
-                                    : snapshot.data['country']
-                                        .toString()
-                                        .toUpperCase(),
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'RalewayRegular',
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                snapshot.data['profession'].toUpperCase(),
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'RalewayRegular',
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
-                    } else {
-                      return Container();
-                    }
-                  }),
-            ),
-            Container(
-              padding: EdgeInsets.fromLTRB(8.0, 20.0, 0.0, 0.0),
-              color: Colors.black,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
-                child: FutureBuilder<DocumentSnapshot>(
+                          textColor: Colors.black,
+                          onPressed: uploadImageFromGallery,
+                        ),
+                      ),
+                FutureBuilder<DocumentSnapshot>(
                     future: getUserDoc(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         List<dynamic> imageUrlList = snapshot.data['images'];
 
-                        return Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                snapshot.data['aboutMe'],
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              _imageFromGallery == null
-                                  ? Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Color(0xffc67608)),
-                                          shape: BoxShape.circle),
-                                      child: IconButton(
-                                        onPressed: (imageUrlList != null &&
-                                                imageUrlList.length > 20)
-                                            ? showLimitErrorSnackbar
-                                            : getImageFromGallery,
-                                        icon: Icon(
-                                          Icons.camera_alt,
-                                          color: Color(0xffc67608),
-                                        ),
-                                      ),
-                                    )
-                                  : Image.file(_imageFromGallery),
-                            ],
-                          ),
-                        );
+                        if (imageUrlList == null || imageUrlList.isEmpty) {
+                          return Container();
+                        } else {
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Wrap(
+                                  alignment: WrapAlignment.start,
+                                  children: imageUrlList
+                                      .map((imageUrl) => ProfileImageItem(
+                                            imageUrl: imageUrl,
+                                            deleteImage:
+                                                deleteImageFromFirestore,
+                                          ))
+                                      .toList()),
+                            ),
+                          );
+                        }
                       } else {
                         return Container();
                       }
                     }),
-              ),
+                SizedBox(
+                  height: 40.0,
+                ),
+              ],
             ),
-            _imageFromGallery == null
-                ? Container()
-                : ButtonTheme(
-                    minWidth: 300.0,
-                    height: 40.0,
-                    child: RaisedButton(
-                      color: Color(0xffc67608),
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          color: Color(0xffc67608),
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
-                        ),
+            isLoading
+                ? Positioned(
+                    top: 0.0,
+                    left: 0.0,
+                    bottom: 0.0,
+                    right: 0.0,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(themeColor),
                       ),
-                      child: Text(
-                        "Save Image",
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      textColor: Colors.black,
-                      onPressed: uploadImageFromGallery,
                     ),
-                  ),
-            FutureBuilder<DocumentSnapshot>(
-                future: getUserDoc(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    List<dynamic> imageUrlList = snapshot.data['images'];
-
-                    if (imageUrlList == null || imageUrlList.isEmpty) {
-                      return Container();
-                    } else {
-                      return Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Wrap(
-                              alignment: WrapAlignment.start,
-                              children: imageUrlList
-                                  .map((imageUrl) => ProfileImageItem(
-                                        imageUrl: imageUrl,
-                                        deleteImage: deleteImageFromFirestore,
-                                      ))
-                                  .toList()),
-                        ),
-                      );
-                    }
-                  } else {
-                    return Container();
-                  }
-                }),
-            SizedBox(
-              height: 40.0,
-            ),
+                  )
+                : SizedBox.shrink(),
           ],
         ),
       ),
