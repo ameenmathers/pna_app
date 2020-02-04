@@ -93,18 +93,14 @@ class EditProfileState extends State<EditProfile> {
         FirebaseStorage.instance.ref().child(fileName1);
     StorageUploadTask uploadTask = reference.putFile(avatarImageFile);
     StorageTaskSnapshot storageTaskSnapshot;
-    uploadTask.onComplete.then((value) {
-      if (value.error == null) {
-        storageTaskSnapshot = value;
-        storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-          photoUrl = downloadUrl;
-          Firestore.instance
-              .collection('users')
-              .document(uid)
-              .updateData({'photoUrl': photoUrl});
-        });
-      }
-    });
+
+    storageTaskSnapshot = await uploadTask.onComplete;
+    photoUrl = await storageTaskSnapshot.ref.getDownloadURL();
+
+    await Firestore.instance
+        .collection('users')
+        .document(uid)
+        .updateData({'photoUrl': photoUrl});
 
     setState(() {
       isLoading = false;
@@ -640,36 +636,40 @@ class EditProfileState extends State<EditProfile> {
                                 ),
                                 onPressed: () async {
                                   if (_formKey.currentState.validate()) {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+
                                     try {
                                       final FirebaseUser user =
                                           await _auth.currentUser();
                                       final uid = user.uid;
-                                      await Firestore.instance
-                                          .collection('users')
-                                          .document(uid)
-                                          .updateData({
-                                        'name': controllerName.text,
-                                      });
 
-                                      await Firestore.instance
-                                          .collection('users')
-                                          .document(uid)
-                                          .updateData({
-                                        'country': _country,
-                                      });
+                                      var batch = Firestore.instance.batch();
 
-                                      await Firestore.instance
-                                          .collection('users')
-                                          .document(uid)
-                                          .updateData({
-                                        'profession': controllerProfession.text,
-                                      });
+                                      batch.updateData(
+                                          Firestore.instance
+                                              .collection('users')
+                                              .document(uid),
+                                          {
+                                            'name': controllerName.text,
+                                          });
+                                      batch.updateData(
+                                          Firestore.instance
+                                              .collection('users')
+                                              .document(uid),
+                                          {
+                                            'country': _country,
+                                            'name': controllerName.text,
+                                            'profession':
+                                                controllerProfession.text,
+                                            'aboutMe': controllerAboutMe.text,
+                                          });
 
-                                      await Firestore.instance
-                                          .collection('users')
-                                          .document(uid)
-                                          .updateData({
-                                        'aboutMe': controllerAboutMe.text,
+                                      await batch.commit();
+
+                                      setState(() {
+                                        isLoading = false;
                                       });
 
                                       Fluttertoast.showToast(
@@ -683,6 +683,9 @@ class EditProfileState extends State<EditProfile> {
 
                                       Navigator.pop(context);
                                     } catch (e) {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
                                       Fluttertoast.showToast(
                                           msg: "Something went wrong",
                                           toastLength: Toast.LENGTH_SHORT,
