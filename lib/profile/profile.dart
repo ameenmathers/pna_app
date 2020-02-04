@@ -233,6 +233,10 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Future<void> deleteImageFromFirestore(String imageUrl) async {
     print('delete this $imageUrl');
 
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       final FirebaseUser user = await _auth.currentUser();
       final uid = user.uid;
@@ -242,9 +246,10 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       }, merge: true);
 
       setState(() {
-        //Refreshes the widget list
+        isLoading = false;
       });
 
+      
       Fluttertoast.showToast(
           msg: "Picture Deleted Succesfully",
           toastLength: Toast.LENGTH_SHORT,
@@ -254,6 +259,9 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           textColor: Colors.white,
           fontSize: 14.0);
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       Fluttertoast.showToast(
           msg: "Error in Deleting Picture ",
           toastLength: Toast.LENGTH_SHORT,
