@@ -40,7 +40,11 @@ class _ChatScreenState extends State<ChatScreen> {
       receiverName,
       senderName,
       senderCountry;
-  StreamSubscription<DocumentSnapshot> subscription;
+
+  Stream<QuerySnapshot> snapshotStream;
+
+  StreamSubscription<QuerySnapshot> subscription;
+
   File imageFile;
   StorageReference _storageReference;
   TextEditingController _messageController;
@@ -85,6 +89,16 @@ class _ChatScreenState extends State<ChatScreen> {
     getUID().then((user) {
       setState(() {
         _senderUid = user.uid;
+        snapshotStream = Firestore.instance
+            .collection('messages')
+            .document(_getDocumentId(_senderUid, widget.receiverUid))
+            .collection('messageList')
+            .orderBy('timestamp', descending: false)
+            .snapshots();
+
+        subscription = snapshotStream.listen((snapshot) {
+          _setAsRead(snapshot);
+        });
         print("sender uid : $_senderUid");
         getSenderPhotoUrl(_senderUid).then((snapshot) {
           setState(() {
@@ -134,27 +148,35 @@ class _ChatScreenState extends State<ChatScreen> {
       documentPath: documentPath,
     );
 
-    await documentReference.setData({
-      'mapOfUidToUsername': {
-        _senderUid: senderName,
-        widget.receiverUid: widget.name
-      },
-      'mapOfUidToPhotoUrl': {
-        _senderUid: senderPhotoUrl,
-        widget.receiverUid: widget.photoUrl,
-      },
-      'mapOfUidToCountry': {
-        _senderUid: senderCountry,
-        widget.receiverUid: widget.country
-      },
-      'userIdList': [_senderUid, widget.receiverUid],
-      'timestamp': FieldValue.serverTimestamp(),
-    }, merge: true);
+    var batch = Firestore.instance.batch();
+
+    batch.setData(
+        documentReference,
+        {
+          'mapOfUidToUsername': {
+            _senderUid: senderName,
+            widget.receiverUid: widget.name
+          },
+          'mapOfUidToPhotoUrl': {
+            _senderUid: senderPhotoUrl,
+            widget.receiverUid: widget.photoUrl,
+          },
+          'mapOfUidToCountry': {
+            _senderUid: senderCountry,
+            widget.receiverUid: widget.country
+          },
+          'userIdList': [_senderUid, widget.receiverUid],
+          'timestamp': FieldValue.serverTimestamp(),
+        },
+        merge: true);
 
     CollectionReference collectionReference =
         documentReference.collection('messageList');
 
-    await collectionReference.add(map);
+    batch.setData(collectionReference.document(), map);
+
+    await batch.commit();
+
     print("Messages added to db");
 
     _messageController.text = "";
@@ -366,16 +388,41 @@ class _ChatScreenState extends State<ChatScreen> {
     return receiverDocumentSnapshot;
   }
 
+  _setAsRead(QuerySnapshot snapshot) async {
+    String documentPath = _getDocumentId(_senderUid, widget.receiverUid);
+    DocumentReference documentReference = _getDocumentReference(
+      collectionPath: 'messages',
+      documentPath: documentPath,
+    );
+
+    CollectionReference collectionReference =
+        documentReference.collection('messageList');
+
+    var batch = Firestore.instance.batch();
+
+    for (var doc in snapshot.documents) {
+      print('loop');
+      batch.updateData(
+        collectionReference.document(doc.documentID),
+        {'mapOfUidToReadStatus.$_senderUid': true},
+      );
+    }
+
+    print('after loop');
+
+    try {
+      await batch.commit();
+      print('done');
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Widget ChatMessagesListWidget() {
     print("SENDERUID : $_senderUid");
     return Expanded(
       child: StreamBuilder(
-        stream: Firestore.instance
-            .collection('messages')
-            .document(_getDocumentId(_senderUid, widget.receiverUid))
-            .collection('messageList')
-            .orderBy('timestamp', descending: false)
-            .snapshots(),
+        stream: snapshotStream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(
