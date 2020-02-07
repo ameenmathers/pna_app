@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -247,9 +248,9 @@ class _GalleryPageState extends State<GalleryPage> {
                                           ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
-                                            child: new Image.network(
-                                              snapshot.data[index].image,
-                                              gaplessPlayback: true,
+                                            child: CachedNetworkImage(
+                                              imageUrl:
+                                                  snapshot.data[index].image,
                                               width: 450,
                                               height: 230,
                                               fit: BoxFit.cover,
@@ -343,9 +344,9 @@ class _GalleryPageState extends State<GalleryPage> {
                                               ClipRRect(
                                                 borderRadius:
                                                     BorderRadius.circular(10.0),
-                                                child: new Image.network(
-                                                  snapshot.data[index].image,
-                                                  gaplessPlayback: true,
+                                                child: CachedNetworkImage(
+                                                  imageUrl: snapshot
+                                                      .data[index].image,
                                                   width: 450,
                                                   height: 230,
                                                   fit: BoxFit.cover,
@@ -557,9 +558,8 @@ class GalleryDetail extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: FadeInImage(
-                          image: NetworkImage(gallery.image),
-                          placeholder: AssetImage(''),
+                        child: CachedNetworkImage(
+                          imageUrl: gallery.image,
                         ),
                       ),
                     ),
@@ -586,9 +586,8 @@ class GalleryDetail extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: FadeInImage(
-                          image: NetworkImage(gallery.image2),
-                          placeholder: AssetImage(''),
+                        child: CachedNetworkImage(
+                          imageUrl: gallery.image2,
                         ),
                       ),
                     ),
@@ -615,9 +614,8 @@ class GalleryDetail extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: FadeInImage(
-                          image: NetworkImage(gallery.image3),
-                          placeholder: AssetImage(''),
+                        child: CachedNetworkImage(
+                          imageUrl: gallery.image3,
                         ),
                       ),
                     ),

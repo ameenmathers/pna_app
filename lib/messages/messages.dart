@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_world/chat/chat.dart';
-import 'package:travel_world/const.dart';
 import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
@@ -117,7 +116,8 @@ class _MessagesState extends State<Messages> {
                       )
                     : Container(
                         child: Padding(
-                          padding: const EdgeInsets.all(15.0),
+                          padding:
+                              const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 15.0),
                           child: ListView.builder(
                             itemCount:
                                 _mapOfConnectedUserToAllMessagesReadStatus
@@ -237,9 +237,6 @@ class _MessagesState extends State<Messages> {
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10.0)))),
           ),
-        ),
-        SizedBox(
-          height: 15,
         ),
       ],
     );

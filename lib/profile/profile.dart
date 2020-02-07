@@ -279,17 +279,8 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     );
                                   } else {
                                     return Container(
-                                      child: Center(
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              30.0, 20.0, 0.0, 0.0),
-                                          child: CircularProgressIndicator(
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                    Color(0xffc67608)),
-                                          ),
-                                        ),
-                                      ),
+                                      width: 100,
+                                      height: 100,
                                     );
                                   }
                                 }),
@@ -307,7 +298,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     builder: (context, snapshot) {
                       return Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(40.0, 0.0, 40.0, 0.0),
+                            const EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 0.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
@@ -536,7 +527,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               padding: const EdgeInsets.all(16.0),
                               child: Wrap(
                                   alignment: WrapAlignment.start,
-                                  children: imageUrlList
+                                  children: imageUrlList.reversed
                                       .map((imageUrl) => ProfileImageItem(
                                             imageUrl: imageUrl,
                                             deleteImage:
@@ -703,7 +694,7 @@ class ProfileImageItem extends StatelessWidget {
 }
 
 _referURL() async {
-  const url = 'https://playnetwork.africa/refer-member';
+  const url = 'http://www.playnetworkafrica.com/public/referral-create';
   if (await canLaunch(url)) {
     await launch(url);
   } else {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -260,9 +261,8 @@ class _NewsPageState extends State<NewsPage> {
                                       ClipRRect(
                                         borderRadius:
                                             BorderRadius.circular(10.0),
-                                        child: new Image.network(
-                                          snapshot.data[index].image,
-                                          gaplessPlayback: true,
+                                        child: CachedNetworkImage(
+                                          imageUrl: snapshot.data[index].image,
                                           width: 450,
                                           height: 230,
                                           fit: BoxFit.cover,
@@ -349,9 +349,9 @@ class _NewsPageState extends State<NewsPage> {
                                           ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
-                                            child: new Image.network(
-                                              snapshot.data[index].image,
-                                              gaplessPlayback: true,
+                                            child: CachedNetworkImage(
+                                              imageUrl:
+                                                  snapshot.data[index].image,
                                               width: 450,
                                               height: 230,
                                               fit: BoxFit.cover,
@@ -549,9 +549,8 @@ class NewsDetail extends StatelessWidget {
                     children: <Widget>[
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: new Image.network(
-                          newws.image,
-                          gaplessPlayback: true,
+                        child: CachedNetworkImage(
+                          imageUrl: newws.image,
                         ),
                       ),
                       SizedBox(
@@ -576,9 +575,8 @@ class NewsDetail extends StatelessWidget {
                       ),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: new Image.network(
-                          newws.image2,
-                          gaplessPlayback: true,
+                        child: CachedNetworkImage(
+                          imageUrl: newws.image2,
                         ),
                       ),
                     ],

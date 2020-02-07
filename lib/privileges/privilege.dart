@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -254,10 +255,9 @@ class PrivilegePageState extends State<PrivilegePage> {
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             10.0),
-                                                    child: new Image.network(
-                                                      snapshot
+                                                    child: CachedNetworkImage(
+                                                      imageUrl: snapshot
                                                           .data[index].image,
-                                                      gaplessPlayback: true,
                                                       width: 450,
                                                       height: 230,
                                                       fit: BoxFit.cover,
@@ -370,10 +370,10 @@ class PrivilegePageState extends State<PrivilegePage> {
                                                             BorderRadius
                                                                 .circular(10.0),
                                                         child:
-                                                            new Image.network(
-                                                          snapshot.data[index]
+                                                            CachedNetworkImage(
+                                                          imageUrl: snapshot
+                                                              .data[index]
                                                               .image,
-                                                          gaplessPlayback: true,
                                                           width: 450,
                                                           height: 230,
                                                           fit: BoxFit.cover,
@@ -627,9 +627,8 @@ class PrivilegeDetail extends StatelessWidget {
             children: <Widget>[
               ClipRRect(
                 borderRadius: BorderRadius.circular(10.0),
-                child: new Image.network(
-                  privilege.image,
-                  gaplessPlayback: true,
+                child: CachedNetworkImage(
+                  imageUrl: privilege.image,
                 ),
               ),
               SizedBox(
