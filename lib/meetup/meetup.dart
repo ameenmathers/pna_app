@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
@@ -38,30 +39,86 @@ class MeetupState extends State<Meetup> {
   String filter;
 
   Future<List<DocumentSnapshot>> getDocumentSnapshotListOfSameCountryUsers(
-      {@required String country}) async {
+      {@required String country, @required Source source}) async {
     QuerySnapshot querySnapshot = await _usersCollectionReference
         .where('country', isEqualTo: country)
-        .getDocuments();
+        .getDocuments(source: source);
 
     return querySnapshot.documents;
   }
 
   Future<void> _getSameCountryUsers() async {
+    setState(() {
+      _isLoading = true;
+    });
     final FirebaseUser user = await firebaseAuth.currentUser();
     final uid = user.uid;
+    List<DocumentSnapshot> usersList;
 
-    DocumentSnapshot userProfileInfo =
-        await _usersCollectionReference.document(uid).get();
+    var connectivityResult = await (Connectivity().checkConnectivity());
 
-    String country = userProfileInfo.data['country'];
+    if (connectivityResult == ConnectivityResult.none) {
+      try {
 
-    List<DocumentSnapshot> usersList =
-        await getDocumentSnapshotListOfSameCountryUsers(country: country);
+        DocumentSnapshot userProfileInfo = await _usersCollectionReference
+            .document(uid)
+            .get(source: Source.cache);
+
+        String country = userProfileInfo.data['country'];
+
+        usersList = await getDocumentSnapshotListOfSameCountryUsers(
+            country: country, source: Source.cache);
+
+            print('cache');
+      } catch (e) {
+        DocumentSnapshot userProfileInfo = await _usersCollectionReference
+            .document(uid)
+            .get(source: Source.serverAndCache);
+
+        String country = userProfileInfo.data['country'];
+
+        usersList = await getDocumentSnapshotListOfSameCountryUsers(
+            country: country, source: Source.serverAndCache);
+            print('server');
+
+      }
+    } else {
+      DocumentSnapshot userProfileInfo = await _usersCollectionReference
+          .document(uid)
+          .get(source: Source.cache);
+
+      String country = userProfileInfo.data['country'];
+
+      usersList = await getDocumentSnapshotListOfSameCountryUsers(
+          country: country, source: Source.cache);
+
+            print('cache 2');
+
+
+      _usersCollectionReference
+          .document(uid)
+          .get(source: Source.cache)
+          .then((snapshot) {
+        String country = snapshot.data['country'];
+        getDocumentSnapshotListOfSameCountryUsers(
+                country: country, source: Source.cache)
+            .then((snapshot) {
+          setState(() {
+            print('server 2');
+
+            usersList = snapshot;
+          });
+        });
+      });
+    }
 
     setState(() {
       _sameCountryUsersDocumentSnapshotList = usersList;
+      _isLoading = false;
     });
   }
+
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -80,14 +137,18 @@ class MeetupState extends State<Meetup> {
           _buildAppBar(),
           _buildSearchBar(),
           Expanded(
-            child: _sameCountryUsersDocumentSnapshotList != null
-                ? _buildUsersList()
-                : Center(
+            child: _isLoading
+                ? Center(
                     child: CircularProgressIndicator(
                       valueColor:
                           AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
                     ),
-                  ),
+                  )
+                : _sameCountryUsersDocumentSnapshotList.isEmpty
+                    ? Center(
+                        child: Text('No connections found'),
+                      )
+                    : _buildUsersList(),
           ),
         ],
       ),
@@ -408,11 +469,10 @@ class _ViewProfileState extends State<ViewProfile> {
                             context,
                             new MaterialPageRoute(
                                 builder: (context) => ChatScreen(
-                                    name: widget.name,
-                                    photoUrl: widget.photoUrl,
-                                    receiverUid: widget.uid, 
-                                    country: widget.country ,
-                                    
+                                      name: widget.name,
+                                      photoUrl: widget.photoUrl,
+                                      receiverUid: widget.uid,
+                                      country: widget.country,
                                     )));
                       },
                       child: Text(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_world/chat/chat.dart';
@@ -20,14 +21,13 @@ class _MessagesState extends State<Messages> {
   FirebaseUser loggedInUser;
   StreamSubscription<QuerySnapshot> _subscription;
 
-  Map<DocumentSnapshot, bool> _mapOfConnectedUserToAllMessagesReadStatus;
+  Map<DocumentSnapshot, bool> _mapOfConnectedUserToAllMessagesReadStatus = {};
 
   String uid;
 
   @override
   void initState() {
     super.initState();
-    _getMessages();
     _setUpSubscription();
 
     searchController.addListener(() {
@@ -37,24 +37,80 @@ class _MessagesState extends State<Messages> {
     });
   }
 
+  bool _isLoading;
+
   final CollectionReference _collectionReference =
       Firestore.instance.collection("messages");
 
+  Future<QuerySnapshot> messagesSnapshot;
+
   Future<void> _getMessages() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final FirebaseUser user = await firebaseAuth.currentUser();
     uid = user.uid;
 
-    var snapshot = await _collectionReference
-        .where('userIdList', arrayContains: uid)
-        .orderBy('timestamp')
-        .getDocuments();
-    _mapOfConnectedUserToAllMessagesReadStatus = {};
+    var connectivityResult = await (Connectivity().checkConnectivity());
 
-    if (snapshot.documents.isNotEmpty) {
-      for (var doc in snapshot.documents) {
+    Source source;
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print('no internet');
+      try {
+        print('use cache');
+
+        setState(() {
+          source = Source.cache;
+          messagesSnapshot = _collectionReference
+              .where('userIdList', arrayContains: uid)
+              .orderBy('timestamp')
+              .getDocuments(source: source);
+        });
+      } catch (e) {
+        print('use server');
+
+        setState(() {
+          source = Source.serverAndCache;
+
+          messagesSnapshot = _collectionReference
+              .where('userIdList', arrayContains: uid)
+              .orderBy('timestamp')
+              .getDocuments(source: source);
+        });
+      }
+    } else {
+      setState(() {
+        print('use cache 2 setState');
+
+        source = Source.cache;
+
+        messagesSnapshot = _collectionReference
+            .where('userIdList', arrayContains: uid)
+            .orderBy('timestamp')
+            .getDocuments(source: source);
+      });
+
+      _collectionReference
+          .where('userIdList', arrayContains: uid)
+          .orderBy('timestamp')
+          .getDocuments(source: Source.serverAndCache)
+          .then((onValue) {
+        print('use server result');
+        setState(() {
+          messagesSnapshot = Future.sync(() => onValue);
+        });
+      });
+    }
+
+    var messagesSnapshotValue = await messagesSnapshot;
+
+    if ((messagesSnapshotValue.documents).isNotEmpty) {
+      for (var doc in (messagesSnapshotValue.documents)) {
         var areAllMessagesRead = (await doc.reference
                 .collection('messageList')
-                .getDocuments())
+                .getDocuments(source: source))
             .documents
             .every((document) =>
                 (document.data['mapOfUidToReadStatus'] as Map)[uid] == true);
@@ -74,6 +130,8 @@ class _MessagesState extends State<Messages> {
           return x;
         });
       }
+
+      _isLoading = false;
     });
   }
 
@@ -93,8 +151,8 @@ class _MessagesState extends State<Messages> {
   @override
   void dispose() {
     searchController.dispose();
-    super.dispose();
     _subscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -105,36 +163,54 @@ class _MessagesState extends State<Messages> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           _buildAppBar(),
-          _buildSearchBar(),
+          (_isLoading == null || _isLoading)
+              ? SizedBox.shrink()
+              : _buildSearchBar(),
           Expanded(
-            child: _mapOfConnectedUserToAllMessagesReadStatus != null
-                ? _mapOfConnectedUserToAllMessagesReadStatus.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No chats found',
-                          style: TextStyle(color: Colors.white),
+              child: FutureBuilder(
+                  future: messagesSnapshot,
+                  builder: (context, snapshot) {
+                    if (_isLoading == null || _isLoading) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
                         ),
-                      )
-                    : Container(
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: ListView.builder(
-                            itemCount:
-                                _mapOfConnectedUserToAllMessagesReadStatus
-                                    .length,
-                            itemBuilder: ((context, index) {
-                              return _buildChatListTile(index, context);
-                            }),
+                      );
+                    }
+                    if (snapshot.hasData) {
+                      if (_mapOfConnectedUserToAllMessagesReadStatus
+                          .isNotEmpty) {
+                        return Container(
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: ListView.builder(
+                              itemCount:
+                                  _mapOfConnectedUserToAllMessagesReadStatus
+                                      .length,
+                              itemBuilder: ((context, index) {
+                                return _buildChatListTile(index, context);
+                              }),
+                            ),
                           ),
+                        );
+                      } else {
+                        return Center(
+                          child: Text(
+                            'No chats found',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
                         ),
-                      )
-                : Center(
-                    child: CircularProgressIndicator(
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
-                    ),
-                  ),
-          ),
+                      );
+                    }
+                  })),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     getCurrentUser();
+    getUserDoc();
   }
 
   void getCurrentUser() async {
@@ -156,78 +158,59 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         fontSize: 14.0);
   }
 
-  Future<DocumentSnapshot> getUserDoc({bool useCache = true}) async {
+  Future<DocumentSnapshot> userDocumentSnapshot;
+
+  Future<void> getUserDoc() async {
     final FirebaseUser user = await _auth.currentUser();
     final uid = user.uid;
+    var connectivityResult = await (Connectivity().checkConnectivity());
 
-    print('Loading Profile');
+    if (connectivityResult == ConnectivityResult.none) {
+      try {
+        print(' No internet => Loading from cache');
+        var snapshot = Firestore.instance
+            .collection('users')
+            .document(uid)
+            .get(source: Source.cache);
 
-    String data;
-
-    /// Do we have a cache we can use?
-    var cache = await cacheExists();
-
-    /// If the cache exists and it contains data use that, otherwise we call the API
-    if (cache && useCache) {
-      print('We have cached data');
-
-      data = await readToFile();
-
-      var cacheData = converter.jsonDecode(data);
+        setState(() {
+          userDocumentSnapshot = snapshot;
+        });
+      } catch (e) {
+        print(' No internet, error retrieving cache => Loading from server');
+        var snapshot = Firestore.instance
+            .collection('users')
+            .document(uid)
+            .get(source: Source.serverAndCache);
+        setState(() {
+          userDocumentSnapshot = snapshot;
+        });
+      }
     } else {
-      print('No cache. Fetching from API');
+      print(' Internet => Loading from server');
 
-      var sameUser =
-          await Firestore.instance.collection('users').document(uid).get();
+      Firestore.instance
+          .collection('users')
+          .document(uid)
+          .get(source: Source.serverAndCache)
+          .then((onValue) {
+        print('data from server');
+        setState(() {
+          print('data from server setState');
 
-      var apiData = converter.jsonEncode(sameUser.data);
+          userDocumentSnapshot = Future.sync(() => onValue);
+        });
+      });
+      var snapshot = Firestore.instance
+          .collection('users')
+          .document(uid)
+          .get(source: Source.cache);
 
-      data = apiData;
-
-      /// Now save the fetched data to the cache
-      await writeToFile(data);
+      setState(() {
+        print('cache data');
+        userDocumentSnapshot = snapshot;
+      });
     }
-
-    var sameUser = await Firestore.instance
-        .collection('users')
-        .document(uid)
-        .get()
-        .then((DocumentSnapshot snapshot) => snapshot);
-
-    return sameUser;
-    //await needs to be placed here
-  }
-
-  static Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
-  static Future<File> get myfile async {
-    final path = await _localPath;
-    return File('$path/pro.txt');
-  }
-
-  static Future<bool> cacheExists() async {
-    var file = await myfile;
-
-    return file.exists();
-  }
-
-  static writeToFile(sameUser) async {
-    final file = await myfile;
-    file.writeAsString(sameUser);
-  }
-
-  static readToFile() async {
-    try {
-      final file = await myfile;
-
-      // Read the file.
-      String contents = await file.readAsString();
-
-      return contents;
-    } catch (e) {}
   }
 
   var myFile = new File('pro.txt');
@@ -314,7 +297,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         Column(
                           children: <Widget>[
                             FutureBuilder<DocumentSnapshot>(
-                                future: getUserDoc(),
+                                future: userDocumentSnapshot,
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     return Row(
@@ -362,7 +345,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   height: 10,
                 ),
                 FutureBuilder<DocumentSnapshot>(
-                    future: getUserDoc(),
+                    future: userDocumentSnapshot,
                     builder: (context, snapshot) {
                       return Padding(
                         padding:
@@ -431,7 +414,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
                   child: FutureBuilder<DocumentSnapshot>(
-                      future: getUserDoc(),
+                      future: userDocumentSnapshot,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Column(
@@ -506,7 +489,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
                     child: FutureBuilder<DocumentSnapshot>(
-                        future: getUserDoc(),
+                        future: userDocumentSnapshot,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             List<dynamic> imageUrlList =
@@ -581,7 +564,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         ),
                       ),
                 FutureBuilder<DocumentSnapshot>(
-                    future: getUserDoc(),
+                    future: userDocumentSnapshot,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         List<dynamic> imageUrlList = snapshot.data['images'];
