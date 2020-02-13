@@ -1,13 +1,16 @@
 import 'dart:async';
+import 'dart:convert' as converter;
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:random_string/random_string.dart';
 import 'package:travel_world/const.dart';
 import 'package:travel_world/full_screen_image.dart';
@@ -33,6 +36,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     getCurrentUser();
+    getUserDoc();
   }
 
   void getCurrentUser() async {
@@ -55,7 +59,6 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   String image4 = '';
 
   bool isLoading = false;
-
   File avatarImageFile;
 
   Future getImage() async {
@@ -155,23 +158,62 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         fontSize: 14.0);
   }
 
-  Future<DocumentSnapshot> getUserDoc({bool useCache = true}) async {
+  Future<DocumentSnapshot> userDocumentSnapshot;
+
+  Future<void> getUserDoc() async {
     final FirebaseUser user = await _auth.currentUser();
     final uid = user.uid;
+    var connectivityResult = await (Connectivity().checkConnectivity());
 
-    print('Loading Profile');
+    if (connectivityResult == ConnectivityResult.none) {
+      try {
+        print(' No internet => Loading from cache');
+        var snapshot = Firestore.instance
+            .collection('users')
+            .document(uid)
+            .get(source: Source.cache);
 
-    /// If the cache exists and it contains data use that, otherwise we call the API
+        setState(() {
+          userDocumentSnapshot = snapshot;
+        });
+      } catch (e) {
+        print(' No internet, error retrieving cache => Loading from server');
+        var snapshot = Firestore.instance
+            .collection('users')
+            .document(uid)
+            .get(source: Source.serverAndCache);
+        setState(() {
+          userDocumentSnapshot = snapshot;
+        });
+      }
+    } else {
+      print(' Internet => Loading from server');
 
-    var sameUser = await Firestore.instance
-        .collection('users')
-        .document(uid)
-        .get()
-        .then((DocumentSnapshot snapshot) => snapshot);
+      Firestore.instance
+          .collection('users')
+          .document(uid)
+          .get(source: Source.serverAndCache)
+          .then((onValue) {
+        print('data from server');
+        setState(() {
+          print('data from server setState');
 
-    return sameUser;
-    //await needs to be placed here
+          userDocumentSnapshot = Future.sync(() => onValue);
+        });
+      });
+      var snapshot = Firestore.instance
+          .collection('users')
+          .document(uid)
+          .get(source: Source.cache);
+
+      setState(() {
+        print('cache data');
+        userDocumentSnapshot = snapshot;
+      });
+    }
   }
+
+  var myFile = new File('pro.txt');
 
   Future<void> deleteImageFromFirestore(String imageUrl) async {
     print('delete this $imageUrl');
@@ -255,7 +297,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         Column(
                           children: <Widget>[
                             FutureBuilder<DocumentSnapshot>(
-                                future: getUserDoc(),
+                                future: userDocumentSnapshot,
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     return Row(
@@ -279,8 +321,17 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     );
                                   } else {
                                     return Container(
-                                      width: 100,
-                                      height: 100,
+                                      child: Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              30.0, 20.0, 0.0, 0.0),
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Color(0xffc67608)),
+                                          ),
+                                        ),
+                                      ),
                                     );
                                   }
                                 }),
@@ -294,11 +345,11 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   height: 10,
                 ),
                 FutureBuilder<DocumentSnapshot>(
-                    future: getUserDoc(),
+                    future: userDocumentSnapshot,
                     builder: (context, snapshot) {
                       return Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 0.0),
+                            const EdgeInsets.fromLTRB(40.0, 0.0, 40.0, 0.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
@@ -363,7 +414,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
                   child: FutureBuilder<DocumentSnapshot>(
-                      future: getUserDoc(),
+                      future: userDocumentSnapshot,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Column(
@@ -438,7 +489,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(15.0, 0.0, 0.0, 0.0),
                     child: FutureBuilder<DocumentSnapshot>(
-                        future: getUserDoc(),
+                        future: userDocumentSnapshot,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             List<dynamic> imageUrlList =
@@ -513,7 +564,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         ),
                       ),
                 FutureBuilder<DocumentSnapshot>(
-                    future: getUserDoc(),
+                    future: userDocumentSnapshot,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         List<dynamic> imageUrlList = snapshot.data['images'];
@@ -527,7 +578,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               padding: const EdgeInsets.all(16.0),
                               child: Wrap(
                                   alignment: WrapAlignment.start,
-                                  children: imageUrlList.reversed
+                                  children: imageUrlList
                                       .map((imageUrl) => ProfileImageItem(
                                             imageUrl: imageUrl,
                                             deleteImage:
@@ -694,10 +745,67 @@ class ProfileImageItem extends StatelessWidget {
 }
 
 _referURL() async {
-  const url = 'http://www.playnetworkafrica.com/public/referral-create';
+  const url = 'https://playnetwork.africa/refer-member';
   if (await canLaunch(url)) {
     await launch(url);
   } else {
     throw 'Could not launch $url';
+  }
+}
+
+class User {
+  final int uid;
+  final String name;
+  final String aboutMe;
+  final String country;
+  final String city;
+  final String profession;
+  final String photoUrl;
+  final String image1;
+  final String image2;
+  final String image3;
+  final String image4;
+
+  User(
+      {this.uid,
+      this.name,
+      this.aboutMe,
+      this.country,
+      this.city,
+      this.profession,
+      this.photoUrl,
+      this.image1,
+      this.image2,
+      this.image3,
+      this.image4});
+
+  factory User.fromMap(Map data) {
+    return User(
+      name: data['name'],
+      aboutMe: data['aboutMe'],
+      country: data['country'],
+      city: data['city'],
+      profession: data['profession'],
+      photoUrl: data['photoUrl'],
+      image1: data['image1'],
+      image2: data['image2'],
+      image3: data['image3'],
+      image4: data['image4'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'aboutMe': aboutMe,
+      'country': country,
+      'city': city,
+      'profession': profession,
+      'photoUrl': photoUrl,
+      'image1': image1,
+      'image2': image2,
+      'image3': image3,
+      'image4': image4,
+    };
   }
 }

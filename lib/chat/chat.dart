@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:travel_world/full_screen_image.dart';
-import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/models/message.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -506,7 +505,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               ),
                             ),
                           ),
-                        )
+                        ),
                 ],
               ),
               snapshot['senderUid'] == _senderUid

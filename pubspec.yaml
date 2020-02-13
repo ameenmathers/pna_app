@@ -31,6 +31,8 @@ dependencies:
   dio: ^3.0.4
   path: ^1.6.4
   flutter_vector_icons: ^0.2.1
+  connectivity: ^0.4.6+2
+
 
 
   
