@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -50,17 +51,21 @@ class _MessagesState extends State<Messages> {
   void registerNotification() {
     firebaseMessaging.requestNotificationPermissions();
 
-    firebaseMessaging.configure(onMessage: (Map<String, dynamic> message) {
-      print('onMessage: $message');
-      showNotification(message['notification']);
-      return;
-    }, onResume: (Map<String, dynamic> message) {
-      print('onResume: $message');
-      return;
-    }, onLaunch: (Map<String, dynamic> message) {
-      print('onLaunch: $message');
-      return;
-    });
+    firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) {
+        print('onMessage: $message');
+        showNotification(message['notification']);
+        return;
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('onResume: $message');
+        return;
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('onLaunch: $message');
+        return;
+      },
+    );
 
     firebaseMessaging.getToken().then((token) {
       print('token: $token');
@@ -73,10 +78,33 @@ class _MessagesState extends State<Messages> {
     });
   }
 
+  Future onDidReceiveLocalNotification(
+      int id, String title, String body, String payload) async {
+    // display a dialog with the notification details, tap ok to go to another page
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: Text('Ok'),
+            onPressed: () async {
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   void configLocalNotification() {
     var initializationSettingsAndroid =
         new AndroidInitializationSettings('@mipmap/ic_launcher');
-    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettingsIOS = new IOSInitializationSettings(
+      onDidReceiveLocalNotification: onDidReceiveLocalNotification,
+    );
     var initializationSettings = new InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -95,9 +123,15 @@ class _MessagesState extends State<Messages> {
     var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
     var platformChannelSpecifics = new NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(0, message['title'].toString(),
-        message['body'].toString(), platformChannelSpecifics,
-        payload: json.encode(message));
+    await flutterLocalNotificationsPlugin
+        .show(0, message['title'].toString(), message['body'].toString(),
+            platformChannelSpecifics,
+            payload: json.encode(message))
+        .catchError((err) {
+      print('NOTIFICATION SHOWING FAILED: $err');
+    });
+
+    print("NOTIFICATION SHOWING DONE");
   }
 
   final CollectionReference _collectionReference =

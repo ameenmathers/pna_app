@@ -12,6 +12,7 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="PNA"
         android:icon="@mipmap/ic_launcher">
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -34,6 +35,7 @@
                 <action android:name="FLUTTER_NOTIFICATION_CLICK" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
         </activity>
     </application>
 </manifest>
