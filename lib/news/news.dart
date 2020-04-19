@@ -248,6 +248,8 @@ class _NewsPageState extends State<NewsPage> {
                               children: <Widget>[
                                 RaisedButton(
                                   color: Colors.black,
+                                  highlightElevation: 8.0,
+                                  splashColor: Colors.white12,
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -258,14 +260,17 @@ class _NewsPageState extends State<NewsPage> {
                                   },
                                   child: Stack(
                                     children: <Widget>[
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        child: CachedNetworkImage(
-                                          imageUrl: snapshot.data[index].image,
-                                          width: 450,
-                                          height: 230,
-                                          fit: BoxFit.cover,
+                                      Center(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          child: Image.network(
+                                            snapshot.data[index].image,
+                                            width: 450,
+                                            height: 230,
+                                            fit: BoxFit.cover,
+                                            gaplessPlayback: true,
+                                          ),
                                         ),
                                       ),
                                       Padding(
@@ -277,6 +282,10 @@ class _NewsPageState extends State<NewsPage> {
                                             height: 30,
                                             child: RaisedButton(
                                               color: Color(0xffc67608),
+                                              highlightElevation: 8.0,
+                                              splashColor: Colors.white,
+                                              highlightColor: Colors.amber,
+                                              elevation: 2.0,
                                               shape: RoundedRectangleBorder(
                                                 side: BorderSide(
                                                   color: Color(0xffc67608),
@@ -323,7 +332,7 @@ class _NewsPageState extends State<NewsPage> {
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 20,
+                                  height: 50,
                                 ),
                               ],
                             ),
@@ -336,6 +345,8 @@ class _NewsPageState extends State<NewsPage> {
                                   children: <Widget>[
                                     RaisedButton(
                                       color: Colors.black,
+                                      highlightElevation: 8.0,
+                                      splashColor: Colors.white12,
                                       onPressed: () {
                                         Navigator.push(
                                           context,
@@ -346,15 +357,17 @@ class _NewsPageState extends State<NewsPage> {
                                       },
                                       child: Stack(
                                         children: <Widget>[
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            child: CachedNetworkImage(
-                                              imageUrl:
-                                                  snapshot.data[index].image,
-                                              width: 450,
-                                              height: 230,
-                                              fit: BoxFit.cover,
+                                          Center(
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              child: Image.network(
+                                                snapshot.data[index].image,
+                                                width: 450,
+                                                height: 230,
+                                                fit: BoxFit.cover,
+                                                gaplessPlayback: true,
+                                              ),
                                             ),
                                           ),
                                           Padding(
@@ -366,6 +379,10 @@ class _NewsPageState extends State<NewsPage> {
                                                 height: 30,
                                                 child: RaisedButton(
                                                   color: Color(0xffc67608),
+                                                  highlightElevation: 8.0,
+                                                  splashColor: Colors.white,
+                                                  highlightColor: Colors.amber,
+                                                  elevation: 2.0,
                                                   shape: RoundedRectangleBorder(
                                                     side: BorderSide(
                                                       color: Color(0xffc67608),
@@ -439,6 +456,9 @@ class _NewsPageState extends State<NewsPage> {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -453,6 +473,9 @@ class _NewsPageState extends State<NewsPage> {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -468,6 +491,9 @@ class _NewsPageState extends State<NewsPage> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -483,6 +509,9 @@ class _NewsPageState extends State<NewsPage> {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -535,6 +564,7 @@ class NewsDetail extends StatelessWidget {
         child: Center(
           child: SafeArea(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
                   height: 20,
@@ -547,10 +577,12 @@ class NewsDetail extends StatelessWidget {
                   onPressed: () {},
                   child: Column(
                     children: <Widget>[
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: CachedNetworkImage(
-                          imageUrl: newws.image,
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0),
+                          child: Image.network(
+                            newws.image,
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -599,6 +631,9 @@ class NewsDetail extends StatelessWidget {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -613,6 +648,9 @@ class NewsDetail extends StatelessWidget {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -628,6 +666,9 @@ class NewsDetail extends StatelessWidget {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -643,6 +684,9 @@ class NewsDetail extends StatelessWidget {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,

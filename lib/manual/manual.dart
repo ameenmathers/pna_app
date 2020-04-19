@@ -138,6 +138,10 @@ class ManualState extends State<Manual> {
                       height: 40.0,
                       child: RaisedButton(
                         color: Color(0xffc67608),
+                        highlightElevation: 8.0,
+                        splashColor: Colors.white,
+                        highlightColor: Colors.amber,
+                        elevation: 2.0,
                         shape: RoundedRectangleBorder(
                           side: BorderSide(
                             color: Color(0xffc67608),
@@ -175,6 +179,9 @@ class ManualState extends State<Manual> {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -189,6 +196,9 @@ class ManualState extends State<Manual> {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -204,6 +214,9 @@ class ManualState extends State<Manual> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -219,6 +232,9 @@ class ManualState extends State<Manual> {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,

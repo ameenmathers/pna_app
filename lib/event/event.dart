@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -265,6 +264,9 @@ class _EventsState extends State<Events> {
                                   ),
                                   RaisedButton(
                                     color: Colors.black,
+                                    highlightElevation: 8.0,
+                                    splashColor: Colors.white12,
+                                    elevation: 2.0,
                                     onPressed: () {
                                       Navigator.push(
                                         context,
@@ -275,15 +277,17 @@ class _EventsState extends State<Events> {
                                     },
                                     child: Stack(
                                       children: <Widget>[
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                          child: CachedNetworkImage(
-                                            imageUrl:
-                                                snapshot.data[index].image,
-                                            width: 450,
-                                            height: 230,
-                                            fit: BoxFit.cover,
+                                        Center(
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            child: Image.network(
+                                              snapshot.data[index].image,
+                                              width: 450,
+                                              height: 230,
+                                              fit: BoxFit.cover,
+                                              gaplessPlayback: true,
+                                            ),
                                           ),
                                         ),
                                         Row(
@@ -324,6 +328,11 @@ class _EventsState extends State<Events> {
                                                     ),
                                                     child: Text("Read More"),
                                                     textColor: Colors.black,
+                                                    highlightElevation: 8.0,
+                                                    splashColor: Colors.white,
+                                                    highlightColor:
+                                                        Colors.amber,
+                                                    elevation: 2.0,
                                                     onPressed: () {
                                                       Navigator.push(
                                                         context,
@@ -356,7 +365,7 @@ class _EventsState extends State<Events> {
                                     ),
                                   ),
                                   SizedBox(
-                                    height: 20,
+                                    height: 50,
                                   ),
                                 ],
                               ),
@@ -404,6 +413,9 @@ class _EventsState extends State<Events> {
                                       ),
                                       RaisedButton(
                                         color: Colors.black,
+                                        highlightElevation: 8.0,
+                                        splashColor: Colors.white12,
+                                        elevation: 2.0,
                                         onPressed: () {
                                           Navigator.push(
                                             context,
@@ -415,15 +427,17 @@ class _EventsState extends State<Events> {
                                         },
                                         child: Stack(
                                           children: <Widget>[
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              child: CachedNetworkImage(
-                                                imageUrl:
-                                                    snapshot.data[index].image,
-                                                width: 450,
-                                                height: 230,
-                                                fit: BoxFit.cover,
+                                            Center(
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                                child: Image.network(
+                                                  snapshot.data[index].image,
+                                                  width: 450,
+                                                  height: 230,
+                                                  fit: BoxFit.cover,
+                                                  gaplessPlayback: true,
+                                                ),
                                               ),
                                             ),
                                             Row(
@@ -454,6 +468,12 @@ class _EventsState extends State<Events> {
                                                       child: RaisedButton(
                                                         color:
                                                             Color(0xffc67608),
+                                                        highlightElevation: 8.0,
+                                                        splashColor:
+                                                            Colors.white,
+                                                        highlightColor:
+                                                            Colors.amber,
+                                                        elevation: 2.0,
                                                         shape:
                                                             RoundedRectangleBorder(
                                                           side: BorderSide(
@@ -528,6 +548,9 @@ class _EventsState extends State<Events> {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -542,6 +565,9 @@ class _EventsState extends State<Events> {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -557,6 +583,9 @@ class _EventsState extends State<Events> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -572,6 +601,9 @@ class _EventsState extends State<Events> {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -651,10 +683,12 @@ class EventDetail extends StatelessWidget {
                   onPressed: () {},
                   child: Column(
                     children: <Widget>[
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: CachedNetworkImage(
-                          imageUrl: event.image,
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0),
+                          child: Image.network(
+                            event.image,
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -720,6 +754,10 @@ class EventDetail extends StatelessWidget {
                               height: 50,
                               child: RaisedButton(
                                 color: Color(0xffc67608),
+                                highlightElevation: 8.0,
+                                splashColor: Colors.white,
+                                highlightColor: Colors.amber,
+                                elevation: 2.0,
                                 shape: RoundedRectangleBorder(
                                   side: BorderSide(
                                     color: Color(0xffc67608),
@@ -743,6 +781,10 @@ class EventDetail extends StatelessWidget {
                               height: 50,
                               child: RaisedButton(
                                 color: Color(0xffc67608),
+                                highlightElevation: 8.0,
+                                splashColor: Colors.white,
+                                highlightColor: Colors.amber,
+                                elevation: 2.0,
                                 shape: RoundedRectangleBorder(
                                   side: BorderSide(
                                     color: Color(0xffc67608),
@@ -776,6 +818,9 @@ class EventDetail extends StatelessWidget {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -790,6 +835,9 @@ class EventDetail extends StatelessWidget {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -805,6 +853,9 @@ class EventDetail extends StatelessWidget {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -820,6 +871,9 @@ class EventDetail extends StatelessWidget {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,

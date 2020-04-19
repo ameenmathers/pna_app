@@ -88,8 +88,10 @@ class _LoginState extends State<Login> {
           child: SingleChildScrollView(
             child: Stack(
               children: <Widget>[
-                Center(
+                Container(
                   child: image1,
+                  height: size.height,
+                  width: size.width,
                 ),
                 Container(
                   color: Colors.transparent,
@@ -143,7 +145,7 @@ class _LoginState extends State<Login> {
                                 padding: const EdgeInsets.fromLTRB(
                                     0.0, 0.0, 0.0, 0.0),
                                 child: Text(
-                                  "To apply or log in, use your phone number",
+                                  "To apply or log in, use your email address",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.white,

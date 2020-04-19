@@ -233,6 +233,8 @@ class _GalleryPageState extends State<GalleryPage> {
                               children: <Widget>[
                                 RaisedButton(
                                   color: Colors.black,
+                                  highlightElevation: 8.0,
+                                  splashColor: Colors.white12,
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -245,15 +247,17 @@ class _GalleryPageState extends State<GalleryPage> {
                                     children: <Widget>[
                                       Stack(
                                         children: <Widget>[
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            child: CachedNetworkImage(
-                                              imageUrl:
-                                                  snapshot.data[index].image,
-                                              width: 450,
-                                              height: 230,
-                                              fit: BoxFit.cover,
+                                          Center(
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              child: Image.network(
+                                                snapshot.data[index].image,
+                                                width: 450,
+                                                height: 230,
+                                                fit: BoxFit.cover,
+                                                gaplessPlayback: true,
+                                              ),
                                             ),
                                           ),
                                           Padding(
@@ -265,6 +269,10 @@ class _GalleryPageState extends State<GalleryPage> {
                                                 height: 30,
                                                 child: RaisedButton(
                                                   color: Color(0xffc67608),
+                                                  highlightElevation: 8.0,
+                                                  splashColor: Colors.white,
+                                                  highlightColor: Colors.amber,
+                                                  elevation: 2.0,
                                                   shape: RoundedRectangleBorder(
                                                     side: BorderSide(
                                                       color: Color(0xffc67608),
@@ -312,7 +320,7 @@ class _GalleryPageState extends State<GalleryPage> {
                                         ],
                                       ),
                                       SizedBox(
-                                        height: 20,
+                                        height: 50,
                                       ),
                                     ],
                                   ),
@@ -328,6 +336,8 @@ class _GalleryPageState extends State<GalleryPage> {
                                   children: <Widget>[
                                     RaisedButton(
                                       color: Colors.black,
+                                      highlightElevation: 8.0,
+                                      splashColor: Colors.white12,
                                       onPressed: () {
                                         Navigator.push(
                                           context,
@@ -341,15 +351,18 @@ class _GalleryPageState extends State<GalleryPage> {
                                         children: <Widget>[
                                           Stack(
                                             children: <Widget>[
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                                child: CachedNetworkImage(
-                                                  imageUrl: snapshot
-                                                      .data[index].image,
-                                                  width: 450,
-                                                  height: 230,
-                                                  fit: BoxFit.cover,
+                                              Center(
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                  child: Image.network(
+                                                    snapshot.data[index].image,
+                                                    width: 450,
+                                                    height: 230,
+                                                    fit: BoxFit.cover,
+                                                    gaplessPlayback: true,
+                                                  ),
                                                 ),
                                               ),
                                               Padding(
@@ -361,6 +374,11 @@ class _GalleryPageState extends State<GalleryPage> {
                                                     height: 30,
                                                     child: RaisedButton(
                                                       color: Color(0xffc67608),
+                                                      highlightElevation: 8.0,
+                                                      splashColor: Colors.white,
+                                                      highlightColor:
+                                                          Colors.amber,
+                                                      elevation: 2.0,
                                                       shape:
                                                           RoundedRectangleBorder(
                                                         side: BorderSide(
@@ -409,7 +427,7 @@ class _GalleryPageState extends State<GalleryPage> {
                                             ],
                                           ),
                                           SizedBox(
-                                            height: 20,
+                                            height: 50,
                                           ),
                                         ],
                                       ),
@@ -437,6 +455,9 @@ class _GalleryPageState extends State<GalleryPage> {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -451,6 +472,9 @@ class _GalleryPageState extends State<GalleryPage> {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -466,6 +490,9 @@ class _GalleryPageState extends State<GalleryPage> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -481,6 +508,9 @@ class _GalleryPageState extends State<GalleryPage> {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -558,8 +588,8 @@ class GalleryDetail extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: CachedNetworkImage(
-                          imageUrl: gallery.image,
+                        child: Image.network(
+                          gallery.image,
                         ),
                       ),
                     ),
@@ -614,8 +644,8 @@ class GalleryDetail extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: CachedNetworkImage(
-                          imageUrl: gallery.image3,
+                        child: Image.network(
+                          gallery.image3,
                         ),
                       ),
                     ),
@@ -638,6 +668,9 @@ class GalleryDetail extends StatelessWidget {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -652,6 +685,9 @@ class GalleryDetail extends StatelessWidget {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -667,6 +703,9 @@ class GalleryDetail extends StatelessWidget {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -682,6 +721,9 @@ class GalleryDetail extends StatelessWidget {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,

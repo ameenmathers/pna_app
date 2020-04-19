@@ -1,11 +1,16 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:travel_world/chat/chat.dart';
+import 'package:travel_world/const.dart';
+import 'package:travel_world/full_screen_image.dart';
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 import 'package:travel_world/profile/profile.dart';
@@ -37,83 +42,43 @@ class MeetupState extends State<Meetup> {
   String filter;
 
   Future<List<DocumentSnapshot>> getDocumentSnapshotListOfSameCountryUsers(
-      {@required String country, @required Source source}) async {
+      {@required String country}) async {
     QuerySnapshot querySnapshot = await _usersCollectionReference
         .where('country', isEqualTo: country)
-        .getDocuments(source: source);
+        .getDocuments();
 
     return querySnapshot.documents;
   }
 
   Future<void> _getSameCountryUsers() async {
-    setState(() {
-      _isLoading = true;
-    });
     final FirebaseUser user = await firebaseAuth.currentUser();
     final uid = user.uid;
-    List<DocumentSnapshot> usersList;
 
-    var connectivityResult = await (Connectivity().checkConnectivity());
+    DocumentSnapshot userProfileInfo =
+        await _usersCollectionReference.document(uid).get();
 
-    if (connectivityResult == ConnectivityResult.none) {
-      try {
-        DocumentSnapshot userProfileInfo = await _usersCollectionReference
-            .document(uid)
-            .get(source: Source.cache);
+    String country = userProfileInfo.data['country'];
+    List<dynamic> blockedUsers = userProfileInfo.data['blockedUsers'];
 
-        String country = userProfileInfo.data['country'];
+    List<DocumentSnapshot> usersList =
+        await getDocumentSnapshotListOfSameCountryUsers(country: country)
+            .then((v) {
+      print(v);
+      return Future.value(v);
+    });
 
-        usersList = await getDocumentSnapshotListOfSameCountryUsers(
-            country: country, source: Source.cache);
-
-        print('cache');
-      } catch (e) {
-        DocumentSnapshot userProfileInfo = await _usersCollectionReference
-            .document(uid)
-            .get(source: Source.serverAndCache);
-
-        String country = userProfileInfo.data['country'];
-
-        usersList = await getDocumentSnapshotListOfSameCountryUsers(
-            country: country, source: Source.serverAndCache);
-        print('server');
+    List<DocumentSnapshot> correctUsersList = usersList.where((element) {
+      if (!blockedUsers.contains(element.data['uid']) == null) {
+        return !blockedUsers.contains(element.data['uid'] == null);
+      } else {
+        return !blockedUsers.contains(element.data['uid']);
       }
-    } else {
-      DocumentSnapshot userProfileInfo = await _usersCollectionReference
-          .document(uid)
-          .get(source: Source.cache);
-
-      String country = userProfileInfo.data['country'];
-
-      usersList = await getDocumentSnapshotListOfSameCountryUsers(
-          country: country, source: Source.cache);
-
-      print('cache 2');
-
-      _usersCollectionReference
-          .document(uid)
-          .get(source: Source.cache)
-          .then((snapshot) {
-        String country = snapshot.data['country'];
-        getDocumentSnapshotListOfSameCountryUsers(
-                country: country, source: Source.cache)
-            .then((snapshot) {
-          setState(() {
-            print('server 2');
-
-            usersList = snapshot;
-          });
-        });
-      });
-    }
+    }).toList();
 
     setState(() {
-      _sameCountryUsersDocumentSnapshotList = usersList;
-      _isLoading = false;
+      _sameCountryUsersDocumentSnapshotList = correctUsersList;
     });
   }
-
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -132,18 +97,14 @@ class MeetupState extends State<Meetup> {
           _buildAppBar(),
           _buildSearchBar(),
           Expanded(
-            child: _isLoading
-                ? Center(
+            child: _sameCountryUsersDocumentSnapshotList != null
+                ? _buildUsersList()
+                : Center(
                     child: CircularProgressIndicator(
                       valueColor:
                           AlwaysStoppedAnimation<Color>(Color(0xffc67608)),
                     ),
-                  )
-                : _sameCountryUsersDocumentSnapshotList.isEmpty
-                    ? Center(
-                        child: Text('No connections found'),
-                      )
-                    : _buildUsersList(),
+                  ),
           ),
         ],
       ),
@@ -159,6 +120,9 @@ class MeetupState extends State<Meetup> {
                 Icons.home,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -173,6 +137,9 @@ class MeetupState extends State<Meetup> {
                 Icons.vpn_lock,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {},
             ),
             title: Text(''),
@@ -183,6 +150,9 @@ class MeetupState extends State<Meetup> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -198,6 +168,9 @@ class MeetupState extends State<Meetup> {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -297,6 +270,7 @@ class MeetupState extends State<Meetup> {
             new MaterialPageRoute(
                 builder: (context) => ViewProfile(
                     name: userDataMap['name'],
+                    email: userDataMap['email'],
                     profession: userDataMap['profession'],
                     country: userDataMap['country'],
                     aboutMe: userDataMap['aboutMe'],
@@ -313,7 +287,7 @@ class MeetupState extends State<Meetup> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         SizedBox(
-          height: 10.0,
+          height: 20.0,
         ),
         Container(
           width: 330,
@@ -330,7 +304,7 @@ class MeetupState extends State<Meetup> {
           ),
         ),
         SizedBox(
-          height: 10,
+          height: 15,
         ),
         Text(
           'Search for PNA members around you'.toUpperCase(),
@@ -353,7 +327,7 @@ class MeetupState extends State<Meetup> {
           color: Colors.white,
         ),
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.transparent,
       automaticallyImplyLeading: true,
       centerTitle: true,
     );
@@ -362,6 +336,7 @@ class MeetupState extends State<Meetup> {
 
 class ViewProfile extends StatefulWidget {
   String name;
+  String email;
   String country;
   String aboutMe;
   String profession;
@@ -372,6 +347,7 @@ class ViewProfile extends StatefulWidget {
 
   ViewProfile(
       {this.name,
+      this.email,
       this.photoUrl,
       this.uid,
       this.aboutMe,
@@ -386,8 +362,66 @@ class ViewProfile extends StatefulWidget {
 
 class _ViewProfileState extends State<ViewProfile> {
   DocumentSnapshot documentSnapshot;
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   PhotoViewScaleStateController scaleStateController;
+
+  main() async {
+    String username = 'ameenidris710@gmail.com';
+    String password = 'allahu710';
+
+    final smtpServer = gmail(username, password);
+    // Creating the Gmail server
+
+    // Create our email message.
+    final message = Message()
+      ..from = Address(username)
+      ..recipients.add('alameenidris710@gmail.com') //recipent email
+      ..subject = 'User Reported ${DateTime.now()}' //subject of the email
+      ..text =
+          'The user ${widget.name} from  ${widget.country} has been reported.\n The user has violated a rule will be under review'; //body of the email
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: ' +
+          sendReport.toString()); //print if the email is sent
+    } on MailerException catch (e) {
+      print('Message not sent. \n' +
+          e.toString()); //print if the email is not sent
+      // e.toString() will show why the email is not sending
+    }
+
+    Fluttertoast.showToast(
+        msg: "User reported and will be under review",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 3,
+        backgroundColor: Color(0xffc67608),
+        textColor: Colors.white,
+        fontSize: 13.0);
+  }
+
+  String key1 = '';
+
+  Future blockUser() async {
+    final FirebaseUser user = await firebaseAuth.currentUser();
+    final uid = user.uid;
+
+    key1 = '${widget.uid}';
+
+    Firestore.instance.collection('users').document(uid).updateData({
+      'blockedUsers': FieldValue.arrayUnion([key1])
+    });
+
+    Fluttertoast.showToast(
+        msg: "User Blocked",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Color(0xffc67608),
+        textColor: Colors.white,
+        fontSize: 14.0);
+  }
 
   @override
   void initState() {
@@ -472,6 +506,54 @@ class _ViewProfileState extends State<ViewProfile> {
                       },
                       child: Text(
                         'Message',
+                        style: TextStyle(
+                          color: Color(0xffc67608),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          style: BorderStyle.solid,
+                          color: Color(0xffc67608),
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                      color: Colors.black,
+                      onPressed: main,
+                      child: Text(
+                        'Report',
+                        style: TextStyle(
+                          color: Color(0xffc67608),
+                          fontSize: 14,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          style: BorderStyle.solid,
+                          color: Color(0xffc67608),
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                      color: Colors.black,
+                      onPressed: blockUser,
+                      child: Text(
+                        'Block ${widget.name}',
                         style: TextStyle(
                           color: Color(0xffc67608),
                           fontSize: 14,
@@ -591,6 +673,8 @@ class _ViewProfileState extends State<ViewProfile> {
                           children: widget.images
                               .map((imageUrl) => ProfileImageItem(
                                     imageUrl: imageUrl,
+                                    name: widget.name,
+                                    country: widget.country,
                                   ))
                               .toList()),
                     ),
@@ -613,6 +697,9 @@ class _ViewProfileState extends State<ViewProfile> {
                 Icons.home,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -627,6 +714,9 @@ class _ViewProfileState extends State<ViewProfile> {
                 Icons.vpn_lock,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {},
             ),
             title: Text(''),
@@ -637,6 +727,9 @@ class _ViewProfileState extends State<ViewProfile> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -652,6 +745,9 @@ class _ViewProfileState extends State<ViewProfile> {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -662,6 +758,104 @@ class _ViewProfileState extends State<ViewProfile> {
             title: Text(''),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ProfileImageItem extends StatelessWidget {
+  final String imageUrl;
+  final String name;
+  final String country;
+
+  const ProfileImageItem({
+    Key key,
+    @required this.imageUrl,
+    this.name,
+    this.country,
+  }) : super(key: key);
+
+  flag() async {
+    String username = 'ameenidris710@gmail.com';
+    String password = 'allahu710';
+
+    final smtpServer = gmail(username, password);
+    // Creating the Gmail server
+
+    // Create our email message.
+    final message = Message()
+      ..from = Address(username)
+      ..recipients.add('alameenidris710@gmail.com') //recipent email
+      ..subject = 'User Post Flagged ${DateTime.now()}' //subject of the email
+      ..text =
+          'A post from user ${name} from  ${country} hsd been flagged.\n The user has violated a rule will be under review'; //body of the email
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: ' +
+          sendReport.toString()); //print if the email is sent
+    } on MailerException catch (e) {
+      print('Message not sent. \n' +
+          e.toString()); //print if the email is not sent
+      // e.toString() will show why the email is not sending
+    }
+
+    Fluttertoast.showToast(
+        msg: "Post was flagged",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 3,
+        backgroundColor: Color(0xffc67608),
+        textColor: Colors.white,
+        fontSize: 13.0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Hero(
+      tag: imageUrl,
+      child: FractionallySizedBox(
+        widthFactor: 0.5,
+        child: Stack(children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: AspectRatio(
+              aspectRatio: 1.0,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                          builder: (context) =>
+                              FullScreenImage(imageUrl: imageUrl)));
+                },
+                child: CachedNetworkImage(
+                  placeholder: (context, url) => Container(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(themeColor),
+                      ),
+                    ),
+                  ),
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 16.0,
+            bottom: 16.0,
+            child: InkWell(
+              onTap: flag,
+              child: Icon(
+                Icons.flag,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ]),
       ),
     );
   }

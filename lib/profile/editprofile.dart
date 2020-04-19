@@ -13,6 +13,8 @@ import 'package:travel_world/meetup/meetup.dart';
 import 'package:travel_world/messages/messages.dart';
 import 'package:travel_world/navigation/navigation.dart';
 
+import 'profilesettings.dart';
+
 class EditProfile extends StatefulWidget {
   final String name;
   final String country;
@@ -137,6 +139,24 @@ class EditProfileState extends State<EditProfile> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
+        actions: <Widget>[
+          RaisedButton(
+            color: Colors.black,
+            child: Text(
+              "Settings",
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileSettings()),
+              );
+            },
+          ),
+        ],
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
@@ -690,6 +710,9 @@ class EditProfileState extends State<EditProfile> {
                 Icons.home,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -704,6 +727,9 @@ class EditProfileState extends State<EditProfile> {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -719,6 +745,9 @@ class EditProfileState extends State<EditProfile> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -734,6 +763,9 @@ class EditProfileState extends State<EditProfile> {
                 Icons.person,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {},
             ),
             title: Text(''),

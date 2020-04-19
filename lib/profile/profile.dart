@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert' as converter;
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -10,7 +9,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:random_string/random_string.dart';
 import 'package:travel_world/const.dart';
 import 'package:travel_world/full_screen_image.dart';
@@ -54,9 +52,6 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   String photoUrl = '';
   String image1 = '';
-  String image2 = '';
-  String image3 = '';
-  String image4 = '';
 
   bool isLoading = false;
   File avatarImageFile;
@@ -112,41 +107,54 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       print(' not loading');
     });
 
-    Fluttertoast.showToast(
-        msg: "Picture Saved Succesfully",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIos: 1,
-        backgroundColor: Color(0xffc67608),
-        textColor: Colors.white,
-        fontSize: 14.0);
-  }
+    var connectivityResult = await (Connectivity().checkConnectivity());
 
-  Future uploadFile() async {
-    setState(() {
-      isLoading = true;
-    });
+    if (connectivityResult == ConnectivityResult.none) {
+      try {
+        print(' No internet => Loading from cache');
+        var snapshot = Firestore.instance
+            .collection('users')
+            .document(uid)
+            .get(source: Source.cache);
 
-    final FirebaseUser user = await _auth.currentUser();
-    final uid = user.uid;
-    String fileName1 = uid;
-    StorageReference reference =
-        FirebaseStorage.instance.ref().child(fileName1);
-    StorageUploadTask uploadTask = reference.putFile(avatarImageFile);
-    StorageTaskSnapshot storageTaskSnapshot;
+        setState(() {
+          userDocumentSnapshot = snapshot;
+        });
+      } catch (e) {
+        print(' No internet, error retrieving cache => Loading from server');
+        var snapshot = Firestore.instance
+            .collection('users')
+            .document(uid)
+            .get(source: Source.serverAndCache);
+        setState(() {
+          userDocumentSnapshot = snapshot;
+        });
+      }
+    } else {
+      print(' Internet => Loading from server');
 
-    storageTaskSnapshot = await uploadTask.onComplete;
+      Firestore.instance
+          .collection('users')
+          .document(uid)
+          .get(source: Source.serverAndCache)
+          .then((onValue) {
+        print('data from server');
+        setState(() {
+          print('data from server setState');
 
-    photoUrl = await storageTaskSnapshot.ref.getDownloadURL();
+          userDocumentSnapshot = Future.sync(() => onValue);
+        });
+      });
+      var snapshot = Firestore.instance
+          .collection('users')
+          .document(uid)
+          .get(source: Source.cache);
 
-    await Firestore.instance
-        .collection('users')
-        .document(uid)
-        .updateData({'photoUrl': photoUrl});
-
-    setState(() {
-      isLoading = false;
-    });
+      setState(() {
+        print('cache data');
+        userDocumentSnapshot = snapshot;
+      });
+    }
 
     Fluttertoast.showToast(
         msg: "Picture Saved Succesfully",
@@ -213,8 +221,6 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     }
   }
 
-  var myFile = new File('pro.txt');
-
   Future<void> deleteImageFromFirestore(String imageUrl) async {
     print('delete this $imageUrl');
 
@@ -233,6 +239,55 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       setState(() {
         isLoading = false;
       });
+
+      var connectivityResult = await (Connectivity().checkConnectivity());
+
+      if (connectivityResult == ConnectivityResult.none) {
+        try {
+          print(' No internet => Loading from cache');
+          var snapshot = Firestore.instance
+              .collection('users')
+              .document(uid)
+              .get(source: Source.cache);
+
+          setState(() {
+            userDocumentSnapshot = snapshot;
+          });
+        } catch (e) {
+          print(' No internet, error retrieving cache => Loading from server');
+          var snapshot = Firestore.instance
+              .collection('users')
+              .document(uid)
+              .get(source: Source.serverAndCache);
+          setState(() {
+            userDocumentSnapshot = snapshot;
+          });
+        }
+      } else {
+        print(' Internet => Loading from server');
+
+        Firestore.instance
+            .collection('users')
+            .document(uid)
+            .get(source: Source.serverAndCache)
+            .then((onValue) {
+          print('data from server');
+          setState(() {
+            print('data from server setState');
+
+            userDocumentSnapshot = Future.sync(() => onValue);
+          });
+        });
+        var snapshot = Firestore.instance
+            .collection('users')
+            .document(uid)
+            .get(source: Source.cache);
+
+        setState(() {
+          print('cache data');
+          userDocumentSnapshot = snapshot;
+        });
+      }
 
       Fluttertoast.showToast(
           msg: "Picture Deleted Succesfully",
@@ -578,7 +633,7 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               padding: const EdgeInsets.all(16.0),
                               child: Wrap(
                                   alignment: WrapAlignment.start,
-                                  children: imageUrlList
+                                  children: imageUrlList.reversed
                                       .map((imageUrl) => ProfileImageItem(
                                             imageUrl: imageUrl,
                                             deleteImage:
@@ -626,6 +681,9 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 Icons.home,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -640,6 +698,9 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -655,6 +716,9 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -670,6 +734,9 @@ class ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                 Icons.person,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {},
             ),
             title: Text(''),
@@ -745,7 +812,7 @@ class ProfileImageItem extends StatelessWidget {
 }
 
 _referURL() async {
-  const url = 'https://playnetwork.africa/refer-member';
+  const url = 'http://www.playnetworkafrica.com/public/referral-create';
   if (await canLaunch(url)) {
     await launch(url);
   } else {

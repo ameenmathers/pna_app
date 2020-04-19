@@ -34,5 +34,15 @@
 	<string>1:755264115705:ios:870cd8fbde6bc66f222328</string>
 	<key>DATABASE_URL</key>
 	<string>https://play-2f9e6.firebaseio.com</string>
+	<key>NSCameraUsageDescription</key>
+    <string>Allow Access To Your Camera To Take a Picture</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Allow Access to location always</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Allow Access To Your Current Location</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Allow Access To Your Microphone</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Allow Access To Your Photos To Upload</string>
 </dict>
 </plist>

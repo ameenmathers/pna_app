@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -239,6 +238,8 @@ class PrivilegePageState extends State<PrivilegePage> {
                                           children: <Widget>[
                                             RaisedButton(
                                               color: Colors.black,
+                                              highlightElevation: 8.0,
+                                              splashColor: Colors.white12,
                                               onPressed: () {
                                                 Navigator.push(
                                                   context,
@@ -251,16 +252,19 @@ class PrivilegePageState extends State<PrivilegePage> {
                                               },
                                               child: Stack(
                                                 children: <Widget>[
-                                                  ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10.0),
-                                                    child: CachedNetworkImage(
-                                                      imageUrl: snapshot
-                                                          .data[index].image,
-                                                      width: 450,
-                                                      height: 230,
-                                                      fit: BoxFit.cover,
+                                                  Center(
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                      child: Image.network(
+                                                        snapshot
+                                                            .data[index].image,
+                                                        width: 450,
+                                                        height: 230,
+                                                        fit: BoxFit.cover,
+                                                        gaplessPlayback: true,
+                                                      ),
                                                     ),
                                                   ),
                                                   Padding(
@@ -274,6 +278,13 @@ class PrivilegePageState extends State<PrivilegePage> {
                                                         child: RaisedButton(
                                                           color:
                                                               Color(0xffc67608),
+                                                          highlightElevation:
+                                                              8.0,
+                                                          splashColor:
+                                                              Colors.white,
+                                                          highlightColor:
+                                                              Colors.amber,
+                                                          elevation: 2.0,
                                                           shape:
                                                               RoundedRectangleBorder(
                                                             side: BorderSide(
@@ -336,7 +347,7 @@ class PrivilegePageState extends State<PrivilegePage> {
                                               ),
                                             ),
                                             SizedBox(
-                                              height: 20,
+                                              height: 50,
                                             ),
                                           ],
                                         ),
@@ -353,6 +364,8 @@ class PrivilegePageState extends State<PrivilegePage> {
                                               children: <Widget>[
                                                 RaisedButton(
                                                   color: Colors.black,
+                                                  highlightElevation: 8.0,
+                                                  splashColor: Colors.white12,
                                                   onPressed: () {
                                                     Navigator.push(
                                                       context,
@@ -365,18 +378,21 @@ class PrivilegePageState extends State<PrivilegePage> {
                                                   },
                                                   child: Stack(
                                                     children: <Widget>[
-                                                      ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10.0),
-                                                        child:
-                                                            CachedNetworkImage(
-                                                          imageUrl: snapshot
-                                                              .data[index]
-                                                              .image,
-                                                          width: 450,
-                                                          height: 230,
-                                                          fit: BoxFit.cover,
+                                                      Center(
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                          child: Image.network(
+                                                            snapshot.data[index]
+                                                                .image,
+                                                            width: 450,
+                                                            height: 230,
+                                                            fit: BoxFit.cover,
+                                                            gaplessPlayback:
+                                                                true,
+                                                          ),
                                                         ),
                                                       ),
                                                       Padding(
@@ -393,6 +409,13 @@ class PrivilegePageState extends State<PrivilegePage> {
                                                             child: RaisedButton(
                                                               color: Color(
                                                                   0xffc67608),
+                                                              highlightElevation:
+                                                                  8.0,
+                                                              splashColor:
+                                                                  Colors.white,
+                                                              highlightColor:
+                                                                  Colors.amber,
+                                                              elevation: 2.0,
                                                               shape:
                                                                   RoundedRectangleBorder(
                                                                 side:
@@ -464,7 +487,7 @@ class PrivilegePageState extends State<PrivilegePage> {
                                                   ),
                                                 ),
                                                 SizedBox(
-                                                  height: 20,
+                                                  height: 50,
                                                 ),
                                               ],
                                             ),
@@ -493,6 +516,9 @@ class PrivilegePageState extends State<PrivilegePage> {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -507,6 +533,9 @@ class PrivilegePageState extends State<PrivilegePage> {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -522,6 +551,9 @@ class PrivilegePageState extends State<PrivilegePage> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -537,6 +569,9 @@ class PrivilegePageState extends State<PrivilegePage> {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -625,10 +660,12 @@ class PrivilegeDetail extends StatelessWidget {
         child: Center(
           child: Column(
             children: <Widget>[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10.0),
-                child: CachedNetworkImage(
-                  imageUrl: privilege.image,
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: Image.network(
+                    privilege.image,
+                  ),
                 ),
               ),
               SizedBox(
@@ -675,6 +712,10 @@ class PrivilegeDetail extends StatelessWidget {
                                   height: 60.0,
                                   child: RaisedButton(
                                     color: Color(0xffc67608),
+                                    highlightElevation: 8.0,
+                                    splashColor: Colors.white,
+                                    highlightColor: Colors.amber,
+                                    elevation: 2.0,
                                     shape: RoundedRectangleBorder(
                                       side: BorderSide(
                                         color: Color(0xffc67608),
@@ -713,6 +754,9 @@ class PrivilegeDetail extends StatelessWidget {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -727,6 +771,9 @@ class PrivilegeDetail extends StatelessWidget {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -742,6 +789,9 @@ class PrivilegeDetail extends StatelessWidget {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -757,6 +807,9 @@ class PrivilegeDetail extends StatelessWidget {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,

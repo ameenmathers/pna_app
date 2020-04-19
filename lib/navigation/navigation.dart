@@ -136,6 +136,8 @@ class NavigationState extends State<Navigation> {
                     ),
                     RaisedButton(
                       color: Colors.black,
+                      highlightElevation: 2.0,
+                      splashColor: Colors.white12,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -144,9 +146,11 @@ class NavigationState extends State<Navigation> {
                       },
                       child: Stack(
                         children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: image1,
+                          Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30.0),
+                              child: image1,
+                            ),
                           ),
                           Padding(
                             padding:
@@ -156,6 +160,10 @@ class NavigationState extends State<Navigation> {
                                 minWidth: 80,
                                 height: 30,
                                 child: RaisedButton(
+                                  highlightElevation: 8.0,
+                                  splashColor: Colors.white,
+                                  highlightColor: Colors.amber,
+                                  elevation: 2.0,
                                   color: Color(0xffc67608),
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
@@ -186,6 +194,7 @@ class NavigationState extends State<Navigation> {
                     ),
                     RaisedButton(
                       color: Colors.black,
+                      splashColor: Colors.white12,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -194,9 +203,11 @@ class NavigationState extends State<Navigation> {
                       },
                       child: Stack(
                         children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: image2,
+                          Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30.0),
+                              child: image2,
+                            ),
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
@@ -206,6 +217,10 @@ class NavigationState extends State<Navigation> {
                                 height: 30,
                                 child: RaisedButton(
                                   color: Color(0xffc67608),
+                                  highlightElevation: 8.0,
+                                  splashColor: Colors.white,
+                                  highlightColor: Colors.amber,
+                                  elevation: 2.0,
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
                                       color: Color(0xffc67608),
@@ -235,6 +250,7 @@ class NavigationState extends State<Navigation> {
                     ),
                     RaisedButton(
                       color: Colors.black,
+                      splashColor: Colors.white12,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -244,9 +260,11 @@ class NavigationState extends State<Navigation> {
                       },
                       child: Stack(
                         children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: image3,
+                          Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30.0),
+                              child: image3,
+                            ),
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
@@ -256,6 +274,10 @@ class NavigationState extends State<Navigation> {
                                 height: 30,
                                 child: RaisedButton(
                                   color: Color(0xffc67608),
+                                  highlightElevation: 8.0,
+                                  splashColor: Colors.white,
+                                  highlightColor: Colors.amber,
+                                  elevation: 2.0,
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
                                       color: Color(0xffc67608),
@@ -286,6 +308,7 @@ class NavigationState extends State<Navigation> {
                     ),
                     RaisedButton(
                       color: Colors.black,
+                      splashColor: Colors.white12,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -295,9 +318,11 @@ class NavigationState extends State<Navigation> {
                       },
                       child: Stack(
                         children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: image4,
+                          Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30.0),
+                              child: image4,
+                            ),
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
@@ -307,6 +332,10 @@ class NavigationState extends State<Navigation> {
                                 height: 30,
                                 child: RaisedButton(
                                   color: Color(0xffc67608),
+                                  highlightElevation: 8.0,
+                                  splashColor: Colors.white,
+                                  highlightColor: Colors.amber,
+                                  elevation: 2.0,
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
                                       color: Color(0xffc67608),
@@ -336,6 +365,7 @@ class NavigationState extends State<Navigation> {
                     ),
                     RaisedButton(
                       color: Colors.black,
+                      splashColor: Colors.white12,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -345,9 +375,11 @@ class NavigationState extends State<Navigation> {
                       },
                       child: Stack(
                         children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: image5,
+                          Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30.0),
+                              child: image5,
+                            ),
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
@@ -357,6 +389,10 @@ class NavigationState extends State<Navigation> {
                                 height: 30,
                                 child: RaisedButton(
                                   color: Color(0xffc67608),
+                                  highlightElevation: 8.0,
+                                  splashColor: Colors.white,
+                                  highlightColor: Colors.amber,
+                                  elevation: 2.0,
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
                                       color: Color(0xffc67608),
@@ -386,6 +422,7 @@ class NavigationState extends State<Navigation> {
                     ),
                     RaisedButton(
                       color: Colors.black,
+                      splashColor: Colors.white12,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -394,9 +431,11 @@ class NavigationState extends State<Navigation> {
                       },
                       child: Stack(
                         children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: image7,
+                          Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30.0),
+                              child: image7,
+                            ),
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(0.0, 205.0, 0.0, 0.0),
@@ -406,6 +445,10 @@ class NavigationState extends State<Navigation> {
                                 height: 30,
                                 child: RaisedButton(
                                   color: Color(0xffc67608),
+                                  highlightElevation: 8.0,
+                                  splashColor: Colors.white,
+                                  highlightColor: Colors.amber,
+                                  elevation: 2.0,
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(color: Color(0xffc67608)),
                                     borderRadius: BorderRadius.all(
@@ -447,6 +490,9 @@ class NavigationState extends State<Navigation> {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 _controller.animateTo(0.0,
                     curve: Curves.linear,
@@ -460,6 +506,9 @@ class NavigationState extends State<Navigation> {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -475,6 +524,9 @@ class NavigationState extends State<Navigation> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -490,6 +542,9 @@ class NavigationState extends State<Navigation> {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,

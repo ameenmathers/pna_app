@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:travel_world/full_screen_image.dart';
 import 'package:travel_world/models/message.dart';
 
@@ -48,36 +49,9 @@ class _ChatScreenState extends State<ChatScreen> {
   StorageReference _storageReference;
   TextEditingController _messageController;
 
-//  final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
 
-//  void registerNotification() async {
-//    firebaseMessaging.requestNotificationPermissions();
-//
-//    firebaseMessaging.configure(onMessage: (Map<String, dynamic> message) {
-//      print('onMessage: $message');
-//      showNotification(message['notification']);
-//      return;
-//    }, onResume: (Map<String, dynamic> message) {
-//      print('onResume: $message');
-//      return;
-//    }, onLaunch: (Map<String, dynamic> message) {
-//      print('onLaunch: $message');
-//      return;
-//    });
-//
-//    final FirebaseUser user = await _auth.currentUser();
-//    final uid = user.uid;
-//
-//    firebaseMessaging.getToken().then((token) {
-//      print('token: $token');
-//      Firestore.instance
-//          .collection('users')
-//          .document(uid)
-//          .updateData({'pushToken': token});
-//    }).catchError((err) {
-//      Fluttertoast.showToast(msg: err.message.toString());
-//    });
-//  }
+  List<DocumentSnapshot> _chatMessagesDocuments = List();
+  bool _loadingChatMessages = true;
 
   @override
   void initState() {
@@ -88,29 +62,43 @@ class _ChatScreenState extends State<ChatScreen> {
     getUID().then((user) {
       setState(() {
         _senderUid = user.uid;
-        snapshotStream = Firestore.instance
-            .collection('messages')
-            .document(_getDocumentId(_senderUid, widget.receiverUid))
-            .collection('messageList')
-            .orderBy('timestamp', descending: false)
-            .snapshots();
+      });
+      snapshotStream = Firestore.instance
+          .collection('messages')
+          .document(_getDocumentId(_senderUid, widget.receiverUid))
+          .collection('messageList')
+          .orderBy('timestamp', descending: false)
+          .snapshots();
 
-        subscription = snapshotStream.listen((snapshot) {
-          _setAsRead(snapshot);
-        });
-        print("sender uid : $_senderUid");
-        getSenderPhotoUrl(_senderUid).then((snapshot) {
+      subscription = snapshotStream.listen((event) {
+        var documents = event.documents;
+
+        if (documents != null) {
           setState(() {
-            senderPhotoUrl = snapshot['photoUrl'];
-            senderName = snapshot['name'];
-            senderCountry = snapshot['country'];
+            _chatMessagesDocuments.clear();
+            _chatMessagesDocuments.addAll(event.documents);
+            _chatMessagesDocuments = _chatMessagesDocuments.reversed.toList()
+                as List<DocumentSnapshot>;
+            _loadingChatMessages = false;
+            _setAsRead(event);
           });
+        } else {
+          _loadingChatMessages = false;
+        }
+      });
+
+      print("sender uid : $_senderUid");
+      getSenderPhotoUrl(_senderUid).then((snapshot) {
+        setState(() {
+          senderPhotoUrl = snapshot['photoUrl'];
+          senderName = snapshot['name'];
+          senderCountry = snapshot['country'];
         });
-        getReceiverPhotoUrl(widget.receiverUid).then((snapshot) {
-          setState(() {
-            receiverPhotoUrl = snapshot['photoUrl'];
-            receiverName = snapshot['name'];
-          });
+      });
+      getReceiverPhotoUrl(widget.receiverUid).then((snapshot) {
+        setState(() {
+          receiverPhotoUrl = snapshot['photoUrl'];
+          receiverName = snapshot['name'];
         });
       });
     });
@@ -219,11 +207,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildChatInputWidget() {
     return Container(
-      height: 55.0,
+      color: Colors.black,
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: <Widget>[
           Container(
+            height: 55.0,
+            color: Colors.black,
             margin: const EdgeInsets.symmetric(horizontal: 4.0),
             child: IconButton(
               splashColor: Colors.black,
@@ -238,6 +228,9 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Flexible(
             child: TextFormField(
+              keyboardType: TextInputType.multiline,
+              minLines: 1,
+              maxLines: 5,
               validator: (String input) {
                 if (input.isEmpty) {
                   return "Please enter message";
@@ -258,10 +251,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   focusColor: Colors.white,
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Color(0xffc67608)),
-                    borderRadius: BorderRadius.circular(50.0),
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xffc67608)),
                   ),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50.0))),
+                    borderRadius: BorderRadius.circular(15.0),
+                    borderSide: BorderSide(color: Color(0xffc67608)),
+                  )),
               onFieldSubmitted: (value) {
                 _messageController.text = value;
               },
@@ -417,32 +415,21 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  QuerySnapshot cache;
+
   Widget ChatMessagesListWidget() {
     print("SENDERUID : $_senderUid");
     return Expanded(
-      child: StreamBuilder(
-        stream: snapshotStream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            listItem = snapshot.data.documents;
-            return ListView(
-                reverse: true,
-                shrinkWrap: true,
-                padding: EdgeInsets.all(10.0),
-                children: [
-                  ...snapshot.data.documents
-                      .map((documentSnapshot) =>
-                          chatMessageItem(documentSnapshot))
-                      .toList()
-                      .reversed
-                ]);
-          }
-        },
-      ),
+      child: _loadingChatMessages
+          ? Container(child: Center(child: CircularProgressIndicator()))
+          : ListView.builder(
+              itemCount: _chatMessagesDocuments.length,
+              reverse: true,
+              itemBuilder: (context, index) {
+                var document = _chatMessagesDocuments[index];
+                return chatMessageItem(document);
+              },
+            ),
     );
   }
 
@@ -452,71 +439,168 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget buildChatLayout(DocumentSnapshot snapshot) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.all(12.0),
-          child: Row(
-            mainAxisAlignment: snapshot['senderUid'] == _senderUid
-                ? MainAxisAlignment.end
-                : MainAxisAlignment.start,
-            children: <Widget>[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  snapshot['type'] == 'text'
-                      ? new Material(
-                          elevation: 10.0,
-                          borderRadius: BorderRadius.circular(30.0),
-                          color: Colors.white12,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 20.0),
-                            child: Text(
-                              snapshot['message'],
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 15.0),
-                            ),
-                          ),
-                        )
-                      : InkWell(
-                          onTap: (() {
-                            Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                    builder: (context) => FullScreenImage(
-                                          imageUrl: snapshot['photoUrl'],
-                                        )));
-                          }),
-                          child: Material(
-                            elevation: 10.0,
-                            borderRadius: BorderRadius.circular(30.0),
-                            color: Colors.white12,
-                            child: Padding(
-                              padding: EdgeInsets.all(4.0),
-                              child: Hero(
-                                tag: snapshot['photoUrl'],
-                                child: FadeInImage(
-                                  image: NetworkImage(snapshot['photoUrl']),
-                                  placeholder: AssetImage(''),
-                                  width: 200.0,
-                                  height: 200.0,
+          child: snapshot['senderUid'] == _senderUid
+              ? Wrap(
+                  textDirection: TextDirection.rtl,
+                  direction: Axis.horizontal,
+                  crossAxisAlignment: WrapCrossAlignment.end,
+                  children: <Widget>[
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            snapshot['timestamp'] == null
+                                ? new Container()
+                                : Text(
+                                    timeago
+                                        .format(snapshot['timestamp'].toDate()),
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 13.0),
+                                  ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        snapshot['type'] == 'text'
+                            ? new Material(
+                                elevation: 10.0,
+                                color: Colors.black54,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  side: BorderSide(
+                                    color: Colors.white12,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 20.0),
+                                  child: Text(
+                                    snapshot['message'],
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 13.0),
+                                  ),
+                                ),
+                              )
+                            : InkWell(
+                                onTap: (() {
+                                  Navigator.push(
+                                      context,
+                                      new MaterialPageRoute(
+                                          builder: (context) => FullScreenImage(
+                                                imageUrl: snapshot['photoUrl'],
+                                              )));
+                                }),
+                                child: Material(
+                                  elevation: 10.0,
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  color: Colors.black54,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(4.0),
+                                    child: Hero(
+                                      tag: snapshot['photoUrl'],
+                                      child: FadeInImage(
+                                        image:
+                                            NetworkImage(snapshot['photoUrl']),
+                                        placeholder: AssetImage(''),
+                                        width: 200.0,
+                                        height: 200.0,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
+                      ],
+                    ),
+                    snapshot['senderUid'] == _senderUid
+                        ? Icon(
+                            MaterialCommunityIcons.check_all,
+                            color: Colors.white,
+                            size: 14.0,
+                          )
+                        : SizedBox.shrink()
+                  ],
+                )
+              : Wrap(
+                  direction: Axis.horizontal,
+                  children: <Widget>[
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            snapshot['timestamp'] == null
+                                ? new Container()
+                                : Text(
+                                    timeago
+                                        .format(snapshot['timestamp'].toDate()),
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 13.0),
+                                  ),
+                          ],
                         ),
-                ],
-              ),
-              snapshot['senderUid'] == _senderUid
-                  ? Icon(
-                      MaterialCommunityIcons.check_all,
-                      color: Colors.white,
-                      size: 14.0,
-                    )
-                  : SizedBox.shrink()
-            ],
-          ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        snapshot['type'] == 'text'
+                            ? new Material(
+                                elevation: 10.0,
+                                borderRadius: BorderRadius.circular(30.0),
+                                color: Colors.white12,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 20.0),
+                                  child: Text(
+                                    snapshot['message'],
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 13.0),
+                                  ),
+                                ),
+                              )
+                            : InkWell(
+                                onTap: (() {
+                                  Navigator.push(
+                                      context,
+                                      new MaterialPageRoute(
+                                          builder: (context) => FullScreenImage(
+                                                imageUrl: snapshot['photoUrl'],
+                                              )));
+                                }),
+                                child: Material(
+                                  elevation: 10.0,
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  color: Colors.white12,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(4.0),
+                                    child: Hero(
+                                      tag: snapshot['photoUrl'],
+                                      child: FadeInImage(
+                                        image:
+                                            NetworkImage(snapshot['photoUrl']),
+                                        placeholder: AssetImage(''),
+                                        width: 200.0,
+                                        height: 200.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ],
+                    ),
+                    snapshot['senderUid'] == _senderUid
+                        ? Icon(
+                            MaterialCommunityIcons.check_all,
+                            color: Colors.white,
+                            size: 14.0,
+                          )
+                        : SizedBox.shrink()
+                  ],
+                ),
         ),
       ],
     );

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -232,6 +231,8 @@ class _FoundationsState extends State<Foundations> {
                               children: <Widget>[
                                 RaisedButton(
                                   color: Colors.black,
+                                  highlightElevation: 8.0,
+                                  splashColor: Colors.white12,
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -243,14 +244,16 @@ class _FoundationsState extends State<Foundations> {
                                   },
                                   child: Stack(
                                     children: <Widget>[
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        child: CachedNetworkImage(
-                                          imageUrl: snapshot.data[index].image,
-                                          width: 450,
-                                          height: 230,
-                                          fit: BoxFit.cover,
+                                      Center(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          child: Image.network(
+                                            snapshot.data[index].image,
+                                            width: 450,
+                                            height: 230,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
                                       ),
                                       Padding(
@@ -262,6 +265,10 @@ class _FoundationsState extends State<Foundations> {
                                             height: 30,
                                             child: RaisedButton(
                                               color: Color(0xffc67608),
+                                              highlightElevation: 8.0,
+                                              splashColor: Colors.white,
+                                              highlightColor: Colors.amber,
+                                              elevation: 2.0,
                                               shape: RoundedRectangleBorder(
                                                 side: BorderSide(
                                                   color: Color(0xffc67608),
@@ -308,7 +315,7 @@ class _FoundationsState extends State<Foundations> {
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 20,
+                                  height: 50,
                                 ),
                               ],
                             ),
@@ -324,6 +331,8 @@ class _FoundationsState extends State<Foundations> {
                                     ),
                                     RaisedButton(
                                       color: Colors.black,
+                                      highlightElevation: 8.0,
+                                      splashColor: Colors.white12,
                                       onPressed: () {
                                         Navigator.push(
                                           context,
@@ -335,15 +344,16 @@ class _FoundationsState extends State<Foundations> {
                                       },
                                       child: Stack(
                                         children: <Widget>[
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            child: CachedNetworkImage(
-                                              imageUrl:
-                                                  snapshot.data[index].image,
-                                              width: 450,
-                                              height: 230,
-                                              fit: BoxFit.cover,
+                                          Center(
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              child: Image.network(
+                                                snapshot.data[index].image,
+                                                width: 450,
+                                                height: 230,
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
                                           ),
                                           Padding(
@@ -355,6 +365,10 @@ class _FoundationsState extends State<Foundations> {
                                                 height: 30,
                                                 child: RaisedButton(
                                                   color: Color(0xffc67608),
+                                                  highlightElevation: 8.0,
+                                                  splashColor: Colors.white,
+                                                  highlightColor: Colors.amber,
+                                                  elevation: 2.0,
                                                   shape: RoundedRectangleBorder(
                                                     side: BorderSide(
                                                       color: Color(0xffc67608),
@@ -402,7 +416,7 @@ class _FoundationsState extends State<Foundations> {
                                       ),
                                     ),
                                     SizedBox(
-                                      height: 20,
+                                      height: 50,
                                     ),
                                   ],
                                 ),
@@ -427,6 +441,9 @@ class _FoundationsState extends State<Foundations> {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -441,6 +458,9 @@ class _FoundationsState extends State<Foundations> {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -456,6 +476,9 @@ class _FoundationsState extends State<Foundations> {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -471,6 +494,9 @@ class _FoundationsState extends State<Foundations> {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -546,8 +572,8 @@ class FoundationDetail extends StatelessWidget {
                     children: <Widget>[
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: CachedNetworkImage(
-                          imageUrl: foundation.image,
+                        child: Image.network(
+                          foundation.image,
                         ),
                       ),
                       SizedBox(
@@ -581,6 +607,10 @@ class FoundationDetail extends StatelessWidget {
                       height: 50,
                       child: RaisedButton(
                         color: Color(0xffc67608),
+                        highlightElevation: 8.0,
+                        splashColor: Colors.white,
+                        highlightColor: Colors.amber,
+                        elevation: 2.0,
                         shape: RoundedRectangleBorder(
                           side: BorderSide(
                             color: Color(0xffc67608),
@@ -613,6 +643,9 @@ class FoundationDetail extends StatelessWidget {
                 Icons.home,
                 color: Color(0xffc67608),
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -627,6 +660,9 @@ class FoundationDetail extends StatelessWidget {
                 Icons.vpn_lock,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -642,6 +678,9 @@ class FoundationDetail extends StatelessWidget {
                 Icons.comment,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -657,6 +696,9 @@ class FoundationDetail extends StatelessWidget {
                 Icons.perm_identity,
                 color: Colors.grey,
               ),
+              splashColor: Colors.white,
+              highlightColor: Colors.amber,
+              enableFeedback: true,
               onPressed: () {
                 Navigator.push(
                   context,

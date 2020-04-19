@@ -8,6 +8,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_world/formsec/form2.dart';
 import 'package:travel_world/login/login_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Register extends StatefulWidget {
   Register({Key key}) : super(key: key);
@@ -22,6 +23,7 @@ class _RegisterState extends State<Register> {
   SharedPreferences prefs;
   String _date = "Not set";
   String _country;
+  String key1 = '1zh';
 
   String _error;
 
@@ -760,32 +762,49 @@ class _RegisterState extends State<Register> {
                             height: 10,
                           ),
                           Center(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                  16.0, 16.0, 0.0, 16.0),
-                              child: Container(
-                                height: 65,
-                                child: Theme(
-                                  data: ThemeData(
-                                    unselectedWidgetColor: Colors.white,
-                                  ),
-                                  child: new CheckboxListTile(
-                                      title: new Text(
-                                        "I agree to the Play Network Africa's Terms and Conditions",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
+                            child: Column(
+                              children: <Widget>[
+                                Container(
+                                  height: 65,
+                                  child: Theme(
+                                    data: ThemeData(
+                                      unselectedWidgetColor: Colors.white,
+                                    ),
+                                    child: new CheckboxListTile(
+                                        title: new Text(
+                                          "I agree to the Play Network Africa's Terms (EULA) and Conditions",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                          ),
                                         ),
-                                      ),
-                                      value: _termsChecked,
-                                      checkColor: Colors.white,
-                                      activeColor: Colors.blue,
-                                      controlAffinity:
-                                          ListTileControlAffinity.leading,
-                                      onChanged: (bool value) => setState(
-                                          () => _termsChecked = value)),
+                                        value: _termsChecked,
+                                        checkColor: Colors.white,
+                                        activeColor: Colors.blue,
+                                        controlAffinity:
+                                            ListTileControlAffinity.leading,
+                                        onChanged: (bool value) => setState(
+                                            () => _termsChecked = value)),
+                                  ),
                                 ),
-                              ),
+                                InkWell(
+                                  splashColor: Colors.white,
+                                  highlightColor: Colors.lightBlue,
+                                  child: Text(
+                                    "Click here to view our EULA Terms and Conditions",
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    if (await canLaunch(
+                                        "http://www.playnetworkafrica.com/public/terms")) {
+                                      await launch(
+                                          "http://www.playnetworkafrica.com/public/terms");
+                                    }
+                                  },
+                                ),
+                              ],
                             ),
                           ),
                           SizedBox(
@@ -847,6 +866,9 @@ class _RegisterState extends State<Register> {
                                                     .setData({
                                                       "uid":
                                                           currentUser.user.uid,
+                                                      'blockedUsers':
+                                                          FieldValue.arrayUnion(
+                                                              [key1]),
                                                       "name":
                                                           nameInputController
                                                               .text,

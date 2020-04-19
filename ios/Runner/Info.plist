@@ -23,17 +23,17 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>upload from camera</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>access to microphone</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>upload from library</string>
+	<string>Allow Access To Your Camera To Take a Picture</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-    <string>access to location always</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>access to location when in use</string>
+	<string>Allow Access to location always</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Allow Access To Your Current Location</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow Access To Your Microphone</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow Access To Your Photos To Upload</string>
 	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<string>Launch Screen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
